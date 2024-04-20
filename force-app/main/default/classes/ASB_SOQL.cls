@@ -1,4 +1,5 @@
 public with sharing class ASB_SOQL {
+  private static final System.AccessLevel DEFAULT_ACCESS_LEVEL = System.AccessLevel.USER_MODE;
   private static ASB_SOQL instance;
 
   public static ASB_SOQL instance() {
@@ -17,9 +18,17 @@ public with sharing class ASB_SOQL {
 
   public class SOQL {
     private final List<Clause> clauses;
+    private final AccessLevel accessLevel;
 
-    private SOQL(ASB_Select selectx, ASB_From fromx, ASB_Where wherex, ASB_Limit limitx) {
+    private SOQL(
+      ASB_Select selectx,
+      ASB_From fromx,
+      ASB_Where wherex,
+      ASB_Limit limitx,
+      AccessLevel accessLevel
+    ) {
       this.clauses = new List<Clause>{ selectx, fromx, wherex, limitx };
+      this.accessLevel = accessLevel;
     }
 
     public String queryString() {
@@ -32,6 +41,22 @@ public with sharing class ASB_SOQL {
 
       return queryStr.trim();
     }
+
+    public List<SObject> query() {
+      return Database.query(this.queryString(), this.accessLevel);
+    }
+
+    public List<SObject> query(Map<String, Object> bindMap) {
+      return Database.queryWithBinds(this.queryString(), bindMap, this.accessLevel);
+    }
+
+    public SObject querySingle() {
+      return Database.query(this.queryString(), this.accessLevel);
+    }
+
+    public SObject querySingle(Map<String, Object> bindMap) {
+      return Database.queryWithBinds(this.queryString(), bindMap, this.accessLevel);
+    }
   }
 
   public class Builder {
@@ -39,6 +64,7 @@ public with sharing class ASB_SOQL {
     private final ASB_From fromSObjectType;
     private ASB_Where whereClause;
     private ASB_Limit limitx;
+    private AccessLevel accessLevel = DEFAULT_ACCESS_LEVEL;
 
     private Builder(SObjectType fromSObjType) {
       this.fromSObjectType = new ASB_From(fromSObjType);
@@ -64,12 +90,18 @@ public with sharing class ASB_SOQL {
       return this;
     }
 
+    public Builder accessLevel(AccessLevel accessLevel) {
+      this.accessLevel = accessLevel;
+      return this;
+    }
+
     public ASB_SOQL.SOQL build() {
       return new ASB_SOQL.SOQL(
         this.selectElements,
         this.fromSObjectType,
         this.whereClause,
-        this.limitx
+        this.limitx,
+        this.accessLevel
       );
     }
   }

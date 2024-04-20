@@ -88,7 +88,11 @@ public class ASB_Where implements ConditionExpression, ASB_SOQL.Clause {
     }
 
     public String toSOQLString() {
-      return '\'' + this.value + '\'';
+      String s = this.value;
+      if (!s.startsWith(':')) {
+        s = '\'' + this.value + '\'';
+      }
+      return s;
     }
   }
 
