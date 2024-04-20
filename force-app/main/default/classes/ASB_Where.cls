@@ -122,7 +122,8 @@ public class ASB_Where implements ConditionExpression, ASB_SOQL.Clause {
 
   public enum ComparisonOperator {
     EQUALS,
-    NOT_EQUALS
+    NOT_EQUALS,
+    LIKEX
   }
 
   private static String comparisonOpVal(ComparisonOperator co) {
@@ -132,6 +133,9 @@ public class ASB_Where implements ConditionExpression, ASB_SOQL.Clause {
       }
       when NOT_EQUALS {
         return '!=';
+      }
+      when LIKEX {
+        return 'LIKE';
       }
     }
     return '';
