@@ -61,7 +61,7 @@ public class ASB_Where implements ConditionExpression, ASB_SOQL.Clause {
    * Appends a ConditionExpression to ASB_Where element joined with `AND` Logic Operator
    * @param expression `ConditionExpression` expression to append.
    */
-  public ASB_Where andx(ConditionExpression expression) {
+  public ASB_Where andx(ASB_Where expression) {
     this.add(expression, LogicalOperator.ANDX);
     return new ASB_Where(this);
   }
@@ -70,7 +70,7 @@ public class ASB_Where implements ConditionExpression, ASB_SOQL.Clause {
    * Appends a ConditionExpression to ASB_Where element joined with `OR` Logic Operator
    * @param expression `ConditionExpression` expression to append.
    */
-  public ASB_Where orx(ConditionExpression expression) {
+  public ASB_Where orx(ASB_Where expression) {
     this.add(expression, LogicalOperator.ORX);
     return new ASB_Where(this);
   }
