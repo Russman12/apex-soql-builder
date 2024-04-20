@@ -4,10 +4,10 @@
  * @author Russell Laboe
  * @group Apex SOQL Builder
  */
-public with sharing class ASB_From implements ASB_SOQL.Clause {
-  private final SObjectType sObj;
-  public ASB_From(SObjectType sObj) {
-    this.sObj = sObj;
+public class ASB_From implements ASB_SOQL.Clause {
+  private final SObjectType sObjectType;
+  public ASB_From(SObjectType sObjectType) {
+    this.sObjectType = sObjectType;
   }
 
   /**
@@ -15,6 +15,6 @@ public with sharing class ASB_From implements ASB_SOQL.Clause {
    * @return  `String`
    */
   public String toClauseString() {
-    return 'FROM ' + this.sObj;
+    return 'FROM ' + this.sObjectType.getDescribe().getName();
   }
 }
