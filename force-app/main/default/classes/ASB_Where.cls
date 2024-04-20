@@ -23,9 +23,7 @@ public class ASB_Where implements ConditionExpression, ASB_SOQL.Clause {
    * @param value     `String`
    */
   public ASB_Where(SObjectField field, ComparisonOperator operator, String value) {
-    Value val = new StringValue(value);
-    this.expressions = new List<ConditionExpression>{ new FieldExpression(field, operator, val) };
-    this.joiners = new List<LogicalOperator>();
+    this(field, operator, new StringValue(value));
   }
 
   /**

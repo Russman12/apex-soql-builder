@@ -19,6 +19,7 @@ private class ASB_Select_Test {
       'unexpected SELECT clause string returned'
     );
   }
+
   /**
    * Ensures add() appends element
    */
