@@ -145,7 +145,7 @@ public with sharing class ASB_SOQL {
     private Builder(SObjectType fromSObjType) {
       this.fromSObjectType = new ASB_From(fromSObjType);
       this.selectElements = new ASB_Select(
-        new Set<ASB_Select.SelectElement>{
+        new Set<ASB_Select.Element>{
           new ASB_Select.Field(fromSObjType.getDescribe().Fields.getMap().get('Id'))
         }
       );

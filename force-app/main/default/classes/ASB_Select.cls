@@ -4,20 +4,21 @@
  * @author Russell Laboe
  * @group Apex SOQL Builder
  */
-public with sharing class ASB_Select implements ASB_SOQL.Clause {
-  private final Set<SelectElement> elements;
+public class ASB_Select implements ASB_SOQL.Clause {
+  @testVisible
+  private final Set<Element> elements;
 
   /**
    * constructs new instance of ASB_Select
    */
-  public ASB_Select(Set<SelectElement> selectElements) {
+  public ASB_Select(Set<Element> selectElements) {
     this.elements = selectElements;
   }
 
   /**
    * adds SelectElement to clause
    */
-  public void add(SelectElement selectElement) {
+  public void add(Element selectElement) {
     this.elements.add(selectElement);
   }
 
@@ -27,7 +28,7 @@ public with sharing class ASB_Select implements ASB_SOQL.Clause {
    */
   public String toClauseString() {
     String s = '';
-    for (SelectElement element : this.elements) {
+    for (Element element : this.elements) {
       s += element.toSOQLString() + ', ';
     }
     return 'SELECT ' + s.removeEnd(', ');
@@ -36,7 +37,7 @@ public with sharing class ASB_Select implements ASB_SOQL.Clause {
   /**
    * represents a SObject Field SelectElement.
    */
-  public class Field implements SelectElement {
+  public class Field implements Element {
     private final SObjectField field;
 
     /**
@@ -57,7 +58,7 @@ public with sharing class ASB_Select implements ASB_SOQL.Clause {
   /**
    * Represents an object that can be added as a select clause element.
    */
-  public interface SelectElement {
+  public interface Element {
     String toSOQLString();
   }
 }
