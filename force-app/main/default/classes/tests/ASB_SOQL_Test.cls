@@ -4,6 +4,19 @@
  */
 @isTest
 private class ASB_SOQL_Test {
+  static final ASB_SOQL asbSOQL = ASB_SOQL.instance();
+
+  static final Mock asbSelectMock = Mock.forType(ASB_Select.class);
+  static final MethodSpy asbSelectMakeSpy = asbSelectMock.spyOn('make');
+
+  static final SelectElements selectElements = new SelectElements();
+
+  static {
+    ASB_SOQL.asbSelect = (ASB_Select) asbSelectMock.stub;
+
+    asbSelectMakeSpy.returns(selectElements);
+  }
+
   /**
    * ensures that the instance method returns singleton instance
    */
@@ -16,49 +29,180 @@ private class ASB_SOQL_Test {
   }
 
   /**
-   * ensures that `builder()` returns expected builder
+   * ensures that `make` is called as expected
    */
   @IsTest
-  static void builder() {
-    ASB_SOQL.Builder bldr = (ASB_SOQL.Builder) ASB_SOQL.instance().builder(Account.getSObjectType());
+  static void make() {
+    //arrange
+    SObjectType sObjType = Account.getSObjectType();
 
-    System.Assert.areEqual(Account.getSObjectType(), bldr.fromClause.sObjectType, 'unexpected fromSObjectType set');
-    System.Assert.isFalse(bldr.selectClause.elements.isEmpty(), 'select elements should not be empty');
+    //act
+    ASB_SOQL.Buildable bldr = asbSOQL.builder(sObjType);
+
+    //assert
+    Expect.that(asbSelectMakeSpy).hasBeenCalledWith(sObjType);
   }
 
   /**
-   * ensures that `builder.build()` creates `ASB_SOQL.SOQL` with expected select clause.
+   * ensures that `builder.selectx(SObjectField field)` calls selectElements `add()` method as expected
    */
   @IsTest
-  static void builderBuildSelect() {
-    ASB_SOQL.SOQL soql = (ASB_SOQL.SOQL) ASB_SOQL.instance()
-      .builder(Account.getSObjectType())
-      .selectx(Account.Name)
-      .build();
+  static void builderSelect1Field() {
+    //arrange
+    SObjectField field = Account.Name;
 
-    System.Assert.areEqual('SELECT Id, Name', soql.clauses[0].toClauseString(), 'unexpected clause string returned');
+    //act
+    ASB_SOQL.Buildable bldr = asbSOQL.builder(Account.getSObjectType()).selectx(field);
+
+    //assert
+    System.Assert.areEqual(1, selectElements.calls.get('add').size(), 'add method not called');
+    System.Assert.areEqual(1, selectElements.calls.get('add')[0].size(), 'wrong add method called');
+    System.Assert.areEqual(field, selectElements.calls.get('add')[0][0], 'add method not called as expected');
   }
 
   /**
-   * ensures that `builder.build()` creates `ASB_SOQL.SOQL` with expected from clause.
+   * ensures that `builder.selectx(SObjectField relationshipField, SObjectField field)` calls selectElements `add()` method as expected
    */
   @IsTest
-  static void builderBuildFrom() {
-    ASB_SOQL.SOQL soql = (ASB_SOQL.SOQL) ASB_SOQL.instance().builder(Account.getSObjectType()).build();
+  static void builderSelect2Fields() {
+    //arrange
+    SObjectField relField = Account.OwnerId;
+    SObjectField field = User.Id;
 
-    System.Assert.areEqual('FROM Account', soql.clauses[1].toClauseString(), 'unexpected clause string returned');
+    //act
+    ASB_SOQL.Buildable bldr = asbSOQL.builder(Account.getSObjectType()).selectx(relField, field);
+
+    //assert
+    System.Assert.areEqual(1, selectElements.calls.get('add').size(), 'add method not called');
+    System.Assert.areEqual(2, selectElements.calls.get('add')[0].size(), 'wrong add method called');
+    System.Assert.areEqual(relField, selectElements.calls.get('add')[0][0], 'add method not called as expected');
+    System.Assert.areEqual(field, selectElements.calls.get('add')[0][1], 'add method not called as expected');
   }
 
   /**
-   * ensures that `builder.build()` creates `ASB_SOQL.SOQL` with expected where clause.
+   * ensures that `builder.selectx(SObjectField relationshipField, SObjectField field)` calls selectElements `add()` method as expected
    */
   @IsTest
-  static void builderBuildWhere() {
-    ASB_SOQL.SOQL soql = (ASB_SOQL.SOQL) ASB_SOQL.instance().builder(Account.getSObjectType()).wherex().build();
+  static void builderSelectElements() {
+    // arrange
+    SelectElements testElements = new SelectElements();
 
-    System.Assert.areEqual('WHERE Account', soql.clauses[1].toClauseString(), 'unexpected clause string returned');
+    //act
+    ASB_SOQL.Buildable bldr = asbSOQL.builder(Account.getSObjectType()).selectx(testElements);
+
+    //assert
+    System.Assert.areEqual(1, selectElements.calls.get('combine').size(), 'combine method not called');
+    System.Assert.areEqual(1, selectElements.calls.get('combine')[0].size(), 'wrong combine method called');
+    System.Assert.areEqual(
+      testElements,
+      selectElements.calls.get('combine')[0][0],
+      'combine method not called as expected'
+    );
   }
 
-  private class DummyConditionalExpression extends ASB_Where {
+  /**
+   * ensures that `builder.selectx(SObjectField relationshipField, SObjectField field)` calls selectElements `add()` method as expected
+   */
+  @IsTest
+  static void builderWhere() {
+    // // arrange
+    // WhereExp wherex = new WhereExp();
+
+    // //act
+    // ASB_SOQL.Buildable bldr = asbSOQL.builder(Account.getSObjectType()).wherex(wherex);
+
+    // //assert
+    // System.Assert.areEqual(1, selectElements.calls.get('combine').size(), 'combine method not called');
+    // System.Assert.areEqual(1, selectElements.calls.get('combine')[0].size(), 'wrong combine method called');
+    // System.Assert.areEqual(
+    //   testElements,
+    //   selectElements.calls.get('combine')[0][0],
+    //   'combine method not called as expected'
+    // );
   }
+
+  // wherex(ASB_Where.Expression whereClause)
+  // limitx(Integer limitx);
+  // accessLevel(System.AccessLevel accessLevel);
+  // build();
+
+  private class SelectElements implements ASB_Select.Elements {
+    Map<String, List<List<Object>>> calls = new Map<String, List<List<Object>>>();
+
+    public SelectElements add(SObjectField sObjField) {
+      this.addCall('add', new List<Object>{ sObjField });
+      return this;
+    }
+    public SelectElements add(SObjectField relationshipField, SObjectField sObjField) {
+      this.addCall('add', new List<Object>{ relationshipField, sObjField });
+      return this;
+    }
+    public SelectElements combine(ASB_Select.Elements selects) {
+      this.addCall('combine', new List<Object>{ selects });
+      return this;
+    }
+    public ASB_SOQLClause toClause() {
+      this.addCall('toClause', null);
+      return new Clause();
+    }
+
+    public void addCall(String methodName, List<Object> args) {
+      if (!this.calls.keyset().contains(methodName)) {
+        this.calls.put(methodName, new List<List<Object>>());
+      }
+      this.calls.get(methodName).add(args);
+    }
+  }
+
+  private class Clause implements ASB_SOQLClause {
+    Map<String, List<List<Object>>> calls = new Map<String, List<List<Object>>>();
+
+    public String toClauseString() {
+      this.addCall('toClauseString', null);
+      return 'my clause';
+    }
+
+    public void addCall(String methodName, List<Object> args) {
+      if (!this.calls.keyset().contains(methodName)) {
+        this.calls.put(methodName, new List<List<Object>>());
+      }
+      this.calls.get(methodName).add(args);
+    }
+  }
+
+  // private class WhereExp implements ASB_Where.Expression {
+  //   Map<String, List<List<Object>>> calls = new Map<String, List<List<Object>>>();
+
+  //   public WhereExp andx(ASB_Where.Expression expression) {
+  //     this.addCall('andx', null);
+  //     return this;
+  //   }
+  //   public ASB_Where.Expression andx(SObjectField field, ComparisonOperator operator, Object value) {
+  //     this.addCall('andx', null);
+  //     return this;
+  //   }
+  //   public WhereExp orx(ASB_Where.Expression expression) {
+  //     this.addCall('orx', null);
+  //     return this;
+  //   }
+  //   public ASB_Where.Expression orx(SObjectField field, ComparisonOperator operator, Object value) {
+  //     this.addCall('orx', null);
+  //     return this;
+  //   }
+  //   public WhereExp group() {
+  //     this.addCall('group', null);
+  //     return this;
+  //   }
+  //   public ASB_SOQLClause toClause() {
+  //     this.addCall('toClause', null);
+  //     return new Clause();
+  //   }
+
+  //   public void addCall(String methodName, List<Object> args) {
+  //     if (!this.calls.keyset().contains(methodName)) {
+  //       this.calls.put(methodName, new List<List<Object>>());
+  //     }
+  //     this.calls.get(methodName).add(args);
+  //   }
+  // }
 }
