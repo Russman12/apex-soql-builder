@@ -18,6 +18,7 @@ public class ASB_Limit {
     return new ASB_Limit.Clause(limitx);
   }
 
+  @TestVisible
   private class Clause implements ASB_SOQLClause {
     private final Integer limitx;
     private Clause(Integer limitx) {

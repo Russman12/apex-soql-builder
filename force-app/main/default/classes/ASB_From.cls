@@ -18,6 +18,7 @@ public class ASB_From {
     return new ASB_From.Clause(sObjectType);
   }
 
+  @TestVisible
   private class clause implements ASB_SOQLClause {
     @TestVisible
     private final SObjectType sObjectType;
