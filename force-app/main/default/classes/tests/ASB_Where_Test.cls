@@ -4,70 +4,163 @@
  */
 @isTest
 private class ASB_Where_Test {
-  /**
-   * Ensures toClauseString() returns expected clause String with provided ConditionExpression
-   */
-  @isTest
-  static void toClauseString() {
-    ASB_Where ce1 = new ASB_Where(Account.Name, ASB_Where.ComparisonOperator.LIKEX, '%my-name1%');
-    ASB_Where ce2 = new ASB_Where(Account.Id, ASB_Where.ComparisonOperator.NOT_EQUALS, '1234')
-      .orx(new ASB_Where(Account.Type, ASB_Where.ComparisonOperator.EQUALS, 'Turkey'));
-    ASB_Where ce3 = ce1.andx(ce2);
+  static ASB_Where asbWhere = ASB_Where.instance();
 
-    System.Assert.areEqual(
-      'WHERE Name LIKE \'%my-name1%\' AND (Id != \'1234\' OR Type = \'Turkey\')',
-      ce3.toClauseString(),
-      'unexpected WHERE clause string returned'
+  /**
+   * Ensures `ASB_Where.instance()` returns singleton instance
+   */
+  @IsTest
+  static void instance() {
+    ASB_Where inst1 = ASB_Where.instance();
+    ASB_Where inst2 = ASB_Where.instance();
+
+    System.Assert.areEqual(inst1, inst2, 'class not a singleton');
+  }
+
+  /**
+   * Ensures `expression(SObjectField field, ComparisonOperator operator, Object value)` returns `ASB_Where.ConditionExpression`
+   */
+  @IsTest
+  static void expression() {
+    System.Assert.isInstanceOfType(
+      asbWhere.expression(Account.Name, ASB_Where.EQUALS, 'fred'),
+      ASB_Where.ConditionExpression.class,
+      'unexpected type returned'
     );
   }
 
   /**
-   * Ensures toSOQLString() returns expected String when constructed with String Value
+   * Ensures `expression(SObjectField field, ComparisonOperator operator, Object value)` throws
+   * expected exception if the value type is unhandled
    */
-  @isTest
-  static void toSOQLStringStringVal() {
+  @IsTest
+  static void expressionUnhandledValueType() {
+    try {
+      asbWhere.expression(Account.Name, ASB_Where.EQUALS, new DummyValue());
+      System.Assert.fail('expected exception not thrown');
+    } catch (Exception e) {
+      System.Assert.isInstanceOfType(e, ASB_Where.ASB_WhereException.class, 'unexpected exception thrown');
+    }
+  }
+
+  /**
+   * ensures `andx(Expression expression)` adds simple expression as expected
+   */
+  @IsTest
+  static void andxExpression() {
+    ASB_Where.Expression exp1 = asbWhere.expression(Account.Id, ASB_Where.EQUALS, '123');
+    ASB_Where.Expression testExp = asbWhere.expression(Account.Name, ASB_Where.EQUALS, 'fred').andx(exp1);
+
     System.Assert.areEqual(
-      'Name = \'my-name1\'',
-      new ASB_Where(Account.Name, ASB_Where.ComparisonOperator.EQUALS, 'my-name1').toSOQLString(),
-      'unexpected SOQL string returned'
+      'WHERE Name = \'fred\' AND Id = \'123\'',
+      testExp.toClause().toClauseString(),
+      'unexpected clause string returned'
     );
   }
 
   /**
-   * Ensures toSOQLString() returns expected String when constructed with String Value
+   * ensures `andx(Expression expression)` adds multiple expressions as expected
    */
-  @isTest
-  static void toSOQLStringStringValBind() {
+  @IsTest
+  static void andxExpressionMulti() {
+    ASB_Where.Expression exp1 = asbWhere.expression(Account.Id, ASB_Where.EQUALS, '123');
+    ASB_Where.Expression exp2 = asbWhere.expression(Account.Type, ASB_Where.EQUALS, 'Customer');
+    ASB_Where.Expression testExp = asbWhere.expression(Account.Name, ASB_Where.EQUALS, 'fred').andx(exp1).andx(exp2);
+
     System.Assert.areEqual(
-      'Name = :var',
-      new ASB_Where(Account.Name, ASB_Where.ComparisonOperator.EQUALS, ':var').toSOQLString(),
-      'unexpected SOQL string returned'
+      'WHERE Name = \'fred\' AND Id = \'123\' AND Type = \'Customer\'',
+      testExp.toClause().toClauseString(),
+      'unexpected clause string returned'
     );
   }
 
   /**
-   * Ensures toSOQLString() returns expected String when constructed with an Integer Value
+   * ensures `andx(Expression expression)` adds complex expressions as expected
    */
-  @isTest
-  static void toSOQLStringIntVal() {
+  @IsTest
+  static void andxExpressionComplex() {
+    ASB_Where.Expression exp1 = asbWhere.expression(Account.Id, ASB_Where.NOT_EQUALS, '123');
+    ASB_Where.Expression exp2 = asbWhere.expression(Account.Type, ASB_Where.EQUALS, 'Customer').andx(exp1);
+    ASB_Where.Expression testExp = asbWhere.expression(Account.Name, ASB_Where.LIKEX, 'fred').andx(exp2);
+
     System.Assert.areEqual(
-      'Name = 10',
-      new ASB_Where(Account.Name, ASB_Where.ComparisonOperator.EQUALS, 10).toSOQLString(),
-      'unexpected SOQL string returned'
+      'WHERE Name LIKE \'fred\' AND (Type = \'Customer\' AND Id != \'123\')',
+      testExp.toClause().toClauseString(),
+      'unexpected clause string returned'
     );
   }
 
   /**
-   * Ensures toSOQLString() returns expected String when constructed with String Value
+   * ensures `andx(SObjectField field, ComparisonOperator operator, String value)` adds expected expression
    */
-  @isTest
-  static void toSOQLStringMultiItem() {
+  @IsTest
+  static void andxField() {
+    ASB_Where.Expression testExp = asbWhere.expression(Account.Id, ASB_Where.EQUALS, '123')
+      .andx(Account.Type, ASB_Where.EQUALS, 'Customer');
+
     System.Assert.areEqual(
-      '(Name = \'my-name1\' OR Id != \'1234\')',
-      new ASB_Where(Account.Name, ASB_Where.ComparisonOperator.EQUALS, 'my-name1')
-        .orx(new ASB_Where(Account.Id, ASB_Where.ComparisonOperator.NOT_EQUALS, '1234'))
-        .toSOQLString(),
-      'unexpected SOQL string returned'
+      'WHERE Id = \'123\' AND Type = \'Customer\'',
+      testExp.toClause().toClauseString(),
+      'unexpected clause string returned'
     );
+  }
+
+  /**
+   * ensures `andx(SObjectField field, ComparisonOperator operator, String value)` adds expected expression when called multiple times
+   */
+  @IsTest
+  static void andxFieldMulti() {
+    ASB_Where.Expression testExp = asbWhere.expression(Account.Id, ASB_Where.EQUALS, '123')
+      .andx(Account.Name, ASB_Where.EQUALS, 'fred')
+      .andx(Account.Type, ASB_Where.EQUALS, 'Customer');
+
+    System.Assert.areEqual(
+      'WHERE Id = \'123\' AND Name = \'fred\' AND Type = \'Customer\'',
+      testExp.toClause().toClauseString(),
+      'unexpected clause string returned'
+    );
+  }
+
+  /**
+   * ensures a complex scanerio produces expected clause
+   */
+  @IsTest
+  static void complex1() {
+    ASB_Where.Expression exp1 = asbWhere.expression(Account.Industry, ASB_Where.EQUALS, 'Technology')
+      .andx(Account.Type, ASB_Where.NOT_EQUALS, 'Customer');
+    ASB_Where.Expression testExp = asbWhere.expression(Account.Name, ASB_Where.LIKEX, ':name')
+      .andx(Account.Type, ASB_Where.EQUALS, 'Customer')
+      .andx(Account.NumberOfEmployees, ASB_Where.EQUALS, 100)
+      .group()
+      .orx(exp1);
+
+    System.Assert.areEqual(
+      'WHERE (Name LIKE :name AND Type = \'Customer\' AND NumberOfEmployees = 100) OR (Industry = \'Technology\' AND Type != \'Customer\')',
+      testExp.toClause().toClauseString(),
+      'unexpected clause string returned'
+    );
+  }
+
+  /**
+   * ensures a complex scanerio produces expected clause
+   */
+  @IsTest
+  static void complex2() {
+    ASB_Where.Expression exp1 = asbWhere.expression(Account.Industry, ASB_Where.EQUALS, 'Technology')
+      .orx(Account.Type, ASB_Where.NOT_EQUALS, 'Customer');
+    ASB_Where.Expression testExp = asbWhere.expression(Account.Name, ASB_Where.LIKEX, ':name')
+      .orx(Account.Type, ASB_Where.EQUALS, 'Customer')
+      .orx(Account.NumberOfEmployees, ASB_Where.EQUALS, 100)
+      .group()
+      .andx(exp1);
+
+    System.Assert.areEqual(
+      'WHERE (Name LIKE :name OR Type = \'Customer\' OR NumberOfEmployees = 100) AND (Industry = \'Technology\' OR Type != \'Customer\')',
+      testExp.toClause().toClauseString(),
+      'unexpected clause string returned'
+    );
+  }
+
+  private class DummyValue {
   }
 }

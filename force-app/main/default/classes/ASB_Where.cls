@@ -5,9 +5,9 @@
  * @group Apex SOQL Builder
  */
 public class ASB_Where {
-  public static final ComparisonOperator CO_EQUALS = ComparisonOperator.EQUALS;
-  public static final ComparisonOperator CO_NOT_EQUALS = ComparisonOperator.NOT_EQUALS;
-  public static final ComparisonOperator CO_LIKEX = ComparisonOperator.LIKEX;
+  public static final ComparisonOperator EQUALS = ComparisonOperator.EQUALS;
+  public static final ComparisonOperator NOT_EQUALS = ComparisonOperator.NOT_EQUALS;
+  public static final ComparisonOperator LIKEX = ComparisonOperator.LIKEX;
 
   private static ASB_Where instance;
 
@@ -53,12 +53,14 @@ public class ASB_Where {
      */
     Expression andx(Expression expression);
     Expression andx(SObjectField field, ComparisonOperator operator, String value);
+    Expression andx(SObjectField field, ComparisonOperator operator, Integer value);
 
     /**
      * Join expression with `OR` `LogicalOperator`. If an expression is provided, it will be joined as a group.
      */
     Expression orx(Expression expression);
     Expression orx(SObjectField field, ComparisonOperator operator, String value);
+    Expression orx(SObjectField field, ComparisonOperator operator, Integer value);
 
     /**
      * Group current expression (ie, wraps in `()`)
@@ -75,6 +77,7 @@ public class ASB_Where {
     String toSOQLString();
   }
 
+  @TestVisible
   private class ConditionExpression implements Expression, ExpressionComposite {
     private final List<ExpressionComposite> expressions;
     private final List<LogicalOperator> joiners;
@@ -105,14 +108,14 @@ public class ASB_Where {
     public Expression andx(Expression expression) {
       return this.add((ConditionExpression) expression, LogicalOperator.ANDX);
     }
-    public Expression andx(SObjectField field, ComparisonOperator operator, String value) {
+    public Expression andx(SObjectField field, ComparisonOperator operator, Object value) {
       return this.add(field, operator, makeValue(value), LogicalOperator.ANDX);
     }
 
     public Expression orx(Expression expression) {
       return this.add((ConditionExpression) expression, LogicalOperator.ORX);
     }
-    public Expression orx(SObjectField field, ComparisonOperator operator, String value) {
+    public Expression orx(SObjectField field, ComparisonOperator operator, Object value) {
       return this.add(field, operator, makeValue(value), LogicalOperator.ORX);
     }
 
@@ -197,7 +200,7 @@ public class ASB_Where {
       return new NumberValue(o);
     }
 
-    return null;
+    throw new ASB_WhereException('Unhandled value type: ' + o);
   }
 
   /**
@@ -257,40 +260,35 @@ public class ASB_Where {
     NOT_EQUALS,
     LIKEX
   }
-
-  /**
-   * Returns SOQL String form of given ComparisonOperator
-   * @return `String`
-   */
   private static String comparisonOpVal(ComparisonOperator co) {
     switch on co {
-      when EQUALS {
-        return '=';
-      }
       when NOT_EQUALS {
         return '!=';
       }
       when LIKEX {
         return 'LIKE';
       }
+      when else {
+        return '=';
+      }
     }
-    return '';
   }
 
   private enum LogicalOperator {
     ANDX,
     ORX
   }
-
   private static String logicalOpVal(LogicalOperator lo) {
     switch on lo {
-      when ANDX {
-        return 'AND';
-      }
       when ORX {
         return 'OR';
       }
+      when else {
+        return 'AND';
+      }
     }
-    return '';
+  }
+
+  public class ASB_WhereException extends Exception {
   }
 }
