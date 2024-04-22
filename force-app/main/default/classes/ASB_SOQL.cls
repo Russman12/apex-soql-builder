@@ -23,6 +23,10 @@ public with sharing class ASB_SOQL {
   private static final System.AccessLevel DEFAULT_ACCESS_LEVEL = System.AccessLevel.SYSTEM_MODE;
   private static ASB_SOQL instance;
 
+  private static ASB_Select asbSelect = ASB_Select.instance();
+  private static ASB_From asbFrom = ASB_From.instance();
+  private static ASB_Limit asbLimit = ASB_Limit.instance();
+
   /**
    * Returns singleton instance of ASB_SOQL builder factory
    * @return  `ASB_SOQL`
@@ -45,15 +49,54 @@ public with sharing class ASB_SOQL {
    * @param fromSObjType SObjectType for which builder to be constructed
    * @return  `Builder`
    */
-  public Builder builder(SObjectType fromSObjType) {
+  public Buildable builder(SObjectType fromSObjType) {
     return new Builder(fromSObjType);
+  }
+
+  public interface Queryable {
+    String queryString();
+    List<SObject> query();
+    List<SObject> query(Map<String, Object> bindMap);
+    SObject querySingle();
+    SObject querySingle(Map<String, Object> bindMap);
+  }
+
+  public interface Buildable {
+    /**
+     * add select elements to statement
+     */
+    Buildable selectx(SObjectField field);
+    Buildable selectx(SObjectField relationshipField, SObjectField field);
+    Buildable selectx(ASB_Select.Elements field);
+
+    /**
+     * set where element
+     */
+    Buildable wherex(ASB_Where.Expression whereClause);
+
+    /**
+     * set limit element
+     */
+    Buildable limitx(Integer limitx);
+
+    /**
+     * Set query access level
+     */
+    Buildable accessLevel(System.AccessLevel accessLevel);
+
+    /**
+     * build SOQL object
+     */
+    Queryable build();
   }
 
   /**
    * This class handles the responsiblities of a SOQL query.
    */
-  public class SOQL {
-    private final List<Clause> clauses;
+  public class SOQL implements Queryable {
+    @TestVisible
+    private final List<ASB_SOQLClause> clauses;
+    @TestVisible
     private final AccessLevel accessLevel;
 
     /**
@@ -66,13 +109,13 @@ public with sharing class ASB_SOQL {
      * @param accessLevel accessLevel used when executing query
      */
     private SOQL(
-      ASB_Select selectx,
-      ASB_From fromx,
-      ASB_Where wherex,
-      ASB_Limit limitx,
+      ASB_SOQLClause selectx,
+      ASB_SOQLClause fromx,
+      ASB_SOQLClause wherex,
+      ASB_SOQLClause limitx,
       System.AccessLevel accessLevel
     ) {
-      this.clauses = new List<Clause>{ selectx, fromx, wherex, limitx };
+      this.clauses = new List<ASB_SOQLClause>{ selectx, fromx, wherex, limitx };
       this.accessLevel = accessLevel;
     }
 
@@ -82,7 +125,7 @@ public with sharing class ASB_SOQL {
      */
     public String queryString() {
       String queryStr = '';
-      for (Clause clause : this.clauses) {
+      for (ASB_SOQLClause clause : this.clauses) {
         if (clause != null) {
           queryStr += clause.toClauseString() + ' ';
         }
@@ -130,44 +173,46 @@ public with sharing class ASB_SOQL {
    * Builder responsibile for procedural construction of SOQL. This class should be constructed from the top
    * level factory instance like `ASB_SOQL.instance().builder(Account.getSObjectType())`
    */
-  public class Builder {
-    private final ASB_Select selectElements;
-    private final ASB_From fromSObjectType;
-    private ASB_Where whereClause;
-    private ASB_Limit limitx;
+  private class Builder implements Buildable {
+    @TestVisible
+    private ASB_Select.Elements selects;
+    @TestVisible
+    private final ASB_SOQLClause fromClause;
+    @TestVisible
+    private ASB_Where.Expression expression;
+    @TestVisible
+    private ASB_SOQLClause limitClause;
+    @TestVisible
     private System.AccessLevel accessLevel = DEFAULT_ACCESS_LEVEL;
 
-    /**
-     * Creates new Builder instance for given SObjectType. This is private as it should only be
-     * constructed from the top level factory instance.
-     * @param fromSObjType SObjectType for which SOQL should be built
-     */
+    @TestVisible
     private Builder(SObjectType fromSObjType) {
-      this.fromSObjectType = new ASB_From(fromSObjType);
-      this.selectElements = new ASB_Select(
-        new Set<ASB_Select.Element>{
-          new ASB_Select.Field(fromSObjType.getDescribe().Fields.getMap().get('Id'))
-        }
-      );
+      this.fromClause = asbFrom.clause(fromSObjType);
+      this.selects = asbSelect.make(fromSObjType);
     }
 
-    /**
-     * Adds SObjectField to SELECT clause
-     * @param field SObjectField to add to select clause
-     * @return  `Builder`
-     */
     public Builder selectx(SObjectField field) {
-      this.selectElements.add(new ASB_Select.Field(field));
+      this.selects = this.selects.add(field);
+      return this;
+    }
+
+    public Builder selectx(SObjectField relationshipField, SObjectField field) {
+      this.selects = this.selects.add(relationshipField, field);
+      return this;
+    }
+
+    public Builder selectx(ASB_Select.Elements selects) {
+      this.selects = this.selects.combine(selects);
       return this;
     }
 
     /**
      * Sets the WHERE clause
-     * @param whereClause ASB_Where which represents clause
+     * @param conditionExpression ASB_Where.ConditionExpression which represents clause
      * @return  `Builder`
      */
-    public Builder wherex(ASB_Where whereClause) {
-      this.whereClause = whereClause;
+    public Builder wherex(ASB_Where.Expression conditionExpression) {
+      this.expression = conditionExpression;
       return this;
     }
 
@@ -177,7 +222,7 @@ public with sharing class ASB_SOQL {
      * @return  `Builder`
      */
     public Builder limitx(Integer limitx) {
-      this.limitx = new ASB_Limit(limitx);
+      this.limitClause = asbLimit.clause(limitx);
       return this;
     }
 
@@ -195,25 +240,14 @@ public with sharing class ASB_SOQL {
      * Compiles builder instance into functional SOQL object
      * @return  `SOQL`
      */
-    public SOQL build() {
+    public Queryable build() {
       return new SOQL(
-        this.selectElements,
-        this.fromSObjectType,
-        this.whereClause,
-        this.limitx,
+        this.selects.toClause(),
+        this.fromClause,
+        this.expression?.toClause(),
+        this.limitClause,
         this.accessLevel
       );
     }
-  }
-
-  /**
-   * A clause element used in a SOQL string.
-   */
-  public interface Clause {
-    /**
-     * Returns a complete clause as a string
-     * @return  `String`
-     */
-    String toClauseString();
   }
 }

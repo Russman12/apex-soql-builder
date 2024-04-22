@@ -9,7 +9,7 @@ private class ASB_Select_Test {
    */
   @isTest
   static void toClauseStringFields() {
-    Set<ASB_Select.Element> selectElements = new Set<ASB_Select.Element>{
+    Set<ASB_Select.Selectable> selectElements = new Set<ASB_Select.Selectable>{
       new ASB_Select.Field(Account.Id),
       new ASB_Select.Field(Account.Name)
     };
@@ -25,15 +25,10 @@ private class ASB_Select_Test {
    */
   @isTest
   static void addAppendsElement() {
-    ASB_Select.Element nameFieldElement = new ASB_Select.Field(Account.Name);
-    ASB_Select selectx = new ASB_Select(
-      new Set<ASB_Select.Element>{ new ASB_Select.Field(Account.Id) }
-    );
+    ASB_Select.Selectable nameFieldElement = new ASB_Select.Field(Account.Name);
+    ASB_Select selectx = new ASB_Select(new Set<ASB_Select.Selectable>{ new ASB_Select.Field(Account.Id) });
     selectx.add(nameFieldElement);
 
-    System.Assert.isTrue(
-      selectx.elements.contains(nameFieldElement),
-      'expected name field element not added'
-    );
+    System.Assert.isTrue(selectx.elements.contains(nameFieldElement), 'expected name field element not added');
   }
 }

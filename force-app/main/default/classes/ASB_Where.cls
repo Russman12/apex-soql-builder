@@ -4,119 +4,169 @@
  * @author Russell Laboe
  * @group Apex SOQL Builder
  */
-public class ASB_Where implements ConditionExpression, ASB_SOQL.Clause {
-  protected final List<ConditionExpression> expressions;
-  protected final List<LogicalOperator> joiners;
+public class ASB_Where {
+  public static final ComparisonOperator CO_EQUALS = ComparisonOperator.EQUALS;
+  public static final ComparisonOperator CO_NOT_EQUALS = ComparisonOperator.NOT_EQUALS;
+  public static final ComparisonOperator CO_LIKEX = ComparisonOperator.LIKEX;
 
-  /**
-   * Private constructor to create duplicate instance.
-   */
-  private ASB_Where(ASB_Where asbWhere) {
-    this.expressions = asbWhere.expressions;
-    this.joiners = asbWhere.joiners;
+  private static ASB_Where instance;
+
+  public static ASB_Where instance() {
+    if (instance == null) {
+      instance = new ASB_Where();
+    }
+    return instance;
+  }
+
+  public Expression expression(SObjectField field, ComparisonOperator operator, Object value) {
+    return new ConditionExpression(field, operator, makeValue(value));
+  }
+
+  private class Clause implements ASB_SOQLClause {
+    protected final ConditionExpression expression;
+
+    /**
+     * Constructs new instance with SObjectField,
+     * @param field     `SObjectField`
+     * @param operator  `ComparisonOperator`
+     * @param value     `String`
+     */
+    private Clause(ConditionExpression expression) {
+      this.expression = expression;
+    }
+
+    /**
+     * Returns WHERE clause as SOQL String. Removes top level parentheses if necessary.
+     * @return `String`
+     */
+    public String toClauseString() {
+      return 'WHERE ' + this.expression.toSOQLString().removeStart('(').removeEnd(')');
+    }
   }
 
   /**
-   * Constructs new instance with SObjectField,
-   * @param field     `SObjectField`
-   * @param operator  `ComparisonOperator`
-   * @param value     `String`
+   * Defines the structure of ConditionExpression component of WHERE clause.
    */
-  public ASB_Where(SObjectField field, ComparisonOperator operator, String value) {
-    this(field, operator, new StringValue(value));
+  public interface Expression {
+    /**
+     * Join an expression with `AND` `LogicalOperator`. If an expression is provided, it will be joined as a group.
+     */
+    Expression andx(Expression expression);
+    Expression andx(SObjectField field, ComparisonOperator operator, String value);
+
+    /**
+     * Join expression with `OR` `LogicalOperator`. If an expression is provided, it will be joined as a group.
+     */
+    Expression orx(Expression expression);
+    Expression orx(SObjectField field, ComparisonOperator operator, String value);
+
+    /**
+     * Group current expression (ie, wraps in `()`)
+     */
+    Expression group();
+
+    /**
+     * Returns expression as complete WHERE clause
+     */
+    ASB_SOQLClause toClause();
   }
 
-  /**
-   * Constructs new instance with SObjectField,
-   * @param field     `SObjectField`
-   * @param operator  `ComparisonOperator`
-   * @param value     `Integer`
-   */
-  public ASB_Where(SObjectField field, ComparisonOperator operator, Integer value) {
-    this(field, operator, new NumberValue(value));
+  private interface ExpressionComposite {
+    String toSOQLString();
   }
 
-  /**
-   * Private constructor used to construct a new instance with a Value
-   * @param field     `SObjectField`
-   * @param operator  `ComparisonOperator`
-   * @param value     `Value`
-   */
-  private ASB_Where(SObjectField field, ComparisonOperator operator, Value value) {
-    this(new FieldExpression(field, operator, value));
-  }
+  private class ConditionExpression implements Expression, ExpressionComposite {
+    private final List<ExpressionComposite> expressions;
+    private final List<LogicalOperator> joiners;
 
-  /**
-   * Private constructor used to construct a new instance with FieldExpression
-   * @param expression  `FieldExpression`
-   */
-  private ASB_Where(FieldExpression expression) {
-    this.expressions = new List<ConditionExpression>{ expression };
-    this.joiners = new List<LogicalOperator>();
-  }
+    private ConditionExpression(ConditionExpression exp) {
+      this.expressions = exp.expressions.clone();
+      this.joiners = exp.joiners.clone();
+    }
 
-  /**
-   * Appends a ConditionExpression to ASB_Where element joined with `AND` Logic Operator
-   * @param expression `ConditionExpression` expression to append.
-   */
-  public ASB_Where andx(ASB_Where expression) {
-    this.add(expression, LogicalOperator.ANDX);
-    return new ASB_Where(this);
-  }
+    private ConditionExpression(List<ExpressionComposite> expressions, List<LogicalOperator> joiners) {
+      this.expressions = expressions;
+      this.joiners = joiners;
+    }
 
-  /**
-   * Appends a ConditionExpression to ASB_Where element joined with `OR` Logic Operator
-   * @param expression `ConditionExpression` expression to append.
-   */
-  public ASB_Where orx(ASB_Where expression) {
-    this.add(expression, LogicalOperator.ORX);
-    return new ASB_Where(this);
-  }
+    private ConditionExpression(SObjectField field, ComparisonOperator operator, Value value) {
+      this.expressions = new List<ExpressionComposite>{ new FieldExpression(field, operator, value) };
+      this.joiners = new List<LogicalOperator>();
+    }
 
-  /**
-   * Appends a ConditionExpression to ASB_Where element joined with given Logic Operator. For internal use only. Use `orx(expression)` or `andx(expression)` instead
-   * @param expression `ConditionExpression` expression to append.
-   * @param logicalOperator `LogicalOperator` expression to append.
-   */
-  private void add(ConditionExpression expression, LogicalOperator logicalOperator) {
-    this.expressions.add(expression);
-    this.joiners.add(logicalOperator);
-  }
+    public Expression group() {
+      ConditionExpression condExp = new ConditionExpression(
+        new List<ExpressionComposite>{ this },
+        new List<LogicalOperator>()
+      );
+      return condExp;
+    }
 
-  /**
-   * Returns ASB_SOQL content as SOQL String. This does not include the clause statement and wraps in parentheses only if necessary.
-   * @return `String`
-   */
-  public virtual String toSOQLString() {
-    String s = '';
+    public Expression andx(Expression expression) {
+      return this.add((ConditionExpression) expression, LogicalOperator.ANDX);
+    }
+    public Expression andx(SObjectField field, ComparisonOperator operator, String value) {
+      return this.add(field, operator, makeValue(value), LogicalOperator.ANDX);
+    }
 
-    for (Integer i = 0; i < this.expressions.size(); i++) {
-      ConditionExpression currentExpression = this.expressions[i];
+    public Expression orx(Expression expression) {
+      return this.add((ConditionExpression) expression, LogicalOperator.ORX);
+    }
+    public Expression orx(SObjectField field, ComparisonOperator operator, String value) {
+      return this.add(field, operator, makeValue(value), LogicalOperator.ORX);
+    }
 
-      s += currentExpression.toSOQLString();
-      if (i < this.joiners.size()) {
-        s += ' ' + logicalOpVal(this.joiners[i]) + ' ';
+    private ConditionExpression add(ConditionExpression expression, LogicalOperator logicalOperator) {
+      ConditionExpression newExp = this.duplicate();
+      newExp.expressions.add(expression);
+      newExp.joiners.add(logicalOperator);
+      return newExp;
+    }
+
+    public Expression add(
+      SObjectField field,
+      ComparisonOperator operator,
+      Value value,
+      LogicalOperator logicalOperator
+    ) {
+      return this.add(new ConditionExpression(field, operator, value), logicalOperator);
+    }
+
+    private ConditionExpression duplicate() {
+      return new ConditionExpression(this);
+    }
+
+    /**
+     * Returns ASB_SOQL content as SOQL String. This does not include the clause statement and wraps in parentheses only if necessary.
+     * @return `String`
+     */
+    public virtual String toSOQLString() {
+      String s = '';
+
+      for (Integer i = 0; i < this.expressions.size(); i++) {
+        ExpressionComposite currentExpression = this.expressions[i];
+
+        s += currentExpression.toSOQLString();
+        if (i < this.joiners.size()) {
+          s += ' ' + logicalOpVal(this.joiners[i]) + ' ';
+        }
       }
+      if (this.expressions.size() > 1) {
+        s = '(' + s + ')';
+      }
+
+      return s;
     }
 
-    if (this.joiners.size() > 0) {
-      s = '(' + s + ')';
+    public ASB_SOQLClause toClause() {
+      return new clause(this);
     }
-    return s;
-  }
-
-  /**
-   * Returns WHERE clause as SOQL String. Removes top level parentheses if necessary.
-   * @return `String`
-   */
-  public String toClauseString() {
-    return 'WHERE ' + this.toSOQLString().removeStart('(').removeEnd(')');
   }
 
   /**
    * Represents a Field Expression portion of a WHERE clause.
    */
-  private class FieldExpression implements ConditionExpression {
+  private class FieldExpression implements ExpressionComposite {
     private final String fieldName;
     private final ComparisonOperator comparisonOperator;
     private final Value value;
@@ -135,24 +185,28 @@ public class ASB_Where implements ConditionExpression, ASB_SOQL.Clause {
      * @return `String`
      */
     public String toSOQLString() {
-      return this.fieldName +
-        ' ' +
-        comparisonOpVal(this.comparisonOperator) +
-        ' ' +
-        this.value.toSOQLString();
+      return this.fieldName + ' ' + comparisonOpVal(this.comparisonOperator) + ' ' + this.value.toSOQLString();
     }
   }
 
+  private static Value makeValue(Object o) {
+    if (o instanceof String) {
+      return new StringValue((String) o);
+    }
+    if (o instanceof Integer || o instanceof Double || o instanceof Decimal) {
+      return new NumberValue(o);
+    }
+
+    return null;
+  }
+
   /**
-   * Defines structure of the Value component of a Field Expression
+   * Use the Strategy pattern to transform a `Value` to a valid SOQL string
    */
   private interface Value {
     String toSOQLString();
   }
 
-  /**
-   * Represents a String type Field Expression value.
-   */
   private class StringValue implements Value {
     private final String value;
 
@@ -176,30 +230,13 @@ public class ASB_Where implements ConditionExpression, ASB_SOQL.Clause {
     }
   }
 
-  /**
-   * Represents a numeric type Field Expression value.
-   */
   private class NumberValue implements Value {
     private final Object value;
 
     /**
      * Constructs new NumberValue instance with given Integer
      */
-    private NumberValue(Integer value) {
-      this.value = value;
-    }
-
-    /**
-     * Constructs new NumberValue instance with given Decimal
-     */
-    private NumberValue(Decimal value) {
-      this.value = value;
-    }
-
-    /**
-     * Constructs new NumberValue instance with given Double
-     */
-    private NumberValue(Double value) {
+    private NumberValue(Object value) {
       this.value = value;
     }
 
@@ -210,13 +247,6 @@ public class ASB_Where implements ConditionExpression, ASB_SOQL.Clause {
     public String toSOQLString() {
       return this.value.toString();
     }
-  }
-
-  /**
-   * Composite interface that defines the structure of ConditionExpression component of WHERE clause.
-   */
-  private interface ConditionExpression {
-    String toSOQLString();
   }
 
   /**
@@ -247,18 +277,11 @@ public class ASB_Where implements ConditionExpression, ASB_SOQL.Clause {
     return '';
   }
 
-  /**
-   * WHERE clause Logical Operators. These are the Field Expression "joiners".
-   */
-  public enum LogicalOperator {
+  private enum LogicalOperator {
     ANDX,
     ORX
   }
 
-  /**
-   * Returns SOQL String form of given LogicalOperator
-   * @return `String`
-   */
   private static String logicalOpVal(LogicalOperator lo) {
     switch on lo {
       when ANDX {
