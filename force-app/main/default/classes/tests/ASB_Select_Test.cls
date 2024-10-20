@@ -9,15 +9,13 @@ private class ASB_Select_Test {
    */
   @isTest
   static void addField() {
-    ASB_Select asbSelect = new ASB_Select();
-    asbSelect.add(Account.Id);
-    asbSelect.add(Account.Name);
+    ASB_Select asbSelect = (new ASB_Select()).field(Account.Id).field(Account.Name);
 
     Test.startTest();
     String clauseStr = asbSelect.clauseString();
     Test.stopTest();
 
-    System.Assert.areEqual('SELECT Id,Name', clauseStr, 'Unexpected clause string returned');
+    System.Assert.areEqual('SELECT Id, Name', clauseStr, 'Unexpected clause string returned');
   }
 
   /**
@@ -25,14 +23,15 @@ private class ASB_Select_Test {
    */
   @isTest
   static void addSubQuery() {
-    ASB_Select asbSelect = new ASB_Select();
-    asbSelect.add(ASB.fromx(Contact.AccountId).selectx(Contact.Id).selectx(Contact.Name));
+    ASB_Select asbSelect = (new ASB_Select())
+      .field(Account.Id)
+      .subQuery(ASB_SubQuery.relatedBy(Contact.AccountId).selectField(Contact.Id));
 
     Test.startTest();
     String clauseStr = asbSelect.clauseString();
     Test.stopTest();
 
-    System.Assert.areEqual('SELECT (SELECT Id,Name FROM Contacts)', clauseStr, 'Unexpected clause string returned');
+    System.Assert.areEqual('SELECT Id, (SELECT Id FROM Contacts)', clauseStr, 'Unexpected clause string returned');
   }
 
   /**
@@ -40,14 +39,14 @@ private class ASB_Select_Test {
    */
   @isTest
   static void addParentQuery() {
-    ASB_Select asbSelect = new ASB_Select();
-    asbSelect.addParent(new List<Schema.SObjectField>{ Account.OwnerId, User.Name });
-    asbSelect.addParent(new List<Schema.SObjectField>{ Account.OwnerId, User.ProfileId, Profile.Name });
+    ASB_Select asbSelect = (new ASB_Select())
+      .parent(Account.OwnerId, User.Name)
+      .parent(Account.OwnerId, User.ProfileId, Profile.Name);
 
     Test.startTest();
     String clauseStr = asbSelect.clauseString();
     Test.stopTest();
 
-    System.Assert.areEqual('SELECT Owner.Name,Owner.Profile.Name', clauseStr, 'Unexpected clause string returned');
+    System.Assert.areEqual('SELECT Owner.Name, Owner.Profile.Name', clauseStr, 'Unexpected clause string returned');
   }
 }

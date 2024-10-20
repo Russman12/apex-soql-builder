@@ -2,23 +2,25 @@
 public with sharing class ASB_Test {
   @isTest
   static void clauseString() {
-    ASB contactsSelect = ASB.fromx(Contact.AccountId).selectx(Contact.Id).selectx(Contact.Name);
+    ASB_SubQuery contactsSelect = ASB_SubQuery.relatedBy(Contact.AccountId)
+      .selectField(Contact.Id)
+      .selectField(Contact.Name);
 
     ASB_Where testAccWhere = ASB_Where.field(Account.Name).equals().string('test');
-    ASB_Where confirmedAccs = ASB_Where.field(Account.Name).inx().bind('accNames');
+    ASB_Where confirmedAccs = ASB_Where.field(Account.Name).isIn().bind('accNames');
     ASB_Where largeAccs = ASB_Where.field(Account.NumberOfEmployees).greaterThan().literal('10');
 
-    ASB_Where confirmedLargeAccs = ASB_Where.andx(confirmedAccs, largeAccs);
+    ASB_Where confirmedLargeAccs = ASB_Where.groupAnd(confirmedAccs, largeAccs);
 
-    ASB asb = ASB.fromx(Account.getSObjectType())
-      .selectx(Account.Id)
-      .selectx(Account.Name)
-      .selectx(Account.OwnerId)
-      .selectParent(Account.OwnerId, User.LastName)
-      .selectParent(Account.OwnerId, User.ProfileId, Profile.Name)
-      .selectx(contactsSelect)
-      .wherex(ASB_Where.orx(testAccWhere, confirmedLargeAccs))
-      .orderBy(ASB_Order.byx(Account.Name).descx())
+    ASB asb = ASB.make(Account.getSObjectType())
+      .selectField(Account.Id)
+      .selectField(Account.Name)
+      .selectField(Account.OwnerId)
+      .selectParentField(Account.OwnerId, User.LastName)
+      .selectParentField(Account.OwnerId, User.ProfileId, Profile.Name)
+      .selectSubQuery(contactsSelect)
+      .wherex(ASB_Where.groupOr(testAccWhere, confirmedLargeAccs))
+      .orderBy(ASB_OrderBy.field(Account.Name).descending())
       .limitx(5);
 
     Test.startTest();
@@ -46,9 +48,9 @@ public with sharing class ASB_Test {
 
     //build Query
     Test.startTest();
-    List<Account> queriedAccs = (List<Account>) ASB.fromx(Account.getSObjectType())
-      .selectx(Account.Id)
-      .selectx(Account.Name)
+    List<Account> queriedAccs = (List<Account>) ASB.make(Account.getSObjectType())
+      .selectField(Account.Id)
+      .selectField(Account.Name)
       .wherex(ASB_Where.field(Account.Name).equals().string('test2'))
       .query();
     Test.stopTest();
@@ -72,11 +74,11 @@ public with sharing class ASB_Test {
 
     //build Query
     Test.startTest();
-    List<Account> queriedAccs = (List<Account>) ASB.fromx(Account.getSObjectType())
-      .selectx(Account.Id)
-      .selectx(Account.Name)
-      .wherex(ASB_Where.field(Account.Name).inx().bind('accNames'))
-      .orderBy(ASB_Order.byx(Account.Name).ascx())
+    List<Account> queriedAccs = (List<Account>) ASB.make(Account.getSObjectType())
+      .selectField(Account.Id)
+      .selectField(Account.Name)
+      .wherex(ASB_Where.field(Account.Name).isIn().bind('accNames'))
+      .orderBy(ASB_OrderBy.field(Account.Name).ascending())
       .query(new Map<String, Object>{ 'accNames' => new List<String>{ 'test2', 'test3' } });
     Test.stopTest();
 

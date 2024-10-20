@@ -15,10 +15,10 @@ public class ASB_From implements ASB_Clause {
     this.sObjType = sObjType;
   }
 
-  public ASB_From(Schema.sObjectField field) {
-    Schema.DescribeFieldResult fieldDescribe = field.getDescribe();
+  public ASB_From(Schema.sObjectField relationshipField) {
+    Schema.DescribeFieldResult fieldDescribe = relationshipField.getDescribe();
     for (Schema.ChildRelationship cr : fieldDescribe.getReferenceTo()[0].getDescribe().getChildRelationships()) {
-      if (cr.getField() == field) {
+      if (cr.getField() == relationshipField) {
         this.stringVal = cr.getRelationshipName();
         break;
       }

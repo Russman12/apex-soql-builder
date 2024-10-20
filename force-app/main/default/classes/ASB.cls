@@ -1,75 +1,47 @@
-public with sharing class ASB {
+public with sharing class ASB extends ASB_Query {
   private static final System.AccessLevel DEFAULT_ACCESS_LEVEL = System.AccessLevel.SYSTEM_MODE;
 
-  public static ASB fromx(Schema.SObjectType sObjType) {
+  public static ASB make(Schema.SObjectType sObjType) {
     return new ASB(sObjType);
   }
-
-  public static ASB fromx(Schema.sObjectField field) {
-    return new ASB(field);
-  }
-
-  private final ASB_Select asbSelect;
-  private final ASB_From asbFrom;
-  private ASB_Where asbWhere;
-  private ASB_Order asbOrder;
-  private ASB_Limit asbLimit;
 
   public System.AccessLevel accessLevel = DEFAULT_ACCESS_LEVEL;
 
   private ASB(Schema.SObjectType sObjType) {
-    this.asbFrom = new ASB_From(sObjType);
-    this.asbSelect = new ASB_Select();
+    super(new ASB_From(sObjType));
   }
 
-  private ASB(Schema.sObjectField field) {
-    this.asbFrom = new ASB_From(field);
-    this.asbSelect = new ASB_Select();
+  public ASB selectField(Schema.SObjectField field) {
+    return (ASB) superSelect(asbSelect.field(field));
   }
+  // public ASB selectFields(Schema.SObjectField[] fields) {
+  //   return (ASB) superSelect(asbSelect.);
+  // }
 
-  public ASB selectx(Schema.sObjectField field) {
-    this.asbSelect.add(field);
-    return this;
+  public ASB selectParentField(Schema.SObjectField[] fieldPath) {
+    return (ASB) superSelect(asbSelect.parent(fieldPath));
   }
-  public ASB selectx(ASB subQuery) {
-    this.asbSelect.add(subQuery);
-    return this;
+  public ASB selectParentField(Schema.SObjectField relationshipField, Schema.SObjectField field) {
+    return (ASB) superSelect(asbSelect.parent(relationshipField, field));
   }
-  public ASB selectParent(Schema.SObjectField relationshipField, Schema.SObjectField parentField) {
-    return this.selectParent(new List<Schema.SObjectField>{ relationshipField, parentField });
-  }
-  public ASB selectParent(
-    Schema.SObjectField relationshipField,
+  public ASB selectParentField(
+    Schema.SObjectField relationshipField1,
     Schema.SObjectField relationshipField2,
-    Schema.SObjectField parentField
+    Schema.SObjectField field
   ) {
-    return this.selectParent(new List<Schema.SObjectField>{ relationshipField, relationshipField2, parentField });
+    return (ASB) superSelect(asbSelect.parent(relationshipField1, relationshipField2, field));
   }
-  public ASB selectParent(
-    Schema.SObjectField relationshipField,
-    Schema.SObjectField relationshipField2,
-    Schema.SObjectField relationshipField3,
-    Schema.SObjectField parentField
-  ) {
-    return this.selectParent(
-      new List<Schema.SObjectField>{ relationshipField, relationshipField2, relationshipField3, parentField }
-    );
-  }
-  public ASB selectParent(List<Schema.SObjectField> relationshipPath) {
-    this.asbSelect.addParent(relationshipPath);
-    return this;
+  public ASB selectSubQuery(ASB_SubQuery subQuery) {
+    return (ASB) superSelect(asbSelect.subQuery(subQuery));
   }
   public ASB wherex(ASB_Where asbWhere) {
-    this.asbWhere = asbWhere;
-    return this;
+    return (ASB) superWhere(asbWhere);
   }
-  public ASB orderBy(ASB_Order asbOrder) {
-    this.asbOrder = asbOrder;
-    return this;
+  public ASB orderBy(ASB_OrderBy asbOrder) {
+    return (ASB) superOrderBy(asbOrder);
   }
   public ASB limitx(Integer limitx) {
-    this.asbLimit = new ASB_Limit(limitx);
-    return this;
+    return (ASB) superLimit(limitx);
   }
   public List<SObject> query() {
     return Database.query(this.soqlString(), this.accessLevel);

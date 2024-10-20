@@ -15,29 +15,29 @@ public class ASB_Where implements ASB_Clause, Expression {
     return new ComparisonOperator(fieldPath);
   }
 
-  public static ASB_Where andx(ASB_Where exp1, ASB_Where exp2) {
-    return andx(new List<ASB_Where>{ exp1, exp2 });
+  public static ASB_Where groupAnd(ASB_Where exp1, ASB_Where exp2) {
+    return groupAnd(new List<ASB_Where>{ exp1, exp2 });
   }
-  public static ASB_Where andx(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
-    return andx(new List<ASB_Where>{ exp1, exp2, exp3 });
+  public static ASB_Where groupAnd(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
+    return groupAnd(new List<ASB_Where>{ exp1, exp2, exp3 });
   }
-  public static ASB_Where andx(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3, ASB_Where exp4) {
-    return andx(new List<ASB_Where>{ exp1, exp2, exp3, exp4 });
+  public static ASB_Where groupAnd(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3, ASB_Where exp4) {
+    return groupAnd(new List<ASB_Where>{ exp1, exp2, exp3, exp4 });
   }
-  public static ASB_Where andx(ASB_Where[] expressions) {
+  public static ASB_Where groupAnd(ASB_Where[] expressions) {
     return new ASB_Where(new LogicalGroup(expressions, 'AND'));
   }
 
-  public static ASB_Where orx(ASB_Where exp1, ASB_Where exp2) {
-    return orx(new List<ASB_Where>{ exp1, exp2 });
+  public static ASB_Where groupOr(ASB_Where exp1, ASB_Where exp2) {
+    return groupOr(new List<ASB_Where>{ exp1, exp2 });
   }
-  public static ASB_Where orx(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
-    return orx(new List<ASB_Where>{ exp1, exp2, exp3 });
+  public static ASB_Where groupOr(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
+    return groupOr(new List<ASB_Where>{ exp1, exp2, exp3 });
   }
-  public static ASB_Where orx(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3, ASB_Where exp4) {
-    return orx(new List<ASB_Where>{ exp1, exp2, exp3, exp4 });
+  public static ASB_Where groupOr(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3, ASB_Where exp4) {
+    return groupOr(new List<ASB_Where>{ exp1, exp2, exp3, exp4 });
   }
-  public static ASB_Where orx(ASB_Where[] expressions) {
+  public static ASB_Where groupOr(ASB_Where[] expressions) {
     return new ASB_Where(new LogicalGroup(expressions, 'OR'));
   }
 
@@ -133,7 +133,7 @@ public class ASB_Where implements ASB_Clause, Expression {
     public Value notEquals() {
       return new Value(fieldPath, '!=');
     }
-    public Value inx() {
+    public Value isIn() {
       return new Value(fieldPath, 'IN');
     }
     public Value greaterThan() {
@@ -142,7 +142,7 @@ public class ASB_Where implements ASB_Clause, Expression {
     public Value lessThan() {
       return new Value(fieldPath, '<');
     }
-    public Value likex() {
+    public Value isLike() {
       return new Value(fieldPath, 'LIKE');
     }
   }

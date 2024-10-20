@@ -24,8 +24,8 @@ private class ASB_Where_Test {
         .notEquals()
         .string('Foo')
         .clauseString(),
-      ASB_Where.field(Account.Name).inx().literal('(\'Foo\', \'Bar\')').clauseString(),
-      ASB_Where.field(Account.Name).likex().bind('Foo').clauseString(),
+      ASB_Where.field(Account.Name).isIn().literal('(\'Foo\', \'Bar\')').clauseString(),
+      ASB_Where.field(Account.Name).isLike().bind('Foo').clauseString(),
       ASB_Where.field(Account.NumberOfEmployees).greaterThan().literal('10').clauseString(),
       ASB_Where.field(Account.NumberOfEmployees).lessThan().literal('100').clauseString()
     };
@@ -46,7 +46,7 @@ private class ASB_Where_Test {
     ASB_Where clause2 = ASB_Where.field(new List<SObjectField>{ Account.OwnerId, User.ProfileId, Profile.Name })
       .notEquals()
       .string('Foo');
-    ASB_Where clause3 = ASB_Where.field(Account.Name).inx().literal('(\'Foo\', \'Bar\')');
+    ASB_Where clause3 = ASB_Where.field(Account.Name).isIn().literal('(\'Foo\', \'Bar\')');
 
     String[] expectedClauses = new List<String>{
       'WHERE Owner.LastName = \'Foo\' AND Owner.Profile.Name != \'Foo\'',
@@ -56,10 +56,10 @@ private class ASB_Where_Test {
     };
 
     String[] actualClauses = new List<String>{
-      ASB_Where.andx(clause1, clause2).clauseString(),
-      ASB_Where.andx(clause1, clause2, clause3).clauseString(),
-      ASB_Where.andx(clause1, clause2, clause3, clause1).clauseString(),
-      ASB_Where.andx(new List<ASB_Where>{ clause1, clause2, clause3, clause1, clause2 }).clauseString()
+      ASB_Where.groupAnd(clause1, clause2).clauseString(),
+      ASB_Where.groupAnd(clause1, clause2, clause3).clauseString(),
+      ASB_Where.groupAnd(clause1, clause2, clause3, clause1).clauseString(),
+      ASB_Where.groupAnd(new List<ASB_Where>{ clause1, clause2, clause3, clause1, clause2 }).clauseString()
     };
 
     Test.startTest();
@@ -78,7 +78,7 @@ private class ASB_Where_Test {
     ASB_Where clause2 = ASB_Where.field(new List<SObjectField>{ Account.OwnerId, User.ProfileId, Profile.Name })
       .notEquals()
       .string('Foo');
-    ASB_Where clause3 = ASB_Where.field(Account.Name).inx().literal('(\'Foo\', \'Bar\')');
+    ASB_Where clause3 = ASB_Where.field(Account.Name).isIn().literal('(\'Foo\', \'Bar\')');
 
     String[] expectedClauses = new List<String>{
       'WHERE Owner.LastName = \'Foo\' OR Owner.Profile.Name != \'Foo\'',
@@ -88,10 +88,10 @@ private class ASB_Where_Test {
     };
 
     String[] actualClauses = new List<String>{
-      ASB_Where.orx(clause1, clause2).clauseString(),
-      ASB_Where.orx(clause1, clause2, clause3).clauseString(),
-      ASB_Where.orx(clause1, clause2, clause3, clause1).clauseString(),
-      ASB_Where.orx(new List<ASB_Where>{ clause1, clause2, clause3, clause1, clause2 }).clauseString()
+      ASB_Where.groupOr(clause1, clause2).clauseString(),
+      ASB_Where.groupOr(clause1, clause2, clause3).clauseString(),
+      ASB_Where.groupOr(clause1, clause2, clause3, clause1).clauseString(),
+      ASB_Where.groupOr(new List<ASB_Where>{ clause1, clause2, clause3, clause1, clause2 }).clauseString()
     };
 
     Test.startTest();

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ruleset
+  xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  name="apex-randomator"
+  xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd"
+>
+    <description>Custom Ruleset to use with Apex PMD</description>
+    
+    <!-- Docs -->
+    <rule ref="category/apex/documentation.xml/ApexDoc">
+        <properties>
+            <property name="reportPrivate" value="false" />
+            <property name="reportProtected" value="false" />
+            <property name="reportMissingDescription" value="false" />
+            <property name="reportProperty" value="true" />
+        </properties>
+    </rule>
+</ruleset>
