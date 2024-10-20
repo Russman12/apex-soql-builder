@@ -59,7 +59,7 @@ public class ASB_Where implements ASB_Clause, Expression {
     return this.expression.queryString();
   }
 
-  public interface Expression {
+  private interface Expression {
     String queryString();
   }
 

@@ -9,16 +9,13 @@ public with sharing class ASB {
     return new ASB(field);
   }
 
-  @TestVisible
   private final ASB_Select asbSelect;
-  @TestVisible
   private final ASB_From asbFrom;
-  @TestVisible
   private ASB_Where asbWhere;
-  @TestVisible
   private ASB_Order asbOrder;
-  @TestVisible
   private ASB_Limit asbLimit;
+
+  public System.AccessLevel accessLevel = DEFAULT_ACCESS_LEVEL;
 
   private ASB(Schema.SObjectType sObjType) {
     this.asbFrom = new ASB_From(sObjType);
@@ -75,7 +72,10 @@ public with sharing class ASB {
     return this;
   }
   public List<SObject> query() {
-    return null;
+    return Database.query(this.soqlString(), this.accessLevel);
+  }
+  public List<SObject> query(Map<String, Object> binds) {
+    return Database.queryWithBinds(this.soqlString(), binds, this.accessLevel);
   }
 
   public String soqlString() {

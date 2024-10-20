@@ -1,12 +1,12 @@
 @isTest
 public with sharing class ASB_Test {
   @isTest
-  static void clauseString1() {
+  static void clauseString() {
     ASB contactsSelect = ASB.fromx(Contact.AccountId).selectx(Contact.Id).selectx(Contact.Name);
 
-    ASB_Where testAccWhere = ASB_Where.make(Account.Name, ASB_Where.EQUALS, '\'test\'');
-    ASB_Where confirmedAccs = ASB_Where.make(Account.Name, ASB_Where.INX, ':accNames');
-    ASB_Where largeAccs = ASB_Where.make(Account.NumberOfEmployees, ASB_Where.GREATER_THAN, '10');
+    ASB_Where testAccWhere = ASB_Where.field(Account.Name).equals().string('test');
+    ASB_Where confirmedAccs = ASB_Where.field(Account.Name).inx().bind('accNames');
+    ASB_Where largeAccs = ASB_Where.field(Account.NumberOfEmployees).greaterThan().literal('10');
 
     ASB_Where confirmedLargeAccs = ASB_Where.andx(confirmedAccs, largeAccs);
 
@@ -30,5 +30,60 @@ public with sharing class ASB_Test {
       soqlString,
       'unexpected soql string returned'
     );
+  }
+
+  /**
+   * Ensures query() returns expected results
+   */
+  @isTest
+  static void query() {
+    Account a1 = new Account(Name = 'test1');
+    Account a2 = new Account(Name = 'test2');
+    Account a3 = new Account(Name = 'test3');
+
+    Account[] accs = new List<Account>{ a1, a2, a3 };
+    insert accs;
+
+    //build Query
+    Test.startTest();
+    List<Account> queriedAccs = (List<Account>) ASB.fromx(Account.getSObjectType())
+      .selectx(Account.Id)
+      .selectx(Account.Name)
+      .wherex(ASB_Where.field(Account.Name).equals().string('test2'))
+      .query();
+    Test.stopTest();
+
+    System.Assert.areEqual(1, queriedAccs.size(), 'unexpected number of accounts returned');
+    System.Assert.areEqual('test2', queriedAccs[0].Name, 'unexpected account name returned');
+    System.Assert.isNotNull(queriedAccs[0].Id, 'id not returned');
+  }
+
+  /**
+   * Ensures query(binds) returns expected results
+   */
+  @isTest
+  static void queryBinds() {
+    Account a1 = new Account(Name = 'test1');
+    Account a2 = new Account(Name = 'test2');
+    Account a3 = new Account(Name = 'test3');
+
+    Account[] accs = new List<Account>{ a1, a2, a3 };
+    insert accs;
+
+    //build Query
+    Test.startTest();
+    List<Account> queriedAccs = (List<Account>) ASB.fromx(Account.getSObjectType())
+      .selectx(Account.Id)
+      .selectx(Account.Name)
+      .wherex(ASB_Where.field(Account.Name).inx().bind('accNames'))
+      .orderBy(ASB_Order.byx(Account.Name).ascx())
+      .query(new Map<String, Object>{ 'accNames' => new List<String>{ 'test2', 'test3' } });
+    Test.stopTest();
+
+    System.Assert.areEqual(2, queriedAccs.size(), 'unexpected number of accounts returned');
+    System.Assert.areEqual('test2', queriedAccs[0].Name, 'unexpected account name returned');
+    System.Assert.areEqual('test3', queriedAccs[1].Name, 'unexpected account name returned');
+    System.Assert.isNotNull(queriedAccs[0].Id, 'id not returned');
+    System.Assert.isNotNull(queriedAccs[1].Id, 'id not returned');
   }
 }
