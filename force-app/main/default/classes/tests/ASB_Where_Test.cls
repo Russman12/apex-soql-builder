@@ -5,37 +5,6 @@
 @isTest
 private class ASB_Where_Test {
   /**
-   * Ensures ComparisonOperator constants map as expected
-   */
-  @isTest
-  static void comparisonOperators() {
-    Test.startTest();
-    System.Assert.areEqual(
-      ASB_Where.ComparisonOperator.EQUALS,
-      ASB_Where.EQUALS,
-      'Unexpected ComparisonOperator value'
-    );
-    System.Assert.areEqual(
-      ASB_Where.ComparisonOperator.GREATER_THAN,
-      ASB_Where.GREATER_THAN,
-      'Unexpected ComparisonOperator value'
-    );
-    System.Assert.areEqual(
-      ASB_Where.ComparisonOperator.LESS_THAN,
-      ASB_Where.LESS_THAN,
-      'Unexpected ComparisonOperator value'
-    );
-    System.Assert.areEqual(
-      ASB_Where.ComparisonOperator.NOT_EQUALS,
-      ASB_Where.NOT_EQUALS,
-      'Unexpected ComparisonOperator value'
-    );
-    System.Assert.areEqual(ASB_Where.ComparisonOperator.LIKEX, ASB_Where.LIKEX, 'Unexpected ComparisonOperator value');
-    System.Assert.areEqual(ASB_Where.ComparisonOperator.INX, ASB_Where.INX, 'Unexpected ComparisonOperator value');
-    Test.stopTest();
-  }
-
-  /**
    * Ensures clause is built as expected when given field expression
    */
   @isTest
@@ -50,17 +19,15 @@ private class ASB_Where_Test {
     };
 
     String[] actualClauses = new List<String>{
-      ASB_Where.make(Account.OwnerId, User.LastName, ASB_Where.ComparisonOperator.EQUALS, '\'Foo\'').clauseString(),
-      ASB_Where.make(
-          new List<SObjectField>{ Account.OwnerId, User.ProfileId, Profile.Name },
-          ASB_Where.ComparisonOperator.NOT_EQUALS,
-          '\'Foo\''
-        )
+      ASB_Where.field(Account.OwnerId, User.LastName).equals().string('Foo').clauseString(),
+      ASB_Where.field(new List<SObjectField>{ Account.OwnerId, User.ProfileId, Profile.Name })
+        .notEquals()
+        .string('Foo')
         .clauseString(),
-      ASB_Where.make(Account.Name, ASB_Where.ComparisonOperator.INX, '(\'Foo\', \'Bar\')').clauseString(),
-      ASB_Where.make(Account.Name, ASB_Where.ComparisonOperator.LIKEX, ':Foo').clauseString(),
-      ASB_Where.make(Account.NumberOfEmployees, ASB_Where.ComparisonOperator.GREATER_THAN, '10').clauseString(),
-      ASB_Where.make(Account.NumberOfEmployees, ASB_Where.ComparisonOperator.LESS_THAN, '100').clauseString()
+      ASB_Where.field(Account.Name).inx().literal('(\'Foo\', \'Bar\')').clauseString(),
+      ASB_Where.field(Account.Name).likex().bind('Foo').clauseString(),
+      ASB_Where.field(Account.NumberOfEmployees).greaterThan().literal('10').clauseString(),
+      ASB_Where.field(Account.NumberOfEmployees).lessThan().literal('100').clauseString()
     };
 
     Test.startTest();
@@ -75,13 +42,11 @@ private class ASB_Where_Test {
    */
   @isTest
   static void andx() {
-    ASB_Where clause1 = ASB_Where.make(Account.OwnerId, User.LastName, ASB_Where.ComparisonOperator.EQUALS, '\'Foo\'');
-    ASB_Where clause2 = ASB_Where.make(
-      new List<SObjectField>{ Account.OwnerId, User.ProfileId, Profile.Name },
-      ASB_Where.ComparisonOperator.NOT_EQUALS,
-      '\'Foo\''
-    );
-    ASB_Where clause3 = ASB_Where.make(Account.Name, ASB_Where.ComparisonOperator.INX, '(\'Foo\', \'Bar\')');
+    ASB_Where clause1 = ASB_Where.field(Account.OwnerId, User.LastName).equals().string('Foo');
+    ASB_Where clause2 = ASB_Where.field(new List<SObjectField>{ Account.OwnerId, User.ProfileId, Profile.Name })
+      .notEquals()
+      .string('Foo');
+    ASB_Where clause3 = ASB_Where.field(Account.Name).inx().literal('(\'Foo\', \'Bar\')');
 
     String[] expectedClauses = new List<String>{
       'WHERE Owner.LastName = \'Foo\' AND Owner.Profile.Name != \'Foo\'',
@@ -109,13 +74,11 @@ private class ASB_Where_Test {
    */
   @isTest
   static void orx() {
-    ASB_Where clause1 = ASB_Where.make(Account.OwnerId, User.LastName, ASB_Where.ComparisonOperator.EQUALS, '\'Foo\'');
-    ASB_Where clause2 = ASB_Where.make(
-      new List<SObjectField>{ Account.OwnerId, User.ProfileId, Profile.Name },
-      ASB_Where.ComparisonOperator.NOT_EQUALS,
-      '\'Foo\''
-    );
-    ASB_Where clause3 = ASB_Where.make(Account.Name, ASB_Where.ComparisonOperator.INX, '(\'Foo\', \'Bar\')');
+    ASB_Where clause1 = ASB_Where.field(Account.OwnerId, User.LastName).equals().string('Foo');
+    ASB_Where clause2 = ASB_Where.field(new List<SObjectField>{ Account.OwnerId, User.ProfileId, Profile.Name })
+      .notEquals()
+      .string('Foo');
+    ASB_Where clause3 = ASB_Where.field(Account.Name).inx().literal('(\'Foo\', \'Bar\')');
 
     String[] expectedClauses = new List<String>{
       'WHERE Owner.LastName = \'Foo\' OR Owner.Profile.Name != \'Foo\'',

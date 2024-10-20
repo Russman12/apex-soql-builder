@@ -5,26 +5,14 @@
  * @group Apex SOQL Builder
  */
 public class ASB_Where implements ASB_Clause, Expression {
-  public static final ComparisonOperator EQUALS = ComparisonOperator.EQUALS;
-  public static final ComparisonOperator GREATER_THAN = ComparisonOperator.GREATER_THAN;
-  public static final ComparisonOperator LESS_THAN = ComparisonOperator.LESS_THAN;
-  public static final ComparisonOperator NOT_EQUALS = ComparisonOperator.NOT_EQUALS;
-  public static final ComparisonOperator LIKEX = ComparisonOperator.LIKEX;
-  public static final ComparisonOperator INX = ComparisonOperator.INX;
-
-  public static ASB_Where make(Schema.SObjectField field, ComparisonOperator co, String value) {
-    return make(new List<Schema.SObjectField>{ field }, co, value);
+  public static ComparisonOperator field(Schema.SObjectField field) {
+    return field(new List<Schema.SObjectField>{ field });
   }
-  public static ASB_Where make(
-    Schema.SObjectField relationshipField,
-    Schema.SObjectField parentField,
-    ComparisonOperator co,
-    String value
-  ) {
-    return make(new List<Schema.SObjectField>{ relationshipField, parentField }, co, value);
+  public static ComparisonOperator field(Schema.SObjectField relationshipField, Schema.SObjectField parentField) {
+    return field(new List<Schema.SObjectField>{ relationshipField, parentField });
   }
-  public static ASB_Where make(List<Schema.SObjectField> fieldPath, ComparisonOperator co, String value) {
-    return new ASB_Where(new FieldExpression(fieldPath, co, value));
+  public static ComparisonOperator field(Schema.SObjectField[] fieldPath) {
+    return new ComparisonOperator(fieldPath);
   }
 
   public static ASB_Where andx(ASB_Where exp1, ASB_Where exp2) {
@@ -37,7 +25,7 @@ public class ASB_Where implements ASB_Clause, Expression {
     return andx(new List<ASB_Where>{ exp1, exp2, exp3, exp4 });
   }
   public static ASB_Where andx(ASB_Where[] expressions) {
-    return new ASB_Where(new LogicalGroup(expressions, LogicalOperator.ANDX));
+    return new ASB_Where(new LogicalGroup(expressions, 'AND'));
   }
 
   public static ASB_Where orx(ASB_Where exp1, ASB_Where exp2) {
@@ -50,7 +38,7 @@ public class ASB_Where implements ASB_Clause, Expression {
     return orx(new List<ASB_Where>{ exp1, exp2, exp3, exp4 });
   }
   public static ASB_Where orx(ASB_Where[] expressions) {
-    return new ASB_Where(new LogicalGroup(expressions, LogicalOperator.ORX));
+    return new ASB_Where(new LogicalGroup(expressions, 'OR'));
   }
 
   private final Expression expression;
@@ -77,15 +65,15 @@ public class ASB_Where implements ASB_Clause, Expression {
 
   private class LogicalGroup implements Expression {
     private final List<Expression> expressions;
-    private final ASB_Where.LogicalOperator logicOperator;
+    private final String logicOperator;
 
-    private LogicalGroup(List<Expression> expressions, LogicalOperator logicOperator) {
+    private LogicalGroup(List<Expression> expressions, String logicOperator) {
       this.expressions = expressions;
       this.logicOperator = logicOperator;
     }
 
     public String queryString() {
-      return '(' + String.join(expStrings(), ' ' + logicalOpVal(this.logicOperator) + ' ') + ')';
+      return '(' + String.join(expStrings(), ' ' + this.logicOperator + ' ') + ')';
     }
 
     private List<String> expStrings() {
@@ -102,15 +90,15 @@ public class ASB_Where implements ASB_Clause, Expression {
    */
   private class FieldExpression implements Expression {
     private final List<SObjectField> fieldPath;
-    private final ComparisonOperator comparisonOperator;
+    private final String comparisonOperator;
     private final String value;
 
     /**
      * Private constructor should only be called from within the parent class
      */
-    private FieldExpression(List<SObjectField> fieldPath, ComparisonOperator operator, String value) {
+    private FieldExpression(List<SObjectField> fieldPath, String comparisonOperator, String value) {
       this.fieldPath = fieldPath;
-      this.comparisonOperator = operator;
+      this.comparisonOperator = comparisonOperator;
       this.value = value;
     }
 
@@ -128,60 +116,54 @@ public class ASB_Where implements ASB_Clause, Expression {
      * @return `String`
      */
     public String queryString() {
-      return String.join(this.fieldPathStrings(), '.') +
-        ' ' +
-        comparisonOpVal(this.comparisonOperator) +
-        ' ' +
-        this.value;
+      return String.join(this.fieldPathStrings(), '.') + ' ' + this.comparisonOperator + ' ' + this.value;
     }
   }
 
-  /**
-   * WHERE clause Comparison Operators. Used to compare a field with a value.
-   */
-  public enum ComparisonOperator {
-    EQUALS,
-    GREATER_THAN,
-    LESS_THAN,
-    NOT_EQUALS,
-    LIKEX,
-    INX
-  }
-  private static String comparisonOpVal(ComparisonOperator co) {
-    switch on co {
-      when NOT_EQUALS {
-        return '!=';
-      }
-      when LIKEX {
-        return 'LIKE';
-      }
-      when GREATER_THAN {
-        return '>';
-      }
-      when LESS_THAN {
-        return '<';
-      }
-      when INX {
-        return 'IN';
-      }
-      when else {
-        return '=';
-      }
+  public class ComparisonOperator {
+    private final Schema.SObjectField[] fieldPath;
+
+    private ComparisonOperator(Schema.SObjectField[] fieldPath) {
+      this.fieldPath = fieldPath;
+    }
+
+    public Value equals() {
+      return new Value(fieldPath, '=');
+    }
+    public Value notEquals() {
+      return new Value(fieldPath, '!=');
+    }
+    public Value inx() {
+      return new Value(fieldPath, 'IN');
+    }
+    public Value greaterThan() {
+      return new Value(fieldPath, '>');
+    }
+    public Value lessThan() {
+      return new Value(fieldPath, '<');
+    }
+    public Value likex() {
+      return new Value(fieldPath, 'LIKE');
     }
   }
 
-  private enum LogicalOperator {
-    ANDX,
-    ORX
-  }
-  private static String logicalOpVal(LogicalOperator lo) {
-    switch on lo {
-      when ORX {
-        return 'OR';
-      }
-      when else {
-        return 'AND';
-      }
+  public class Value {
+    private final Schema.SObjectField[] fieldPath;
+    private final String operator;
+
+    private Value(Schema.SObjectField[] fieldPath, String operator) {
+      this.fieldPath = fieldPath;
+      this.operator = operator;
+    }
+
+    public ASB_Where string(String str) {
+      return new ASB_Where(new FieldExpression(this.fieldPath, this.operator, '\'' + str + '\''));
+    }
+    public ASB_Where bind(String paramName) {
+      return new ASB_Where(new FieldExpression(this.fieldPath, this.operator, ':' + paramName));
+    }
+    public ASB_Where literal(String anyVal) {
+      return new ASB_Where(new FieldExpression(this.fieldPath, this.operator, anyVal));
     }
   }
 }
