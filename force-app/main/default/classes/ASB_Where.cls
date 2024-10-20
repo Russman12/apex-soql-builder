@@ -4,261 +4,148 @@
  * @author Russell Laboe
  * @group Apex SOQL Builder
  */
-public class ASB_Where {
+public class ASB_Where implements ASB_Clause, Expression {
   public static final ComparisonOperator EQUALS = ComparisonOperator.EQUALS;
+  public static final ComparisonOperator GREATER_THAN = ComparisonOperator.GREATER_THAN;
+  public static final ComparisonOperator LESS_THAN = ComparisonOperator.LESS_THAN;
   public static final ComparisonOperator NOT_EQUALS = ComparisonOperator.NOT_EQUALS;
   public static final ComparisonOperator LIKEX = ComparisonOperator.LIKEX;
+  public static final ComparisonOperator INX = ComparisonOperator.INX;
 
-  private static ASB_Where instance;
-
-  public static ASB_Where instance() {
-    if (instance == null) {
-      instance = new ASB_Where();
-    }
-    return instance;
+  public static ASB_Where make(Schema.SObjectField field, ComparisonOperator co, String value) {
+    return make(new List<Schema.SObjectField>{ field }, co, value);
+  }
+  public static ASB_Where make(
+    Schema.SObjectField relationshipField,
+    Schema.SObjectField parentField,
+    ComparisonOperator co,
+    String value
+  ) {
+    return make(new List<Schema.SObjectField>{ relationshipField, parentField }, co, value);
+  }
+  public static ASB_Where make(List<Schema.SObjectField> fieldPath, ComparisonOperator co, String value) {
+    return new ASB_Where(new FieldExpression(fieldPath, co, value));
   }
 
-  public Expression expression(SObjectField field, ComparisonOperator operator, Object value) {
-    return new ConditionExpression(field, operator, makeValue(value));
+  public static ASB_Where andx(ASB_Where exp1, ASB_Where exp2) {
+    return andx(new List<ASB_Where>{ exp1, exp2 });
+  }
+  public static ASB_Where andx(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
+    return andx(new List<ASB_Where>{ exp1, exp2, exp3 });
+  }
+  public static ASB_Where andx(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3, ASB_Where exp4) {
+    return andx(new List<ASB_Where>{ exp1, exp2, exp3, exp4 });
+  }
+  public static ASB_Where andx(ASB_Where[] expressions) {
+    return new ASB_Where(new LogicalGroup(expressions, LogicalOperator.ANDX));
   }
 
-  private class Clause implements ASB_SOQLClause {
-    protected final ConditionExpression expression;
-
-    /**
-     * Constructs new instance with SObjectField,
-     * @param field     `SObjectField`
-     * @param operator  `ComparisonOperator`
-     * @param value     `String`
-     */
-    private Clause(ConditionExpression expression) {
-      this.expression = expression;
-    }
-
-    /**
-     * Returns WHERE clause as SOQL String. Removes top level parentheses if necessary.
-     * @return `String`
-     */
-    public String toClauseString() {
-      return 'WHERE ' + this.expression.toSOQLString().removeStart('(').removeEnd(')');
-    }
+  public static ASB_Where orx(ASB_Where exp1, ASB_Where exp2) {
+    return orx(new List<ASB_Where>{ exp1, exp2 });
+  }
+  public static ASB_Where orx(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
+    return orx(new List<ASB_Where>{ exp1, exp2, exp3 });
+  }
+  public static ASB_Where orx(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3, ASB_Where exp4) {
+    return orx(new List<ASB_Where>{ exp1, exp2, exp3, exp4 });
+  }
+  public static ASB_Where orx(ASB_Where[] expressions) {
+    return new ASB_Where(new LogicalGroup(expressions, LogicalOperator.ORX));
   }
 
-  /**
-   * Defines the structure of ConditionExpression component of WHERE clause.
-   */
+  private final Expression expression;
+
+  public ASB_Where(Expression expression) {
+    this.expression = expression;
+  }
+
+  public String clauseString() {
+    String queryString = this.expression.queryString();
+    if (this.expression instanceof LogicalGroup) {
+      queryString = queryString.removeStart('(').removeEnd(')');
+    }
+    return 'WHERE ' + queryString;
+  }
+
+  public String queryString() {
+    return this.expression.queryString();
+  }
+
   public interface Expression {
-    /**
-     * Join an expression with `AND` `LogicalOperator`. If an expression is provided, it will be joined as a group.
-     */
-    Expression andx(Expression expression);
-    Expression andx(SObjectField field, ComparisonOperator operator, String value);
-    Expression andx(SObjectField field, ComparisonOperator operator, Integer value);
-
-    /**
-     * Join expression with `OR` `LogicalOperator`. If an expression is provided, it will be joined as a group.
-     */
-    Expression orx(Expression expression);
-    Expression orx(SObjectField field, ComparisonOperator operator, String value);
-    Expression orx(SObjectField field, ComparisonOperator operator, Integer value);
-
-    /**
-     * Group current expression (ie, wraps in `()`)
-     */
-    Expression group();
-
-    /**
-     * Returns expression as complete WHERE clause
-     */
-    ASB_SOQLClause toClause();
+    String queryString();
   }
 
-  private interface ExpressionComposite {
-    String toSOQLString();
-  }
+  private class LogicalGroup implements Expression {
+    private final List<Expression> expressions;
+    private final ASB_Where.LogicalOperator logicOperator;
 
-  @TestVisible
-  private class ConditionExpression implements Expression, ExpressionComposite {
-    private final List<ExpressionComposite> expressions;
-    private final List<LogicalOperator> joiners;
-
-    private ConditionExpression(ConditionExpression exp) {
-      this.expressions = exp.expressions.clone();
-      this.joiners = exp.joiners.clone();
-    }
-
-    private ConditionExpression(List<ExpressionComposite> expressions, List<LogicalOperator> joiners) {
+    private LogicalGroup(List<Expression> expressions, LogicalOperator logicOperator) {
       this.expressions = expressions;
-      this.joiners = joiners;
+      this.logicOperator = logicOperator;
     }
 
-    private ConditionExpression(SObjectField field, ComparisonOperator operator, Value value) {
-      this.expressions = new List<ExpressionComposite>{ new FieldExpression(field, operator, value) };
-      this.joiners = new List<LogicalOperator>();
+    public String queryString() {
+      return '(' + String.join(expStrings(), ' ' + logicalOpVal(this.logicOperator) + ' ') + ')';
     }
 
-    public Expression group() {
-      ConditionExpression condExp = new ConditionExpression(
-        new List<ExpressionComposite>{ this },
-        new List<LogicalOperator>()
-      );
-      return condExp;
-    }
-
-    public Expression andx(Expression expression) {
-      return this.add((ConditionExpression) expression, LogicalOperator.ANDX);
-    }
-    public Expression andx(SObjectField field, ComparisonOperator operator, Object value) {
-      return this.add(field, operator, makeValue(value), LogicalOperator.ANDX);
-    }
-
-    public Expression orx(Expression expression) {
-      return this.add((ConditionExpression) expression, LogicalOperator.ORX);
-    }
-    public Expression orx(SObjectField field, ComparisonOperator operator, Object value) {
-      return this.add(field, operator, makeValue(value), LogicalOperator.ORX);
-    }
-
-    private ConditionExpression add(ConditionExpression expression, LogicalOperator logicalOperator) {
-      ConditionExpression newExp = this.duplicate();
-      newExp.expressions.add(expression);
-      newExp.joiners.add(logicalOperator);
-      return newExp;
-    }
-
-    public Expression add(
-      SObjectField field,
-      ComparisonOperator operator,
-      Value value,
-      LogicalOperator logicalOperator
-    ) {
-      return this.add(new ConditionExpression(field, operator, value), logicalOperator);
-    }
-
-    private ConditionExpression duplicate() {
-      return new ConditionExpression(this);
-    }
-
-    /**
-     * Returns ASB_SOQL content as SOQL String. This does not include the clause statement and wraps in parentheses only if necessary.
-     * @return `String`
-     */
-    public virtual String toSOQLString() {
-      String s = '';
-
-      for (Integer i = 0; i < this.expressions.size(); i++) {
-        ExpressionComposite currentExpression = this.expressions[i];
-
-        s += currentExpression.toSOQLString();
-        if (i < this.joiners.size()) {
-          s += ' ' + logicalOpVal(this.joiners[i]) + ' ';
-        }
+    private List<String> expStrings() {
+      String[] expStrs = new List<String>{};
+      for (Expression exp : this.expressions) {
+        expStrs.add(exp.queryString());
       }
-      if (this.expressions.size() > 1) {
-        s = '(' + s + ')';
-      }
-
-      return s;
-    }
-
-    public ASB_SOQLClause toClause() {
-      return new clause(this);
+      return expStrs;
     }
   }
 
   /**
    * Represents a Field Expression portion of a WHERE clause.
    */
-  private class FieldExpression implements ExpressionComposite {
-    private final String fieldName;
+  private class FieldExpression implements Expression {
+    private final List<SObjectField> fieldPath;
     private final ComparisonOperator comparisonOperator;
-    private final Value value;
+    private final String value;
 
     /**
      * Private constructor should only be called from within the parent class
      */
-    private FieldExpression(SObjectField field, ComparisonOperator operator, Value value) {
-      this.fieldName = field.getDescribe().getName();
+    private FieldExpression(List<SObjectField> fieldPath, ComparisonOperator operator, String value) {
+      this.fieldPath = fieldPath;
       this.comparisonOperator = operator;
       this.value = value;
+    }
+
+    private List<String> fieldPathStrings() {
+      String[] fieldStrs = new List<String>{};
+      for (Integer i = 0; i < this.fieldPath.size() - 1; i++) {
+        fieldStrs.add(this.fieldPath[i].getDescribe().getRelationshipName());
+      }
+      fieldStrs.add(this.fieldPath[this.fieldPath.size() - 1].getDescribe().getName());
+      return fieldStrs;
     }
 
     /**
      * Returns FeildExpression as a SOQL String
      * @return `String`
      */
-    public String toSOQLString() {
-      return this.fieldName + ' ' + comparisonOpVal(this.comparisonOperator) + ' ' + this.value.toSOQLString();
-    }
-  }
-
-  private static Value makeValue(Object o) {
-    if (o instanceof String) {
-      return new StringValue((String) o);
-    }
-    if (o instanceof Integer || o instanceof Double || o instanceof Decimal) {
-      return new NumberValue(o);
-    }
-
-    throw new ASB_WhereException('Unhandled value type: ' + o);
-  }
-
-  /**
-   * Use the Strategy pattern to transform a `Value` to a valid SOQL string
-   */
-  private interface Value {
-    String toSOQLString();
-  }
-
-  private class StringValue implements Value {
-    private final String value;
-
-    /**
-     * Constructs new StringValue instance with given string
-     */
-    private StringValue(String value) {
-      this.value = value;
-    }
-
-    /**
-     * Returns SOQL String form of instance to be used in Value component of Field Expression.
-     * @return `String`
-     */
-    public String toSOQLString() {
-      String s = this.value;
-      if (!s.startsWith(':')) {
-        s = '\'' + this.value + '\'';
-      }
-      return s;
-    }
-  }
-
-  private class NumberValue implements Value {
-    private final Object value;
-
-    /**
-     * Constructs new NumberValue instance with given Integer
-     */
-    private NumberValue(Object value) {
-      this.value = value;
-    }
-
-    /**
-     * Returns SOQL String form of instance to be used in Value component of Field Expression.
-     * @return `String`
-     */
-    public String toSOQLString() {
-      return this.value.toString();
+    public String queryString() {
+      return String.join(this.fieldPathStrings(), '.') +
+        ' ' +
+        comparisonOpVal(this.comparisonOperator) +
+        ' ' +
+        this.value;
     }
   }
 
   /**
-   * WHERE clause Comparison Operators. These are the operators used to compare a feild with a value.
+   * WHERE clause Comparison Operators. Used to compare a field with a value.
    */
   public enum ComparisonOperator {
     EQUALS,
+    GREATER_THAN,
+    LESS_THAN,
     NOT_EQUALS,
-    LIKEX
+    LIKEX,
+    INX
   }
   private static String comparisonOpVal(ComparisonOperator co) {
     switch on co {
@@ -267,6 +154,15 @@ public class ASB_Where {
       }
       when LIKEX {
         return 'LIKE';
+      }
+      when GREATER_THAN {
+        return '>';
+      }
+      when LESS_THAN {
+        return '<';
+      }
+      when INX {
+        return 'IN';
       }
       when else {
         return '=';
@@ -287,8 +183,5 @@ public class ASB_Where {
         return 'AND';
       }
     }
-  }
-
-  public class ASB_WhereException extends Exception {
   }
 }

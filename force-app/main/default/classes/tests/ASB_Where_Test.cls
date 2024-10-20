@@ -4,163 +4,137 @@
  */
 @isTest
 private class ASB_Where_Test {
-  static ASB_Where asbWhere = ASB_Where.instance();
-
   /**
-   * Ensures `ASB_Where.instance()` returns singleton instance
+   * Ensures ComparisonOperator constants map as expected
    */
-  @IsTest
-  static void instance() {
-    ASB_Where inst1 = ASB_Where.instance();
-    ASB_Where inst2 = ASB_Where.instance();
-
-    System.Assert.areEqual(inst1, inst2, 'class not a singleton');
-  }
-
-  /**
-   * Ensures `expression(SObjectField field, ComparisonOperator operator, Object value)` returns `ASB_Where.ConditionExpression`
-   */
-  @IsTest
-  static void expression() {
-    System.Assert.isInstanceOfType(
-      asbWhere.expression(Account.Name, ASB_Where.EQUALS, 'fred'),
-      ASB_Where.ConditionExpression.class,
-      'unexpected type returned'
+  @isTest
+  static void comparisonOperators() {
+    Test.startTest();
+    System.Assert.areEqual(
+      ASB_Where.ComparisonOperator.EQUALS,
+      ASB_Where.EQUALS,
+      'Unexpected ComparisonOperator value'
     );
+    System.Assert.areEqual(
+      ASB_Where.ComparisonOperator.GREATER_THAN,
+      ASB_Where.GREATER_THAN,
+      'Unexpected ComparisonOperator value'
+    );
+    System.Assert.areEqual(
+      ASB_Where.ComparisonOperator.LESS_THAN,
+      ASB_Where.LESS_THAN,
+      'Unexpected ComparisonOperator value'
+    );
+    System.Assert.areEqual(
+      ASB_Where.ComparisonOperator.NOT_EQUALS,
+      ASB_Where.NOT_EQUALS,
+      'Unexpected ComparisonOperator value'
+    );
+    System.Assert.areEqual(ASB_Where.ComparisonOperator.LIKEX, ASB_Where.LIKEX, 'Unexpected ComparisonOperator value');
+    System.Assert.areEqual(ASB_Where.ComparisonOperator.INX, ASB_Where.INX, 'Unexpected ComparisonOperator value');
+    Test.stopTest();
   }
 
   /**
-   * Ensures `expression(SObjectField field, ComparisonOperator operator, Object value)` throws
-   * expected exception if the value type is unhandled
+   * Ensures clause is built as expected when given field expression
    */
-  @IsTest
-  static void expressionUnhandledValueType() {
-    try {
-      asbWhere.expression(Account.Name, ASB_Where.EQUALS, new DummyValue());
-      System.Assert.fail('expected exception not thrown');
-    } catch (Exception e) {
-      System.Assert.isInstanceOfType(e, ASB_Where.ASB_WhereException.class, 'unexpected exception thrown');
+  @isTest
+  static void make() {
+    String[] expectedClauses = new List<String>{
+      'WHERE Owner.LastName = \'Foo\'',
+      'WHERE Owner.Profile.Name != \'Foo\'',
+      'WHERE Name IN (\'Foo\', \'Bar\')',
+      'WHERE Name LIKE :Foo',
+      'WHERE NumberOfEmployees > 10',
+      'WHERE NumberOfEmployees < 100'
+    };
+
+    String[] actualClauses = new List<String>{
+      ASB_Where.make(Account.OwnerId, User.LastName, ASB_Where.ComparisonOperator.EQUALS, '\'Foo\'').clauseString(),
+      ASB_Where.make(
+          new List<SObjectField>{ Account.OwnerId, User.ProfileId, Profile.Name },
+          ASB_Where.ComparisonOperator.NOT_EQUALS,
+          '\'Foo\''
+        )
+        .clauseString(),
+      ASB_Where.make(Account.Name, ASB_Where.ComparisonOperator.INX, '(\'Foo\', \'Bar\')').clauseString(),
+      ASB_Where.make(Account.Name, ASB_Where.ComparisonOperator.LIKEX, ':Foo').clauseString(),
+      ASB_Where.make(Account.NumberOfEmployees, ASB_Where.ComparisonOperator.GREATER_THAN, '10').clauseString(),
+      ASB_Where.make(Account.NumberOfEmployees, ASB_Where.ComparisonOperator.LESS_THAN, '100').clauseString()
+    };
+
+    Test.startTest();
+    for (Integer i = 0; i < expectedClauses.size(); i++) {
+      System.Assert.areEqual(expectedClauses[i], actualClauses[i], 'unexpected clause returned. idx: ' + i);
     }
+    Test.stopTest();
   }
 
   /**
-   * ensures `andx(Expression expression)` adds simple expression as expected
+   * Ensures clause is built as expected when given `and` logical group
    */
-  @IsTest
-  static void andxExpression() {
-    ASB_Where.Expression exp1 = asbWhere.expression(Account.Id, ASB_Where.EQUALS, '123');
-    ASB_Where.Expression testExp = asbWhere.expression(Account.Name, ASB_Where.EQUALS, 'fred').andx(exp1);
-
-    System.Assert.areEqual(
-      'WHERE Name = \'fred\' AND Id = \'123\'',
-      testExp.toClause().toClauseString(),
-      'unexpected clause string returned'
+  @isTest
+  static void andx() {
+    ASB_Where clause1 = ASB_Where.make(Account.OwnerId, User.LastName, ASB_Where.ComparisonOperator.EQUALS, '\'Foo\'');
+    ASB_Where clause2 = ASB_Where.make(
+      new List<SObjectField>{ Account.OwnerId, User.ProfileId, Profile.Name },
+      ASB_Where.ComparisonOperator.NOT_EQUALS,
+      '\'Foo\''
     );
+    ASB_Where clause3 = ASB_Where.make(Account.Name, ASB_Where.ComparisonOperator.INX, '(\'Foo\', \'Bar\')');
+
+    String[] expectedClauses = new List<String>{
+      'WHERE Owner.LastName = \'Foo\' AND Owner.Profile.Name != \'Foo\'',
+      'WHERE Owner.LastName = \'Foo\' AND Owner.Profile.Name != \'Foo\' AND Name IN (\'Foo\', \'Bar\')',
+      'WHERE Owner.LastName = \'Foo\' AND Owner.Profile.Name != \'Foo\' AND Name IN (\'Foo\', \'Bar\') AND Owner.LastName = \'Foo\'',
+      'WHERE Owner.LastName = \'Foo\' AND Owner.Profile.Name != \'Foo\' AND Name IN (\'Foo\', \'Bar\') AND Owner.LastName = \'Foo\' AND Owner.Profile.Name != \'Foo\''
+    };
+
+    String[] actualClauses = new List<String>{
+      ASB_Where.andx(clause1, clause2).clauseString(),
+      ASB_Where.andx(clause1, clause2, clause3).clauseString(),
+      ASB_Where.andx(clause1, clause2, clause3, clause1).clauseString(),
+      ASB_Where.andx(new List<ASB_Where>{ clause1, clause2, clause3, clause1, clause2 }).clauseString()
+    };
+
+    Test.startTest();
+    for (Integer i = 0; i < expectedClauses.size(); i++) {
+      System.Assert.areEqual(expectedClauses[i], actualClauses[i], 'unexpected clause returned. idx: ' + i);
+    }
+    Test.stopTest();
   }
 
   /**
-   * ensures `andx(Expression expression)` adds multiple expressions as expected
+   * Ensures clause is built as expected when given `or` logical group
    */
-  @IsTest
-  static void andxExpressionMulti() {
-    ASB_Where.Expression exp1 = asbWhere.expression(Account.Id, ASB_Where.EQUALS, '123');
-    ASB_Where.Expression exp2 = asbWhere.expression(Account.Type, ASB_Where.EQUALS, 'Customer');
-    ASB_Where.Expression testExp = asbWhere.expression(Account.Name, ASB_Where.EQUALS, 'fred').andx(exp1).andx(exp2);
-
-    System.Assert.areEqual(
-      'WHERE Name = \'fred\' AND Id = \'123\' AND Type = \'Customer\'',
-      testExp.toClause().toClauseString(),
-      'unexpected clause string returned'
+  @isTest
+  static void orx() {
+    ASB_Where clause1 = ASB_Where.make(Account.OwnerId, User.LastName, ASB_Where.ComparisonOperator.EQUALS, '\'Foo\'');
+    ASB_Where clause2 = ASB_Where.make(
+      new List<SObjectField>{ Account.OwnerId, User.ProfileId, Profile.Name },
+      ASB_Where.ComparisonOperator.NOT_EQUALS,
+      '\'Foo\''
     );
-  }
+    ASB_Where clause3 = ASB_Where.make(Account.Name, ASB_Where.ComparisonOperator.INX, '(\'Foo\', \'Bar\')');
 
-  /**
-   * ensures `andx(Expression expression)` adds complex expressions as expected
-   */
-  @IsTest
-  static void andxExpressionComplex() {
-    ASB_Where.Expression exp1 = asbWhere.expression(Account.Id, ASB_Where.NOT_EQUALS, '123');
-    ASB_Where.Expression exp2 = asbWhere.expression(Account.Type, ASB_Where.EQUALS, 'Customer').andx(exp1);
-    ASB_Where.Expression testExp = asbWhere.expression(Account.Name, ASB_Where.LIKEX, 'fred').andx(exp2);
+    String[] expectedClauses = new List<String>{
+      'WHERE Owner.LastName = \'Foo\' OR Owner.Profile.Name != \'Foo\'',
+      'WHERE Owner.LastName = \'Foo\' OR Owner.Profile.Name != \'Foo\' OR Name IN (\'Foo\', \'Bar\')',
+      'WHERE Owner.LastName = \'Foo\' OR Owner.Profile.Name != \'Foo\' OR Name IN (\'Foo\', \'Bar\') OR Owner.LastName = \'Foo\'',
+      'WHERE Owner.LastName = \'Foo\' OR Owner.Profile.Name != \'Foo\' OR Name IN (\'Foo\', \'Bar\') OR Owner.LastName = \'Foo\' OR Owner.Profile.Name != \'Foo\''
+    };
 
-    System.Assert.areEqual(
-      'WHERE Name LIKE \'fred\' AND (Type = \'Customer\' AND Id != \'123\')',
-      testExp.toClause().toClauseString(),
-      'unexpected clause string returned'
-    );
-  }
+    String[] actualClauses = new List<String>{
+      ASB_Where.orx(clause1, clause2).clauseString(),
+      ASB_Where.orx(clause1, clause2, clause3).clauseString(),
+      ASB_Where.orx(clause1, clause2, clause3, clause1).clauseString(),
+      ASB_Where.orx(new List<ASB_Where>{ clause1, clause2, clause3, clause1, clause2 }).clauseString()
+    };
 
-  /**
-   * ensures `andx(SObjectField field, ComparisonOperator operator, String value)` adds expected expression
-   */
-  @IsTest
-  static void andxField() {
-    ASB_Where.Expression testExp = asbWhere.expression(Account.Id, ASB_Where.EQUALS, '123')
-      .andx(Account.Type, ASB_Where.EQUALS, 'Customer');
-
-    System.Assert.areEqual(
-      'WHERE Id = \'123\' AND Type = \'Customer\'',
-      testExp.toClause().toClauseString(),
-      'unexpected clause string returned'
-    );
-  }
-
-  /**
-   * ensures `andx(SObjectField field, ComparisonOperator operator, String value)` adds expected expression when called multiple times
-   */
-  @IsTest
-  static void andxFieldMulti() {
-    ASB_Where.Expression testExp = asbWhere.expression(Account.Id, ASB_Where.EQUALS, '123')
-      .andx(Account.Name, ASB_Where.EQUALS, 'fred')
-      .andx(Account.Type, ASB_Where.EQUALS, 'Customer');
-
-    System.Assert.areEqual(
-      'WHERE Id = \'123\' AND Name = \'fred\' AND Type = \'Customer\'',
-      testExp.toClause().toClauseString(),
-      'unexpected clause string returned'
-    );
-  }
-
-  /**
-   * ensures a complex scanerio produces expected clause
-   */
-  @IsTest
-  static void complex1() {
-    ASB_Where.Expression exp1 = asbWhere.expression(Account.Industry, ASB_Where.EQUALS, 'Technology')
-      .andx(Account.Type, ASB_Where.NOT_EQUALS, 'Customer');
-    ASB_Where.Expression testExp = asbWhere.expression(Account.Name, ASB_Where.LIKEX, ':name')
-      .andx(Account.Type, ASB_Where.EQUALS, 'Customer')
-      .andx(Account.NumberOfEmployees, ASB_Where.EQUALS, 100)
-      .group()
-      .orx(exp1);
-
-    System.Assert.areEqual(
-      'WHERE (Name LIKE :name AND Type = \'Customer\' AND NumberOfEmployees = 100) OR (Industry = \'Technology\' AND Type != \'Customer\')',
-      testExp.toClause().toClauseString(),
-      'unexpected clause string returned'
-    );
-  }
-
-  /**
-   * ensures a complex scanerio produces expected clause
-   */
-  @IsTest
-  static void complex2() {
-    ASB_Where.Expression exp1 = asbWhere.expression(Account.Industry, ASB_Where.EQUALS, 'Technology')
-      .orx(Account.Type, ASB_Where.NOT_EQUALS, 'Customer');
-    ASB_Where.Expression testExp = asbWhere.expression(Account.Name, ASB_Where.LIKEX, ':name')
-      .orx(Account.Type, ASB_Where.EQUALS, 'Customer')
-      .orx(Account.NumberOfEmployees, ASB_Where.EQUALS, 100)
-      .group()
-      .andx(exp1);
-
-    System.Assert.areEqual(
-      'WHERE (Name LIKE :name OR Type = \'Customer\' OR NumberOfEmployees = 100) AND (Industry = \'Technology\' OR Type != \'Customer\')',
-      testExp.toClause().toClauseString(),
-      'unexpected clause string returned'
-    );
-  }
-
-  private class DummyValue {
+    Test.startTest();
+    for (Integer i = 0; i < expectedClauses.size(); i++) {
+      System.Assert.areEqual(expectedClauses[i], actualClauses[i], 'unexpected clause returned. idx: ' + i);
+    }
+    Test.stopTest();
   }
 }

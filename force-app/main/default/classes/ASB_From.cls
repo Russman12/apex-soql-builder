@@ -4,34 +4,29 @@
  * @author Russell Laboe
  * @group Apex SOQL Builder
  */
-public class ASB_From {
-  private static ASB_From instance;
-
-  public static ASB_From instance() {
-    if (instance == null) {
-      instance = new ASB_From();
-    }
-    return instance;
-  }
-
-  public ASB_SOQLClause clause(SObjectType sObjectType) {
-    return new ASB_From.Clause(sObjectType);
-  }
-
+public class ASB_From implements ASB_Clause {
   @TestVisible
-  private class clause implements ASB_SOQLClause {
-    @TestVisible
-    private final SObjectType sObjectType;
-    public clause(SObjectType sObjectType) {
-      this.sObjectType = sObjectType;
-    }
+  private final String stringVal;
+  @TestVisible
+  private final Schema.SObjectType sObjType;
 
-    /**
-     * Returns complete clause string
-     * @return  `String`
-     */
-    public String toClauseString() {
-      return 'FROM ' + this.sObjectType.getDescribe().getName();
+  public ASB_From(Schema.SObjectType sObjType) {
+    this.stringVal = sObjType.getDescribe().getName();
+    this.sObjType = sObjType;
+  }
+
+  public ASB_From(Schema.sObjectField field) {
+    Schema.DescribeFieldResult fieldDescribe = field.getDescribe();
+    for (Schema.ChildRelationship cr : fieldDescribe.getReferenceTo()[0].getDescribe().getChildRelationships()) {
+      if (cr.getField() == field) {
+        this.stringVal = cr.getRelationshipName();
+        break;
+      }
     }
+    this.sObjType = fieldDescribe.getSObjectType();
+  }
+
+  public String clauseString() {
+    return 'FROM ' + this.stringVal;
   }
 }

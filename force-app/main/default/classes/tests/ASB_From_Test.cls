@@ -4,40 +4,33 @@
  */
 @isTest
 private class ASB_From_Test {
-  static ASB_From asbFrom = ASB_From.instance();
-
   /**
-   * Ensures `ASB_From.instance()` returns singleton instance
+   * Ensures instance is constructed correctly when given SObjectType
    */
-  @IsTest
-  static void instance() {
-    ASB_From inst1 = ASB_From.instance();
-    ASB_From inst2 = ASB_From.instance();
+  @isTest
+  static void constructorSObjectType() {
+    Schema.SObjectType sObjType = Account.getSObjectType();
 
-    System.Assert.areEqual(inst1, inst2, 'class not a singleton');
+    Test.startTest();
+    ASB_From instance = new ASB_From(sObjType);
+    Test.stopTest();
+
+    System.Assert.areEqual('Account', instance.stringVal, 'incorrect stringVal set');
+    System.Assert.areEqual(Account.getSObjectType(), instance.sObjType, 'incorrecty sObjType set');
   }
 
   /**
-   * Ensures `clause` returns a `ASB_From.Clause`
+   * Ensures instance is constructed correctly when given sObjectField
    */
-  @IsTest
-  static void clause() {
-    System.Assert.isInstanceOfType(
-      asbFrom.clause(Account.getSObjectType()),
-      ASB_From.Clause.class,
-      'unexpected type returned'
-    );
-  }
+  @isTest
+  static void constructorsObjectField() {
+    Schema.sObjectField sObjField = Contact.AccountId;
 
-  /**
-   * Ensures `toClauseString()` returns expected clause String
-   */
-  @IsTest
-  static void toClauseString() {
-    System.Assert.areEqual(
-      'FROM Account',
-      asbFrom.clause(Account.getSObjectType()).toClauseString(),
-      'unexpected FROM clause string returned'
-    );
+    Test.startTest();
+    ASB_From instance = new ASB_From(sObjField);
+    Test.stopTest();
+
+    System.Assert.areEqual('Contacts', instance.stringVal, 'incorrect stringVal set');
+    System.Assert.areEqual(Contact.getSObjectType(), instance.sObjType, 'incorrecty sObjType set');
   }
 }
