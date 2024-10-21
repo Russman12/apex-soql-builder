@@ -9,8 +9,8 @@ public class ASB_Select implements ASB_Clause {
   /**
    * Creates new instance of `ASB_Select`
    */
-  public ASB_Select() {
-    this.elements = new List<Element>{};
+  public ASB_Select(SObjectField defaultField) {
+    this.elements = new List<Element>{ new FieldElement(defaultField) };
   }
 
   /**

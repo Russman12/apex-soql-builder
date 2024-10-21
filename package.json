@@ -4,28 +4,23 @@
   "version": "1.0.0",
   "description": "Salesforce App",
   "scripts": {
-    "test": "npm run test:unit",
-    "test:unit": "sfdx-lwc-jest",
-    "test:unit:watch": "sfdx-lwc-jest --watch",
-    "test:unit:debug": "sfdx-lwc-jest --debug",
-    "test:unit:coverage": "sfdx-lwc-jest --coverage",
+    "lint": "npm run lint:apex && npm run lint:doc",
+    "lint:apex": "sf scanner run --target 'force-app/**/*.cls' --format table --category 'apex-soql-builder' --engine pmd",
+    "lint:doc": "write-good README.md --parse",
+    "test": "sf apex run test --result-format human --output-dir ./tests/apex --test-level RunLocalTests --wait 20",
+    "test:coverage": "sf apex run test --result-format human --output-dir ./tests/apex --test-level RunLocalTests --code-coverage --detailed-coverage --wait 20",
     "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\" --cache",
     "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
     "prepare": "husky",
-    "precommit": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\" --cache"
+    "precommit": "npm run prettier && npm run lint"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.2.2",
     "@commitlint/config-conventional": "^19.2.2",
     "@prettier/plugin-xml": "^3.2.2",
-    "husky": "^9.0.11",
-    "lint-staged": "^15.1.0",
+    "husky": "^9.1.6",
     "prettier": "^3.1.0",
-    "prettier-plugin-apex": "^2.0.1"
-  },
-  "lint-staged": {
-    "**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}": [
-      "prettier --write"
-    ]
+    "prettier-plugin-apex": "^2.0.1",
+    "write-good": "^1.0.8"
   }
 }

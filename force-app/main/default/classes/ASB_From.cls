@@ -8,7 +8,7 @@ public class ASB_From implements ASB_Clause {
   @TestVisible
   private final String stringVal;
   @TestVisible
-  private final Schema.SObjectType sObjType;
+  public final Schema.SObjectType sObjType;
 
   /**
    * Creates new insantace of ASB_From based on given SObjectType.

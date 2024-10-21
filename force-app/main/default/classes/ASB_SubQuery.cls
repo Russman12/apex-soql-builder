@@ -16,6 +16,7 @@ public with sharing class ASB_SubQuery extends ASB_Query {
   public static ASB_SubQuery relatedBy(Schema.sObjectField relationshipField) {
     return new ASB_SubQuery(relationshipField);
   }
+
   private ASB_SubQuery(Schema.sObjectField field) {
     super(new ASB_From(field));
   }
@@ -92,7 +93,7 @@ public with sharing class ASB_SubQuery extends ASB_Query {
    * @param limitx limit to add to query.
    * @return  `ASB`
    */
-  public ASB_SubQuery recordlimit(Integer limitx) {
+  public ASB_SubQuery recordLimit(Integer limitx) {
     return (ASB_SubQuery) superLimit(limitx);
   }
 
@@ -101,7 +102,13 @@ public with sharing class ASB_SubQuery extends ASB_Query {
    * @return  `String`
    */
   public String soqlString() {
-    ASB_Clause[] clauses = new List<ASB_Clause>{ this.asbSelect, this.asbFrom, this.asbWhere };
+    ASB_Clause[] clauses = new List<ASB_Clause>{
+      this.asbSelect,
+      this.asbFrom,
+      this.asbWhere,
+      this.asbOrderBy,
+      this.asbLimit
+    };
 
     ASB_Clause[] setClauses = new List<ASB_Clause>{};
     for (ASB_Clause clause : clauses) {

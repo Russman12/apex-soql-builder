@@ -1,5 +1,5 @@
 /**
- * Provides test coverage for ASB and ASB_SubQuery classes
+ * Provides test coverage for ASB class
  * @author Russell Laboe
  */
 @isTest
@@ -16,23 +16,23 @@ public with sharing class ASB_Test {
 
     ASB_Where confirmedLargeAccs = ASB_Where.groupAnd(confirmedAccs, largeAccs);
 
-    ASB asb = ASB.make(Account.getSObjectType())
+    ASB asb = ASB.sObject(Account.getSObjectType())
       .selectField(Account.Id)
       .selectField(Account.Name)
       .selectField(Account.OwnerId)
       .selectParentField(Account.OwnerId, User.LastName)
       .selectParentField(Account.OwnerId, User.ProfileId, Profile.Name)
       .selectSubQuery(contactsSelect)
-      .wherex(ASB_Where.groupOr(testAccWhere, confirmedLargeAccs))
+      .filter(ASB_Where.groupOr(testAccWhere, confirmedLargeAccs))
       .orderBy(ASB_OrderBy.field(Account.Name).descending())
-      .limitx(5);
+      .recordLimit(5);
 
     Test.startTest();
     String soqlString = asb.soqlString();
     Test.stopTest();
 
     System.assertEquals(
-      'SELECT Id, Name, OwnerId, Owner.LastName, Owner.Profile.Name, (SELECT Id, Name FROM Contacts) FROM Account WHERE Name = \'test\' OR (Name IN :accNames AND NumberOfEmployees > 10)',
+      'SELECT Id, Name, OwnerId, Owner.LastName, Owner.Profile.Name, (SELECT Id, Name FROM Contacts) FROM Account WHERE Name = \'test\' OR (Name IN :accNames AND NumberOfEmployees > 10) ORDER BY Name DESC LIMIT 5',
       soqlString,
       'unexpected soql string returned'
     );
@@ -52,10 +52,10 @@ public with sharing class ASB_Test {
 
     //build Query
     Test.startTest();
-    List<Account> queriedAccs = (List<Account>) ASB.make(Account.getSObjectType())
+    List<Account> queriedAccs = (List<Account>) ASB.sObject(Account.getSObjectType())
       .selectField(Account.Id)
       .selectField(Account.Name)
-      .wherex(ASB_Where.field(Account.Name).equals().string('test2'))
+      .filter(ASB_Where.field(Account.Name).equals().string('test2'))
       .query();
     Test.stopTest();
 
@@ -78,10 +78,10 @@ public with sharing class ASB_Test {
 
     //build Query
     Test.startTest();
-    List<Account> queriedAccs = (List<Account>) ASB.make(Account.getSObjectType())
+    List<Account> queriedAccs = (List<Account>) ASB.sObject(Account.getSObjectType())
       .selectField(Account.Id)
       .selectField(Account.Name)
-      .wherex(ASB_Where.field(Account.Name).isIn().bind('accNames'))
+      .filter(ASB_Where.field(Account.Name).isIn().bind('accNames'))
       .orderBy(ASB_OrderBy.field(Account.Name).ascending())
       .query(new Map<String, Object>{ 'accNames' => new List<String>{ 'test2', 'test3' } });
     Test.stopTest();

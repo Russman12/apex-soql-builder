@@ -51,14 +51,12 @@ private class ASB_Where_Test {
     String[] expectedClauses = new List<String>{
       'WHERE Owner.LastName = \'Foo\' AND Owner.Profile.Name != \'Foo\'',
       'WHERE Owner.LastName = \'Foo\' AND Owner.Profile.Name != \'Foo\' AND Name IN (\'Foo\', \'Bar\')',
-      'WHERE Owner.LastName = \'Foo\' AND Owner.Profile.Name != \'Foo\' AND Name IN (\'Foo\', \'Bar\') AND Owner.LastName = \'Foo\'',
       'WHERE Owner.LastName = \'Foo\' AND Owner.Profile.Name != \'Foo\' AND Name IN (\'Foo\', \'Bar\') AND Owner.LastName = \'Foo\' AND Owner.Profile.Name != \'Foo\''
     };
 
     String[] actualClauses = new List<String>{
       ASB_Where.groupAnd(clause1, clause2).clauseString(),
       ASB_Where.groupAnd(clause1, clause2, clause3).clauseString(),
-      ASB_Where.groupAnd(clause1, clause2, clause3, clause1).clauseString(),
       ASB_Where.groupAnd(new List<ASB_Where>{ clause1, clause2, clause3, clause1, clause2 }).clauseString()
     };
 
@@ -83,14 +81,12 @@ private class ASB_Where_Test {
     String[] expectedClauses = new List<String>{
       'WHERE Owner.LastName = \'Foo\' OR Owner.Profile.Name != \'Foo\'',
       'WHERE Owner.LastName = \'Foo\' OR Owner.Profile.Name != \'Foo\' OR Name IN (\'Foo\', \'Bar\')',
-      'WHERE Owner.LastName = \'Foo\' OR Owner.Profile.Name != \'Foo\' OR Name IN (\'Foo\', \'Bar\') OR Owner.LastName = \'Foo\'',
       'WHERE Owner.LastName = \'Foo\' OR Owner.Profile.Name != \'Foo\' OR Name IN (\'Foo\', \'Bar\') OR Owner.LastName = \'Foo\' OR Owner.Profile.Name != \'Foo\''
     };
 
     String[] actualClauses = new List<String>{
       ASB_Where.groupOr(clause1, clause2).clauseString(),
       ASB_Where.groupOr(clause1, clause2, clause3).clauseString(),
-      ASB_Where.groupOr(clause1, clause2, clause3, clause1).clauseString(),
       ASB_Where.groupOr(new List<ASB_Where>{ clause1, clause2, clause3, clause1, clause2 }).clauseString()
     };
 

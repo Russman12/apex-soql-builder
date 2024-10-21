@@ -6,12 +6,12 @@ public abstract class ASB_Query {
   protected ASB_Select asbSelect;
   protected final ASB_From asbFrom;
   protected ASB_Where asbWhere;
-  protected ASB_OrderBy asbOrder;
+  protected ASB_OrderBy asbOrderBy;
   protected ASB_Limit asbLimit;
 
   protected ASB_Query(ASB_From asbFrom) {
     this.asbFrom = asbFrom;
-    this.asbSelect = new ASB_Select();
+    this.asbSelect = new ASB_Select(asbFrom.sObjType.getDescribe().fields.getMap().get('Id'));
   }
 
   protected virtual ASB_Query superSelect(ASB_Select asbSelect) {
@@ -24,8 +24,8 @@ public abstract class ASB_Query {
     return this;
   }
 
-  protected virtual ASB_Query superOrderBy(ASB_OrderBy asbOrder) {
-    this.asbOrder = asbOrder;
+  protected virtual ASB_Query superOrderBy(ASB_OrderBy asbOrderBy) {
+    this.asbOrderBy = asbOrderBy;
     return this;
   }
 

@@ -18,7 +18,7 @@ public with sharing class ASB extends ASB_Query {
    * @param sObjType Type to make the FROM clause for.
    * @return  `ASB`
    */
-  public static ASB make(Schema.SObjectType sObjType) {
+  public static ASB sObject(Schema.SObjectType sObjType) {
     return new ASB(sObjType);
   }
 
@@ -64,7 +64,7 @@ public with sharing class ASB extends ASB_Query {
    * ```
    */
   public ASB selectParentField(Schema.SObjectField relationshipField, Schema.SObjectField field) {
-    return (ASB) superSelect(asbSelect.parent(relationshipField, field));
+    return (ASB) selectParentField(new List<Schema.SObjectField>{ relationshipField, field });
   }
   /**
    * Adds given parent fieldPath to select clause.
@@ -84,7 +84,7 @@ public with sharing class ASB extends ASB_Query {
     Schema.SObjectField relationshipField2,
     Schema.SObjectField field
   ) {
-    return (ASB) superSelect(asbSelect.parent(relationshipField1, relationshipField2, field));
+    return (ASB) selectParentField(new List<Schema.SObjectField>{ relationshipField1, relationshipField2, field });
   }
   /**
    * Adds given `ASB_SubQuery` to select clause.
@@ -120,7 +120,7 @@ public with sharing class ASB extends ASB_Query {
    * @param limitx limit to add to query.
    * @return  `ASB`
    */
-  public ASB recordlimit(Integer limitx) {
+  public ASB recordLimit(Integer limitx) {
     return (ASB) superLimit(limitx);
   }
 
@@ -145,7 +145,13 @@ public with sharing class ASB extends ASB_Query {
    * @return  `String`
    */
   public String soqlString() {
-    ASB_Clause[] clauses = new List<ASB_Clause>{ this.asbSelect, this.asbFrom, this.asbWhere };
+    ASB_Clause[] clauses = new List<ASB_Clause>{
+      this.asbSelect,
+      this.asbFrom,
+      this.asbWhere,
+      this.asbOrderBy,
+      this.asbLimit
+    };
 
     ASB_Clause[] setClauses = new List<ASB_Clause>{};
     for (ASB_Clause clause : clauses) {
