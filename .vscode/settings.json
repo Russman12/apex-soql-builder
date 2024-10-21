@@ -6,5 +6,6 @@
   },
   "[apex]": {
     "editor.tabSize": 2
-  }
+},
+"codeAnalyzer.pMD.customConfigFile": "./apex-ruleset.xml"
 }

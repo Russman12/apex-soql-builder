@@ -6,38 +6,47 @@
 public class ASB_Select implements ASB_Clause {
   private final List<Element> elements;
 
+  /**
+   * Creates new instance of `ASB_Select`
+   */
   public ASB_Select() {
     this.elements = new List<Element>{};
   }
 
+  /**
+   * Adds field to `ASB_Select` instance.
+   * @param field Field to add to select clause.
+   * @return  `ASB_Select`
+   */
   public ASB_Select field(Schema.SObjectField field) {
     this.elements.add(new FieldElement(field));
     return this;
   }
 
+  /**
+   * Adds suquery to `ASB_Select` instance.
+   * @param subQuery Subquery to add to the select clause.
+   * @return  `ASB_Select`
+   */
   public ASB_Select subQuery(ASB_SubQuery subQuery) {
     this.elements.add(new SubqueryElement(subQuery));
     return this;
   }
 
+  /**
+   * Adds a parent record field to `ASB_Select` instance.
+   * @param fieldPath Path to parent field.
+   * @return  `ASB_Select`
+   */
   public ASB_Select parent(List<Schema.SObjectField> fieldPath) {
     this.elements.add(new FieldElement(fieldPath));
     return this;
   }
-  public ASB_Select parent(Schema.SObjectField parentField, Schema.SObjectField field) {
-    this.elements.add(new FieldElement(new List<Schema.SObjectField>{ parentField, field }));
-    return this;
-  }
 
-  public ASB_Select parent(
-    Schema.SObjectField parent1Field,
-    Schema.SObjectField parent2Field,
-    Schema.SObjectField field
-  ) {
-    this.elements.add(new FieldElement(new List<Schema.SObjectField>{ parent1Field, parent2Field, field }));
-    return this;
-  }
-
+  /**
+   * Returns instance as a SELECT clause query string.
+   * @return  `String`
+   */
   public String clauseString() {
     return 'SELECT ' + String.join(elementsToStrings(), ', ');
   }
@@ -61,6 +70,10 @@ public class ASB_Select implements ASB_Clause {
       this.relationshipPath = relationshipPath;
     }
 
+    /**
+     * Returns instance as a query string component.
+     * @return  `String`
+     */
     public String queryString() {
       String[] fieldStrs = new List<String>{};
       for (Integer i = 0; i < this.relationshipPath.size() - 1; i++) {
@@ -79,12 +92,20 @@ public class ASB_Select implements ASB_Clause {
       this.subQuery = subQuery;
     }
 
+    /**
+     * Returns instance as a query string component.
+     * @return  `String`
+     */
     public String queryString() {
       return '(' + this.subQuery.soqlString() + ')';
     }
   }
 
   private interface Element {
+    /**
+     * Returns instance as a query string component.
+     * @return  `String`
+     */
     String queryString();
   }
 }

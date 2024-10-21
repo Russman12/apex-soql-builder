@@ -7,6 +7,10 @@
 public class ASB_Limit implements ASB_Clause {
   private final Integer limitx;
 
+  /**
+   * Creates new limit instance.
+   * @param limitx value to set limit to.
+   */
   public ASB_Limit(Integer limitx) {
     this.limitx = limitx;
   }

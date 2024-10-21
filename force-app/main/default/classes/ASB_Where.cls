@@ -1,8 +1,6 @@
 /**
- * SOQL WHERE clause.
- * @description This class encompasses functionality relating to building a WHERE clause. It ca
+ * Encompasses functionality relating to building a WHERE clause.
  * @author Russell Laboe
- * @group Apex SOQL Builder
  */
 public class ASB_Where implements ASB_Clause, Expression {
   public static ComparisonOperator field(Schema.SObjectField field) {
@@ -21,9 +19,6 @@ public class ASB_Where implements ASB_Clause, Expression {
   public static ASB_Where groupAnd(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
     return groupAnd(new List<ASB_Where>{ exp1, exp2, exp3 });
   }
-  public static ASB_Where groupAnd(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3, ASB_Where exp4) {
-    return groupAnd(new List<ASB_Where>{ exp1, exp2, exp3, exp4 });
-  }
   public static ASB_Where groupAnd(ASB_Where[] expressions) {
     return new ASB_Where(new LogicalGroup(expressions, 'AND'));
   }
@@ -33,9 +28,6 @@ public class ASB_Where implements ASB_Clause, Expression {
   }
   public static ASB_Where groupOr(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
     return groupOr(new List<ASB_Where>{ exp1, exp2, exp3 });
-  }
-  public static ASB_Where groupOr(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3, ASB_Where exp4) {
-    return groupOr(new List<ASB_Where>{ exp1, exp2, exp3, exp4 });
   }
   public static ASB_Where groupOr(ASB_Where[] expressions) {
     return new ASB_Where(new LogicalGroup(expressions, 'OR'));
