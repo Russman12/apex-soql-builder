@@ -4,13 +4,14 @@
  * @group Apex SOQL Builder
  */
 public class ASB_Select implements ASB_Clause {
-  private final List<Element> elements;
+  private final Map<Element, Element> elements;
 
   /**
    * Creates new instance of `ASB_Select`
    */
   public ASB_Select(SObjectField defaultField) {
-    this.elements = new List<Element>{ new FieldElement(defaultField) };
+    Element e = new FieldElement(defaultField);
+    this.elements = new Map<Element, Element>{ e => e };
   }
 
   /**
@@ -19,17 +20,24 @@ public class ASB_Select implements ASB_Clause {
    * @return  `ASB_Select`
    */
   public ASB_Select field(Schema.SObjectField field) {
-    this.elements.add(new FieldElement(field));
+    Element e = new FieldElement(field);
+    this.elements.put(e, e);
     return this;
   }
 
   /**
-   * Adds suquery to `ASB_Select` instance.
+   * Adds suquery to `ASB_Select` instance. throws exeption if a different subquery for the same child object is added.
    * @param subQuery Subquery to add to the select clause.
    * @return  `ASB_Select`
    */
   public ASB_Select subQuery(ASB_SubQuery subQuery) {
-    this.elements.add(new SubqueryElement(subQuery));
+    Element e = new SubqueryElement(subQuery);
+    SubqueryElement thisSubQueryElement = ((SubqueryElement) this.elements.get(e));
+    if (this.elements.keySet().contains(e) && thisSubQueryElement.subQuery != subQuery) {
+      thisSubQueryElement.subQuery.combine(subQuery);
+    } else {
+      this.elements.put(e, e);
+    }
     return this;
   }
 
@@ -39,7 +47,22 @@ public class ASB_Select implements ASB_Clause {
    * @return  `ASB_Select`
    */
   public ASB_Select parent(List<Schema.SObjectField> fieldPath) {
-    this.elements.add(new FieldElement(fieldPath));
+    Element e = new FieldElement(fieldPath);
+    this.elements.put(e, e);
+    return this;
+  }
+
+  /**
+   * Combines given `ASB_Select` instance with this instance.
+   * @param asbSelect `ASB_Select` to combine with this instance.
+   * @return  `ASB_Select`
+   */
+  public ASB_Select combine(ASB_Select asbSelect) {
+    for (element e : asbSelect.elements.keySet()) {
+      if (!this.elements.containsKey(e)) {
+        this.elements.put(e, e);
+      }
+    }
     return this;
   }
 
@@ -52,11 +75,11 @@ public class ASB_Select implements ASB_Clause {
   }
 
   private String[] elementsToStrings() {
-    Set<String> strs = new Set<String>();
-    for (Element element : this.elements) {
-      strs.add(element.queryString());
+    List<String> elementStrs = new List<String>();
+    for (Element element : this.elements.keySet()) {
+      elementStrs.add(element.queryString());
     }
-    return new List<String>(strs);
+    return elementStrs;
   }
 
   private class FieldElement implements Element {
@@ -83,10 +106,18 @@ public class ASB_Select implements ASB_Clause {
 
       return String.join(fieldStrs, '.');
     }
+
+    public Integer hashCode() {
+      return this.relationshipPath.hashCode();
+    }
+
+    public Boolean equals(Object obj) {
+      return this.hashCode().equals(obj.hashCode());
+    }
   }
 
-  private class SubqueryElement implements Element {
-    private final ASB_SubQuery subQuery;
+  public class SubqueryElement implements Element {
+    public final ASB_SubQuery subQuery;
 
     private SubqueryElement(ASB_SubQuery subQuery) {
       this.subQuery = subQuery;
@@ -98,6 +129,14 @@ public class ASB_Select implements ASB_Clause {
      */
     public String queryString() {
       return '(' + this.subQuery.soqlString() + ')';
+    }
+
+    public Integer hashCode() {
+      return this.subQuery.relatedBy().hashCode();
+    }
+
+    public Boolean equals(Object obj) {
+      return this.hashCode().equals(obj.hashCode());
     }
   }
 

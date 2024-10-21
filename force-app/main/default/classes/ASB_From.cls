@@ -25,11 +25,20 @@ public class ASB_From implements ASB_Clause {
    */
   public ASB_From(Schema.sObjectField relationshipField) {
     Schema.DescribeFieldResult fieldDescribe = relationshipField.getDescribe();
+
+    if (fieldDescribe.getRelationshipName() == null) {
+      throw new InvalidRelationshipException(relationshipField + ' is not a relationship field');
+    }
+
     for (Schema.ChildRelationship cr : fieldDescribe.getReferenceTo()[0].getDescribe().getChildRelationships()) {
       if (cr.getField() == relationshipField) {
         this.stringVal = cr.getRelationshipName();
         break;
       }
+    }
+
+    if (this.stringVal == null) {
+      throw new InvalidRelationshipException(relationshipField + ' is not a relationship that can be queried');
     }
     this.sObjType = fieldDescribe.getSObjectType();
   }
@@ -40,5 +49,17 @@ public class ASB_From implements ASB_Clause {
    */
   public String clauseString() {
     return 'FROM ' + this.stringVal;
+  }
+
+  public Integer hashCode() {
+    return this.stringVal.hashCode();
+  }
+
+  public Boolean equals(Object obj) {
+    return this.hashCode().equals(obj.hashCode());
+  }
+
+  @TestVisible
+  private class InvalidRelationshipException extends Exception {
   }
 }

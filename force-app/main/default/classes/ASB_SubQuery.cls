@@ -17,8 +17,11 @@ public with sharing class ASB_SubQuery extends ASB_Query {
     return new ASB_SubQuery(relationshipField);
   }
 
+  private final Schema.sObjectField relationshipField;
+
   private ASB_SubQuery(Schema.sObjectField field) {
     super(new ASB_From(field));
+    this.relationshipField = field;
   }
 
   /**
@@ -97,6 +100,43 @@ public with sharing class ASB_SubQuery extends ASB_Query {
     return (ASB_SubQuery) superLimit(limitx);
   }
 
+  public Schema.sObjectField relatedBy() {
+    return this.relationshipField;
+  }
+
+  /**
+   *
+   * @param subQuery subquery to
+   * @return  `ASB_SubQuery`
+   * @exception `InvalidCombineException` thrown if any element of the query cannot be combined
+   */
+  public ASB_SubQuery combine(ASB_SubQuery subQuery) {
+    if (this.asbFrom != subQuery.asbFrom) {
+      throw new InvalidCombineException('unable to combine subQueries selecting from different sObjects');
+    }
+    if (this.asbLimit != null || subQuery.asbLimit != null) {
+      throw new InvalidCombineException('unable to combine subQueries with record limits');
+    }
+    if (this.asbOrderBy != null || subQuery.asbOrderBy != null) {
+      throw new InvalidCombineException('unable to combine subQueries with specific ordering');
+    }
+    if (this.asbWhere != null || subQuery.asbWhere != null) {
+      throw new InvalidCombineException('unable to combine subQueries with filters');
+    }
+
+    this.asbSelect.combine(subQuery.asbSelect);
+
+    return this;
+  }
+
+  public Integer hashCode() {
+    return this.soqlString().hashCode();
+  }
+
+  public Boolean equals(Object obj) {
+    return this.hashCode().equals(obj.hashCode());
+  }
+
   /**
    * Converts SubQuery to SOQL string.
    * @return  `String`
@@ -122,5 +162,9 @@ public with sharing class ASB_SubQuery extends ASB_Query {
       strs.add(clause.clauseString());
     }
     return String.join(strs, ' ');
+  }
+
+  @TestVisible
+  private class InvalidCombineException extends Exception {
   }
 }
