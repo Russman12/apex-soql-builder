@@ -9,7 +9,7 @@
       "versionDescription": "Apex classes used to procedurally generate SOQL queries"
     }
   ],
-  "name": "test",
+  "name": "apex-soql-builder",
   "namespace": "",
   "sfdcLoginUrl": "https://login.salesforce.com",
   "sourceApiVersion": "59.0",
