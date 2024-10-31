@@ -6,12 +6,15 @@
 public class ASB_Select implements ASB_Clause {
   private final Map<Element, Element> elements;
 
+  public static ASB_Select make() {
+    return new ASB_Select();
+  }
+
   /**
    * Creates new instance of `ASB_Select`
    */
-  public ASB_Select(SObjectField defaultField) {
-    Element e = new FieldElement(defaultField);
-    this.elements = new Map<Element, Element>{ e => e };
+  private ASB_Select() {
+    this.elements = new Map<Element, Element>{};
   }
 
   /**
@@ -38,6 +41,33 @@ public class ASB_Select implements ASB_Clause {
     } else {
       this.elements.put(e, e);
     }
+    return this;
+  }
+
+  /**
+   * Adds a parent record field to `ASB_Select` instance.
+   * @param relationshipField Relationship field.
+   * @param field Parent field.
+   * @return  `ASB_Select`
+   */
+  public ASB_Select parent(Schema.SObjectField relationshipField, Schema.SObjectField field) {
+    this.parent(new List<Schema.SObjectField>{ relationshipField, field });
+    return this;
+  }
+
+  /**
+   * Adds a parent record field to `ASB_Select` instance.
+   * @param relationshipField1 First relationship field.
+   * @param relationshipField2 Second relationship field.
+   * @param field Parent field.
+   * @return  `ASB_Select`
+   */
+  public ASB_Select parent(
+    Schema.SObjectField relationshipField1,
+    Schema.SObjectField relationshipField2,
+    Schema.SObjectField field
+  ) {
+    this.parent(new List<Schema.SObjectField>{ relationshipField1, relationshipField2, field });
     return this;
   }
 

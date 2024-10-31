@@ -16,13 +16,16 @@ public with sharing class ASB_Test {
 
     ASB_Where confirmedLargeAccs = ASB_Where.groupAnd(confirmedAccs, largeAccs);
 
+    ASB_Select selection = ASB_Select.make()
+      .field(Account.Id)
+      .field(Account.Name)
+      .field(Account.OwnerId)
+      .parent(Account.OwnerId, User.LastName)
+      .parent(Account.OwnerId, User.ProfileId, Profile.Name)
+      .subQuery(contactsSelect);
+
     ASB asb = ASB.sObject(Account.getSObjectType())
-      .selectField(Account.Id)
-      .selectField(Account.Name)
-      .selectField(Account.OwnerId)
-      .selectParentField(Account.OwnerId, User.LastName)
-      .selectParentField(Account.OwnerId, User.ProfileId, Profile.Name)
-      .selectSubQuery(contactsSelect)
+      .selection(selection)
       .filter(ASB_Where.groupOr(testAccWhere, confirmedLargeAccs))
       .orderBy(ASB_OrderBy.field(Account.Name).descending())
       .recordLimit(5);
@@ -53,8 +56,7 @@ public with sharing class ASB_Test {
     //build Query
     Test.startTest();
     List<Account> queriedAccs = (List<Account>) ASB.sObject(Account.getSObjectType())
-      .selectField(Account.Id)
-      .selectField(Account.Name)
+      .selection(ASB_Select.make().field(Account.Id).field(Account.Name))
       .filter(ASB_Where.field(Account.Name).equals().string('test2'))
       .query();
     Test.stopTest();
@@ -79,8 +81,7 @@ public with sharing class ASB_Test {
     //build Query
     Test.startTest();
     List<Account> queriedAccs = (List<Account>) ASB.sObject(Account.getSObjectType())
-      .selectField(Account.Id)
-      .selectField(Account.Name)
+      .selection(ASB_Select.make().field(Account.Id).field(Account.Name))
       .filter(ASB_Where.field(Account.Name).isIn().bind('accNames'))
       .orderBy(ASB_OrderBy.field(Account.Name).ascending())
       .query(new Map<String, Object>{ 'accNames' => new List<String>{ 'test2', 'test3' } });

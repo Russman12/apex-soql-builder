@@ -11,7 +11,7 @@ public abstract class ASB_Query {
 
   protected ASB_Query(ASB_From asbFrom) {
     this.asbFrom = asbFrom;
-    this.asbSelect = new ASB_Select(asbFrom.sObjType.getDescribe().fields.getMap().get('Id'));
+    this.asbSelect = ASB_Select.make().field(asbFrom.sObjType.getDescribe().fields.getMap().get('Id'));
   }
 
   protected virtual ASB_Query superSelect(ASB_Select asbSelect) {

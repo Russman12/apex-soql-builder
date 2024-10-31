@@ -33,72 +33,10 @@ public with sharing class ASB extends ASB_Query {
    * @param field Field to add to Select Clause.
    * @return  `ASB`
    */
-  public ASB selectField(Schema.SObjectField field) {
-    return (ASB) superSelect(asbSelect.field(field));
+  public ASB selection(ASB_Select asbSelect) {
+    return (ASB) superSelect(asbSelect);
   }
 
-  /**
-   * Adds given parent fieldPath to select clause.
-   * @param fieldPath field path to add to clause.
-   * @return  `ASB`
-   *
-   * @example
-   * ```apex
-   * ASB.make(Account.getSObjectType())
-   *  .selectParentField(new List<SObjectField>{Account.OwnerId, User.Name})
-   * ```
-   */
-  public ASB selectParentField(Schema.SObjectField[] fieldPath) {
-    return (ASB) superSelect(asbSelect.parent(fieldPath));
-  }
-  /**
-   * Adds given parent fieldPath to select clause.
-   * @param relationshipField relationship field to parent.
-   * @param field parent field.
-   * @return  `ASB`
-   *
-   * @example
-   * ```apex
-   * ASB.make(Account.getSObjectType())
-   *  .selectParentField(Account.OwnerId, User.Name)
-   * ```
-   */
-  public ASB selectParentField(Schema.SObjectField relationshipField, Schema.SObjectField field) {
-    return (ASB) selectParentField(new List<Schema.SObjectField>{ relationshipField, field });
-  }
-  /**
-   * Adds given parent fieldPath to select clause.
-   * @param relationshipField1 relationship field to first parent.
-   * @param relationshipField2 relationship field to second parent.
-   * @param field parent field.
-   * @return  `ASB`
-   *
-   * @example
-   * ```apex
-   * ASB.make(Account.getSObjectType())
-   *  .selectParentField(Account.OwnerId, User.ProfileId, Profile.Name)
-   * ```
-   */
-  public ASB selectParentField(
-    Schema.SObjectField relationshipField1,
-    Schema.SObjectField relationshipField2,
-    Schema.SObjectField field
-  ) {
-    return (ASB) selectParentField(new List<Schema.SObjectField>{ relationshipField1, relationshipField2, field });
-  }
-  /**
-   * Adds given `ASB_SubQuery` to select clause.
-   * @param subQuery subquery to add to select clause.
-   * @return  `ASB`
-   * @example
-   * ```apex
-   * ASB.make(Account.getSObjectType())
-   *  .selectSubQuery(ASB_SubQuery.relatedBy(Contact.AccountId).field(Contact.Name))
-   * ```
-   */
-  public ASB selectSubQuery(ASB_SubQuery subQuery) {
-    return (ASB) superSelect(asbSelect.subQuery(subQuery));
-  }
   /**
    * Adds given `ASB_Where` clause filter to query.
    * @param asbWhere where clasue to add to query.

@@ -10,7 +10,7 @@ private class ASB_Select_Test {
   @isTest
   static void field() {
     Test.startTest();
-    String clauseStr = (new ASB_Select(Account.Id)).field(Account.Name).clauseString();
+    String clauseStr = (ASB_Select.make().field(Account.Id)).field(Account.Name).clauseString();
     Test.stopTest();
 
     System.Assert.areEqual('SELECT Id, Name', clauseStr, 'Unexpected clause string returned');
@@ -22,7 +22,7 @@ private class ASB_Select_Test {
   @isTest
   static void subQuery() {
     Test.startTest();
-    String clauseStr = (new ASB_Select(Account.Id))
+    String clauseStr = (ASB_Select.make().field(Account.Id))
       .subQuery(ASB_SubQuery.relatedBy(Contact.AccountId).selectField(Contact.Id))
       .clauseString();
     Test.stopTest();
@@ -36,7 +36,7 @@ private class ASB_Select_Test {
   @isTest
   static void parent() {
     Test.startTest();
-    String clauseStr = (new ASB_Select(Account.Id))
+    String clauseStr = (ASB_Select.make().field(Account.Id))
       .parent(new List<Schema.SobjectField>{ Account.OwnerId, User.Name })
       .parent(new List<Schema.SobjectField>{ Account.OwnerId, User.ProfileId, Profile.Name })
       .clauseString();
@@ -57,13 +57,13 @@ private class ASB_Select_Test {
     ASB_SubQuery subQuery2 = ASB_SubQuery.relatedBy(Contact.AccountId).selectField(Contact.LastName);
     ASB_SubQuery subQuery3 = ASB_SubQuery.relatedBy(User.AccountId).selectField(User.Name);
     Test.startTest();
-    String clauseStr1 = (new ASB_Select(Account.Id)).field(Account.Id).clauseString();
-    String clauseStr2 = (new ASB_Select(Account.Id))
+    String clauseStr1 = (ASB_Select.make().field(Account.Id)).field(Account.Id).clauseString();
+    String clauseStr2 = (ASB_Select.make().field(Account.Id))
       .parent(parentRelationshipPath1)
       .parent(parentRelationshipPath1)
       .parent(parentRelationshipPath2)
       .clauseString();
-    String clauseStr3 = (new ASB_Select(Account.Id))
+    String clauseStr3 = (ASB_Select.make().field(Account.Id))
       .subQuery(subQuery1)
       .subQuery(subQuery2)
       .subQuery(subQuery3)
