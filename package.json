@@ -12,7 +12,8 @@
     "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\" --cache",
     "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
     "prepare": "husky",
-    "precommit": "npm run prettier && npm run lint"
+    "precommit": "npm run prettier && npm run lint",
+    "version:create": "sf package version create --package \"Apex SOQL Builder\" --installation-key-bypass --wait 10"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.2.2",
