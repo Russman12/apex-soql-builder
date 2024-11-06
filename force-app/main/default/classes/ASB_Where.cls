@@ -3,36 +3,6 @@
  * @author Russell Laboe
  */
 public class ASB_Where implements ASB_Clause, Expression {
-  public static ComparisonOperator field(Schema.SObjectField field) {
-    return field(new List<Schema.SObjectField>{ field });
-  }
-  public static ComparisonOperator field(Schema.SObjectField relationshipField, Schema.SObjectField parentField) {
-    return field(new List<Schema.SObjectField>{ relationshipField, parentField });
-  }
-  public static ComparisonOperator field(Schema.SObjectField[] fieldPath) {
-    return new ComparisonOperator(fieldPath);
-  }
-
-  public static ASB_Where groupAnd(ASB_Where exp1, ASB_Where exp2) {
-    return groupAnd(new List<ASB_Where>{ exp1, exp2 });
-  }
-  public static ASB_Where groupAnd(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
-    return groupAnd(new List<ASB_Where>{ exp1, exp2, exp3 });
-  }
-  public static ASB_Where groupAnd(ASB_Where[] expressions) {
-    return new ASB_Where(new LogicalGroup(expressions, 'AND'));
-  }
-
-  public static ASB_Where groupOr(ASB_Where exp1, ASB_Where exp2) {
-    return groupOr(new List<ASB_Where>{ exp1, exp2 });
-  }
-  public static ASB_Where groupOr(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
-    return groupOr(new List<ASB_Where>{ exp1, exp2, exp3 });
-  }
-  public static ASB_Where groupOr(ASB_Where[] expressions) {
-    return new ASB_Where(new LogicalGroup(expressions, 'OR'));
-  }
-
   private final Expression expression;
 
   public ASB_Where(Expression expression) {
@@ -51,16 +21,23 @@ public class ASB_Where implements ASB_Clause, Expression {
     return this.expression.queryString();
   }
 
-  private interface Expression {
+  public interface Expression {
     String queryString();
   }
 
-  private class LogicalGroup implements Expression {
+  private abstract class LogicalGroup implements Expression {
     private final List<Expression> expressions;
     private final String logicOperator;
 
     private LogicalGroup(List<Expression> expressions, String logicOperator) {
-      this.expressions = expressions;
+      Expression[] exps = new List<Expression>();
+      for (Expression ex : expressions) {
+        if (ex != null) {
+          exps.add(ex);
+        }
+      }
+
+      this.expressions = exps;
       this.logicOperator = logicOperator;
     }
 
@@ -74,6 +51,17 @@ public class ASB_Where implements ASB_Clause, Expression {
         expStrs.add(exp.queryString());
       }
       return expStrs;
+    }
+  }
+
+  public class OrLogicalGroup extends LogicalGroup {
+    public OrLogicalGroup(List<Expression> expressions) {
+      super(expressions, 'OR');
+    }
+  }
+  public class AndLogicalGroup extends LogicalGroup {
+    public AndLogicalGroup(List<Expression> expressions) {
+      super(expressions, 'AND');
     }
   }
 
@@ -115,7 +103,7 @@ public class ASB_Where implements ASB_Clause, Expression {
   public class ComparisonOperator {
     private final Schema.SObjectField[] fieldPath;
 
-    private ComparisonOperator(Schema.SObjectField[] fieldPath) {
+    public ComparisonOperator(Schema.SObjectField[] fieldPath) {
       this.fieldPath = fieldPath;
     }
 

@@ -11,15 +11,15 @@
     "test:coverage": "sf apex run test --result-format human --output-dir ./tests/apex --test-level RunLocalTests --code-coverage --detailed-coverage --wait 20",
     "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\" --cache",
     "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
-    "prepare": "husky",
     "precommit": "npm run prettier && npm run lint",
-    "version:create": "sf package version create --package \"Apex SOQL Builder\" --installation-key-bypass --wait 10"
+    "version:create": "sf package version create --package \"Apex SOQL Builder\" --installation-key-bypass --wait 10",
+    "create": "sf org:create:scratch --definition-file config\\project-scratch-def.json --alias apexsoqlbuilder --duration-days 7 --set-default --json && sf data import tree --plan data/plan.json"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.2.2",
     "@commitlint/config-conventional": "^19.2.2",
     "@prettier/plugin-xml": "^3.2.2",
-    "husky": "^9.1.6",
+    "husky": "^8.0.0",
     "prettier": "^3.1.0",
     "prettier-plugin-apex": "^2.0.1",
     "write-good": "^1.0.8"

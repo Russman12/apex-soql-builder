@@ -6,14 +6,10 @@
 public class ASB_Select implements ASB_Clause {
   private final Map<Element, Element> elements;
 
-  public static ASB_Select make() {
-    return new ASB_Select();
-  }
-
   /**
    * Creates new instance of `ASB_Select`
    */
-  private ASB_Select() {
+  public ASB_Select() {
     this.elements = new Map<Element, Element>{};
   }
 
@@ -88,7 +84,7 @@ public class ASB_Select implements ASB_Clause {
    * @return  `ASB_Select`
    */
   public ASB_Select combine(ASB_Select asbSelect) {
-    for (element e : asbSelect.elements.keySet()) {
+    for (Element e : asbSelect.elements.keySet()) {
       if (!this.elements.containsKey(e)) {
         this.elements.put(e, e);
       }

@@ -11,7 +11,7 @@ public class ASB_From implements ASB_Clause {
   public final Schema.SObjectType sObjType;
 
   /**
-   * Creates new insantace of ASB_From based on given SObjectType.
+   * Creates new instance of ASB_From based on given SObjectType.
    * @param sObjType Type to make the FROM clause for.
    */
   public ASB_From(Schema.SObjectType sObjType) {

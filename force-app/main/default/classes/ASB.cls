@@ -1,107 +1,114 @@
-/**
- * Entry point of Apex SOQL Builder. This class encompasses funcoitnality relating to building a SOQL query.
- *
- * ## Basic Usage
- * ```apex
- * List<Account> testAccs = (List<Account>)ASB.make(Account.getSObjectType())
- *    .selectField(Account.Name)
- *    .wherex(ASB_Where.field(Account.Name).isLike().bind('accName'))
- *    .query(new Map<String, Object>{'accName' => '%test%'})
- * ```
- * @author Russell Laboe
- */
-public with sharing class ASB extends ASB_Query {
-  private static final System.AccessLevel DEFAULT_ACCESS_LEVEL = System.AccessLevel.SYSTEM_MODE;
-
+public with sharing class ASB {
   /**
-   * Creates new ASB instance.
+   * Creates new ASB_QueryBuilder instance.
    * @param sObjType Type to make the FROM clause for.
    * @return  `ASB`
    */
-  public static ASB sObject(Schema.SObjectType sObjType) {
-    return new ASB(sObjType);
+  public ASB_QueryBuilder make(Schema.SObjectType sObjType) {
+    return new ASB_QueryBuilder(sObjType);
   }
 
-  public System.AccessLevel accessLevel = DEFAULT_ACCESS_LEVEL;
-
-  private ASB(Schema.SObjectType sObjType) {
-    super(new ASB_From(sObjType));
-  }
-
-  /**
-   * Adds given field to select clause.
-   * @param field Field to add to Select Clause.
-   * @return  `ASB`
-   */
-  public ASB selection(ASB_Select asbSelect) {
-    return (ASB) superSelect(asbSelect);
+  public ASB_Select selection() {
+    return new ASB_Select();
   }
 
   /**
-   * Adds given `ASB_Where` clause filter to query.
-   * @param asbWhere where clasue to add to query.
-   * @return  `ASB`
+   * Creates a new `ASB_SubQuery` from given relationship field. The relationship field is the field that exists on a child object.
+   * @param relationshipField Relationship field from child to parent.
+   * @return  `ASB_SubQuery`
+   * @example
+   * ```apex
+   *   // this subquery would be added to an `ASB` which is selecting from Account
+   *   asb.subQuery(Contact.AccountId).selectField(Account.Id);
+   * ```
    */
-  public ASB filter(ASB_Where asbWhere) {
-    return (ASB) superWhere(asbWhere);
-  }
-  /**
-   * Sets given `ASB_OrderBy` clause to query.
-   * @param asbOrder order by clause to add to query.
-   * @return  `ASB`
-   */
-  public ASB orderBy(ASB_OrderBy asbOrder) {
-    return (ASB) superOrderBy(asbOrder);
-  }
-  /**
-   * Sets the given `ASB_Limit` to query.
-   * @param limitx limit to add to query.
-   * @return  `ASB`
-   */
-  public ASB recordLimit(Integer limitx) {
-    return (ASB) superLimit(limitx);
+  public ASB_SubQuery subQuery(Schema.sObjectField relationshipField) {
+    return new ASB_SubQuery(relationshipField);
   }
 
   /**
-   * Executes the SOQL query.
-   * @return  `List<SObject>`
+   * Creates new instance of ASB_From based on given SObjectType.
+   * @param sObjType Type to make the FROM clause for.
    */
-  public List<SObject> query() {
-    return Database.query(this.soqlString(), this.accessLevel);
-  }
-  /**
-   * Executes the SOQL query with variable bindings.
-   * @param binds map of bindings to use for query.
-   * @return  `List<SObject>`
-   */
-  public List<SObject> query(Map<String, Object> binds) {
-    return Database.queryWithBinds(this.soqlString(), binds, this.accessLevel);
+  public ASB_From fromx(Schema.SObjectType sObjType) {
+    return new ASB_From(sObjType);
   }
 
   /**
-   * Converts ASB to SOQL string.
-   * @return  `String`
+   * Creates new instance of ASB_From based on given relationship field.
+   * @param relationshipField the relationship to make the FROM clause for.
    */
-  public String soqlString() {
-    ASB_Clause[] clauses = new List<ASB_Clause>{
-      this.asbSelect,
-      this.asbFrom,
-      this.asbWhere,
-      this.asbOrderBy,
-      this.asbLimit
-    };
+  public ASB_From fromx(Schema.SObjectField relationshipField) {
+    return new ASB_From(relationshipField);
+  }
 
-    ASB_Clause[] setClauses = new List<ASB_Clause>{};
-    for (ASB_Clause clause : clauses) {
-      if (clause != null) {
-        setClauses.add(clause);
-      }
-    }
+  public ASB_Where.ComparisonOperator whereField(Schema.SObjectField field) {
+    return whereField(new List<Schema.SObjectField>{ field });
+  }
+  public ASB_Where.ComparisonOperator whereField(
+    Schema.SObjectField relationshipField,
+    Schema.SObjectField parentField
+  ) {
+    return whereField(new List<Schema.SObjectField>{ relationshipField, parentField });
+  }
+  public ASB_Where.ComparisonOperator whereField(Schema.SObjectField[] fieldPath) {
+    return new ASB_Where.ComparisonOperator(fieldPath);
+  }
 
-    String[] strs = new List<String>{};
-    for (ASB_Clause clause : setClauses) {
-      strs.add(clause.clauseString());
-    }
-    return String.join(strs, ' ');
+  public ASB_Where whereAnd(ASB_Where exp1, ASB_Where exp2) {
+    return whereAnd(new List<ASB_Where>{ exp1, exp2 });
+  }
+  public ASB_Where whereAnd(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
+    return whereAnd(new List<ASB_Where>{ exp1, exp2, exp3 });
+  }
+  public ASB_Where whereAnd(ASB_Where[] expressions) {
+    return new ASB_Where(new ASB_Where.AndLogicalGroup(expressions));
+  }
+
+  public ASB_Where whereOr(ASB_Where exp1, ASB_Where exp2) {
+    return whereOr(new List<ASB_Where>{ exp1, exp2 });
+  }
+  public ASB_Where whereOr(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
+    return whereOr(new List<ASB_Where>{ exp1, exp2, exp3 });
+  }
+  public ASB_Where whereOr(ASB_Where[] expressions) {
+    return new ASB_Where(new ASB_Where.OrLogicalGroup(expressions));
+  }
+
+  /**
+   * Sets field in Order By clause.
+   * @param field
+   * @return  `ASB_OrderBy`
+   */
+  public ASB_OrderBy orderByField(Schema.SObjectField field) {
+    return orderByFields(new List<Schema.SObjectField>{ field });
+  }
+
+  /**
+   * Sets 2 fields in Order By clause.
+   * @param field1
+   * @param field2
+   * @return  `ASB_OrderBy`
+   */
+  public ASB_OrderBy orderByFields(Schema.SObjectField field1, Schema.SObjectField field2) {
+    return orderByFields(new List<Schema.SObjectField>{ field1, field2 });
+  }
+
+  /**
+   * Sets fields in Order By clause.
+   * @param fields
+   * @return  `ASB_OrderBy`
+   */
+  public ASB_OrderBy orderByFields(Schema.SObjectField[] fields) {
+    return new ASB_OrderBy(fields);
+  }
+
+  /**
+   * Returns new ASB_Limit instance for query
+   * @param recordLimit
+   * @return  `ASB_Limit`
+   */
+  public ASB_Limit recordLimit(Integer recordLimit) {
+    return new ASB_Limit(recordLimit);
   }
 }

@@ -1,0 +1,1 @@
+SELECT Name, ParentId, NumberOfEmployees, BillingAddress, ShippingAddress FROM Account

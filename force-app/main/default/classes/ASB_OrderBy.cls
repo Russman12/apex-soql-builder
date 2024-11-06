@@ -7,35 +7,7 @@ public with sharing class ASB_OrderBy implements ASB_Clause {
   private String direction;
   private String nullsx;
 
-  /**
-   * Sets field in Order By clause.
-   * @param field
-   * @return  `ASB_OrderBy`
-   */
-  public static ASB_OrderBy field(Schema.SObjectField field) {
-    return fields(new List<Schema.SObjectField>{ field });
-  }
-
-  /**
-   * Sets fields in Order By clause.
-   * @param fields
-   * @return  `ASB_OrderBy`
-   */
-  public static ASB_OrderBy fields(Schema.SObjectField[] fields) {
-    return new ASB_OrderBy(fields);
-  }
-
-  /**
-   * Sets 2 fields in Order By clause.
-   * @param field1
-   * @param field2
-   * @return  `ASB_OrderBy`
-   */
-  public static ASB_OrderBy fields(Schema.SObjectField field1, Schema.SObjectField field2) {
-    return fields(new List<Schema.SObjectField>{ field1, field2 });
-  }
-
-  private ASB_OrderBy(Schema.SObjectField[] sObjFields) {
+  public ASB_OrderBy(Schema.SObjectField[] sObjFields) {
     this.fields = sObjFields;
   }
 

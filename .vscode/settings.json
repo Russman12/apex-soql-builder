@@ -7,5 +7,6 @@
   "[apex]": {
     "editor.tabSize": 2
 },
-"codeAnalyzer.pMD.customConfigFile": "./apex-ruleset.xml"
+"codeAnalyzer.pMD.customConfigFile": "./apex-ruleset.xml",
+"salesforce.einsteinForDevelopers.enableAutocompletions": false
 }

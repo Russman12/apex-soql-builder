@@ -3,23 +3,9 @@
  * @author Russell Laboe
  */
 public with sharing class ASB_SubQuery extends ASB_Query {
-  /**
-   * Creates a new `ASB_SubQuery` from given relationship field. The relationship field is the field that exists on a child object.
-   * @param relationshipField Relationship field from child to parent.
-   * @return  `ASB_SubQuery`
-   * @example
-   * ```apex
-   *   // this subquery would be added to an `ASB` which is selecting from Account
-   *   ASB_SubQuery.relatedBy(Contact.AccountId).selectField(Account.Id);
-   * ```
-   */
-  public static ASB_SubQuery relatedBy(Schema.sObjectField relationshipField) {
-    return new ASB_SubQuery(relationshipField);
-  }
-
   private final Schema.sObjectField relationshipField;
 
-  private ASB_SubQuery(Schema.sObjectField field) {
+  public ASB_SubQuery(Schema.sObjectField field) {
     super(new ASB_From(field));
     this.relationshipField = field;
   }
@@ -69,7 +55,7 @@ public with sharing class ASB_SubQuery extends ASB_Query {
    * @example
    * ```apex
    * ASB.make(Account.getSObjectType())
-   *  .selectSubQuery(ASB_SubQuery.relatedBy(Contact.AccountId).field(Contact.Name))
+   *  .selectSubQuery(asb.subQuery(Contact.AccountId).field(Contact.Name))
    * ```
    */
   public ASB_SubQuery selectSubQuery(ASB_SubQuery subQuery) {

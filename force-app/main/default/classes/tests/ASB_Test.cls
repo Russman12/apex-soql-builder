@@ -1,96 +1,134 @@
-/**
- * Provides test coverage for ASB class
- * @author Russell Laboe
- */
 @isTest
 public with sharing class ASB_Test {
+  private static ASB factory = new ASB();
+
+  private static ASB_Where whereExp = new ASB_Where(
+    (new ASB_Where.ComparisonOperator(new List<Schema.SObjectField>{ Account.Id })).equals().literal('test')
+  );
+
+  /**
+   * Ensures make executes as expected
+   */
   @isTest
-  static void clauseString() {
-    ASB_SubQuery contactsSelect = ASB_SubQuery.relatedBy(Contact.AccountId)
-      .selectField(Contact.Id)
-      .selectField(Contact.Name);
-
-    ASB_Where testAccWhere = ASB_Where.field(Account.Name).equals().string('test');
-    ASB_Where confirmedAccs = ASB_Where.field(Account.Name).isIn().bind('accNames');
-    ASB_Where largeAccs = ASB_Where.field(Account.NumberOfEmployees).greaterThan().literal('10');
-
-    ASB_Where confirmedLargeAccs = ASB_Where.groupAnd(confirmedAccs, largeAccs);
-
-    ASB_Select selection = ASB_Select.make()
-      .field(Account.Id)
-      .field(Account.Name)
-      .field(Account.OwnerId)
-      .parent(Account.OwnerId, User.LastName)
-      .parent(Account.OwnerId, User.ProfileId, Profile.Name)
-      .subQuery(contactsSelect);
-
-    ASB asb = ASB.sObject(Account.getSObjectType())
-      .selection(selection)
-      .filter(ASB_Where.groupOr(testAccWhere, confirmedLargeAccs))
-      .orderBy(ASB_OrderBy.field(Account.Name).descending())
-      .recordLimit(5);
-
+  static void make() {
     Test.startTest();
-    String soqlString = asb.soqlString();
+    ASB_QueryBuilder result = factory.make(Account.getSObjectType());
     Test.stopTest();
 
-    System.assertEquals(
-      'SELECT Id, Name, OwnerId, Owner.LastName, Owner.Profile.Name, (SELECT Id, Name FROM Contacts) FROM Account WHERE Name = \'test\' OR (Name IN :accNames AND NumberOfEmployees > 10) ORDER BY Name DESC LIMIT 5',
-      soqlString,
-      'unexpected soql string returned'
-    );
+    System.Assert.isNotNull(result, 'unexpected ASB_QueryBuilder returned');
   }
 
   /**
-   * Ensures query() returns expected results
+   * Ensures selection executes as expected
    */
   @isTest
-  static void query() {
-    Account a1 = new Account(Name = 'test1');
-    Account a2 = new Account(Name = 'test2');
-    Account a3 = new Account(Name = 'test3');
-
-    Account[] accs = new List<Account>{ a1, a2, a3 };
-    insert accs;
-
-    //build Query
+  static void selection() {
     Test.startTest();
-    List<Account> queriedAccs = (List<Account>) ASB.sObject(Account.getSObjectType())
-      .selection(ASB_Select.make().field(Account.Id).field(Account.Name))
-      .filter(ASB_Where.field(Account.Name).equals().string('test2'))
-      .query();
+    ASB_Select result = factory.selection();
     Test.stopTest();
 
-    System.Assert.areEqual(1, queriedAccs.size(), 'unexpected number of accounts returned');
-    System.Assert.areEqual('test2', queriedAccs[0].Name, 'unexpected account name returned');
-    System.Assert.isNotNull(queriedAccs[0].Id, 'id not returned');
+    System.Assert.isNotNull(result, 'unexpected ASB_Select returned');
   }
 
   /**
-   * Ensures query(binds) returns expected results
+   * Ensures subQuery executes as expected
    */
   @isTest
-  static void queryBinds() {
-    Account a1 = new Account(Name = 'test1');
-    Account a2 = new Account(Name = 'test2');
-    Account a3 = new Account(Name = 'test3');
-
-    Account[] accs = new List<Account>{ a1, a2, a3 };
-    insert accs;
-
-    //build Query
+  static void subQuery() {
     Test.startTest();
-    List<Account> queriedAccs = (List<Account>) ASB.sObject(Account.getSObjectType())
-      .selection(ASB_Select.make().field(Account.Id).field(Account.Name))
-      .filter(ASB_Where.field(Account.Name).isIn().bind('accNames'))
-      .orderBy(ASB_OrderBy.field(Account.Name).ascending())
-      .query(new Map<String, Object>{ 'accNames' => new List<String>{ 'test2', 'test3' } });
+    ASB_SubQuery result = factory.subQuery(Account.ParentId);
     Test.stopTest();
 
-    System.Assert.areEqual(2, queriedAccs.size(), 'unexpected number of accounts returned');
-    System.Assert.areEqual('test2', queriedAccs[0].Name, 'unexpected account name returned');
-    System.Assert.areEqual('test3', queriedAccs[1].Name, 'unexpected account name returned');
-    System.Assert.isNotNull(queriedAccs[0].Id, 'id not returned');
-    System.Assert.isNotNull(queriedAccs[1].Id, 'id not returned');
+    System.Assert.isNotNull(result, 'unexpected ASB_SubQuery returned');
+  }
+
+  /**
+   * Ensures all fromx method execute as expected
+   */
+  @isTest
+  static void fromx() {
+    Test.startTest();
+    ASB_From result1 = factory.fromx(Account.getSObjectType());
+    ASB_From result2 = factory.fromx(Account.ParentId);
+    Test.stopTest();
+
+    System.Assert.isNotNull(result1, 'unexpected ASB_From returned');
+    System.Assert.isNotNull(result2, 'unexpected ASB_From returned');
+  }
+
+  /**
+   * Ensures all whereField methods execute as expected
+   */
+  @isTest
+  static void whereField() {
+    Test.startTest();
+    ASB_Where.ComparisonOperator result1 = factory.whereField(Account.Name);
+    ASB_Where.ComparisonOperator result2 = factory.whereField(Account.Name, Account.ParentId);
+    ASB_Where.ComparisonOperator result3 = factory.whereField(new List<Schema.SObjectField>{ Account.Name });
+    Test.stopTest();
+
+    System.Assert.isNotNull(result1, 'unexpected ASB_Where.ComparisonOperator returned');
+    System.Assert.isNotNull(result2, 'unexpected ASB_Where.ComparisonOperator returned');
+    System.Assert.isNotNull(result3, 'unexpected ASB_Where.ComparisonOperator returned');
+  }
+
+  /**
+   * Ensures all whereAnd methods executes as expected
+   */
+  @isTest
+  static void whereAnd() {
+    Test.startTest();
+    ASB_Where result1 = factory.whereAnd(whereExp, whereExp);
+    ASB_Where result2 = factory.whereAnd(whereExp, whereExp, whereExp);
+    ASB_Where result3 = factory.whereAnd(new List<ASB_Where>{ whereExp });
+    Test.stopTest();
+
+    System.Assert.isNotNull(result1, 'unexpected ASB_Where returned');
+    System.Assert.isNotNull(result2, 'unexpected ASB_Where returned');
+    System.Assert.isNotNull(result3, 'unexpected ASB_Where returned');
+  }
+
+  /**
+   * Ensures all whereOr methods execute as expected
+   */
+  @isTest
+  static void whereOr() {
+    Test.startTest();
+    ASB_Where result1 = factory.whereOr(whereExp, whereExp);
+    ASB_Where result2 = factory.whereOr(whereExp, whereExp, whereExp);
+    ASB_Where result3 = factory.whereOr(new List<ASB_Where>{ whereExp });
+    Test.stopTest();
+
+    System.Assert.isNotNull(result1, 'unexpected ASB_Where returned');
+    System.Assert.isNotNull(result2, 'unexpected ASB_Where returned');
+    System.Assert.isNotNull(result3, 'unexpected ASB_Where returned');
+  }
+
+  /**
+   * Ensures all orderByfields methods execute as expected
+   */
+  @isTest
+  static void orderByFields() {
+    Test.startTest();
+    ASB_OrderBy result1 = factory.orderByfield(Account.Name);
+    ASB_OrderBy result2 = factory.orderByfields(Account.Name, Account.ParentId);
+    ASB_OrderBy result3 = factory.orderByfields(new List<Schema.SObjectField>{ Account.Name });
+    Test.stopTest();
+
+    System.Assert.isNotNull(result1, 'unexpected ASB_OrderBy returned');
+    System.Assert.isNotNull(result2, 'unexpected ASB_OrderBy returned');
+    System.Assert.isNotNull(result3, 'unexpected ASB_OrderBy returned');
+  }
+
+  /**
+   * Ensures all orderByfields methods execute as expected
+   */
+  @isTest
+  static void recordLimit() {
+    Test.startTest();
+    ASB_Limit result1 = factory.recordLimit(10);
+    Test.stopTest();
+
+    System.Assert.isNotNull(result1, 'unexpected ASB_Limit returned');
   }
 }

@@ -1,12 +1,15 @@
 @isTest
 public with sharing class ASB_SubQuery_Test {
+  //TODO: mock this
+  private static ASB asb = new ASB();
+
   /**
    * Ensures relatedBy method returns expected instance
    */
   @isTest
   static void relatedBy() {
     Test.startTest();
-    ASB_SubQuery subQuery = ASB_SubQuery.relatedBy(Contact.AccountId);
+    ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId);
     Test.stopTest();
 
     System.Assert.areEqual('SELECT Id FROM Contacts', subQuery.soqlString(), 'Unexpected soql string returned');
@@ -18,7 +21,7 @@ public with sharing class ASB_SubQuery_Test {
   @isTest
   static void selectField() {
     Test.startTest();
-    ASB_SubQuery subQuery = ASB_SubQuery.relatedBy(Contact.AccountId).selectField(Contact.Name);
+    ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId).selectField(Contact.Name);
     Test.stopTest();
 
     System.Assert.areEqual('SELECT Id, Name FROM Contacts', subQuery.soqlString(), 'Unexpected soql string returned');
@@ -30,7 +33,7 @@ public with sharing class ASB_SubQuery_Test {
   @isTest
   static void selectParentFieldList() {
     Test.startTest();
-    ASB_SubQuery subQuery = ASB_SubQuery.relatedBy(Contact.AccountId)
+    ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId)
       .selectParentField(new List<Schema.SObjectField>{ Contact.AccountId, Account.Name });
     Test.stopTest();
 
@@ -47,8 +50,7 @@ public with sharing class ASB_SubQuery_Test {
   @isTest
   static void selectParentField2() {
     Test.startTest();
-    ASB_SubQuery subQuery = ASB_SubQuery.relatedBy(Contact.AccountId)
-      .selectParentField(Contact.AccountId, Account.Name);
+    ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId).selectParentField(Contact.AccountId, Account.Name);
     Test.stopTest();
 
     System.Assert.areEqual(
@@ -63,8 +65,8 @@ public with sharing class ASB_SubQuery_Test {
    */
   @isTest
   static void selectSubQuery() {
-    ASB_SubQuery outerSub = ASB_SubQuery.relatedBy(Contact.AccountId);
-    ASB_SubQuery innerSub = ASB_SubQuery.relatedBy(Case.ContactId);
+    ASB_SubQuery outerSub = new ASB_SubQuery(Contact.AccountId);
+    ASB_SubQuery innerSub = new ASB_SubQuery(Case.ContactId);
     Test.startTest();
     outerSub = outerSub.selectSubQuery(innerSub);
     Test.stopTest();
@@ -82,8 +84,8 @@ public with sharing class ASB_SubQuery_Test {
   @isTest
   static void filter() {
     Test.startTest();
-    ASB_SubQuery subQuery = ASB_SubQuery.relatedBy(Contact.AccountId)
-      .filter(ASB_Where.field(Contact.Name).equals().string('test'));
+    ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId)
+      .filter(asb.whereField(Contact.Name).equals().string('test'));
     Test.stopTest();
 
     System.Assert.areEqual(
@@ -99,7 +101,7 @@ public with sharing class ASB_SubQuery_Test {
   @isTest
   static void orderBy() {
     Test.startTest();
-    ASB_SubQuery subQuery = ASB_SubQuery.relatedBy(Contact.AccountId).orderBy(ASB_OrderBy.field(Contact.Name));
+    ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId).orderBy(asb.orderByfield(Contact.Name));
     Test.stopTest();
 
     System.Assert.areEqual(
@@ -115,7 +117,7 @@ public with sharing class ASB_SubQuery_Test {
   @isTest
   static void recordLimit() {
     Test.startTest();
-    ASB_SubQuery subQuery = ASB_SubQuery.relatedBy(Contact.AccountId).recordLimit(10);
+    ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId).recordLimit(10);
     Test.stopTest();
 
     System.Assert.areEqual(
@@ -130,9 +132,9 @@ public with sharing class ASB_SubQuery_Test {
    */
   @IsTest
   static void combine() {
-    ASB_SubQuery subQuery1 = ASB_SubQuery.relatedBy(Contact.AccountId).selectField(Contact.FirstName);
-    ASB_SubQuery subQuery2 = ASB_SubQuery.relatedBy(Contact.AccountId).selectField(Contact.LastName);
-    ASB_SubQuery subQuery3 = ASB_SubQuery.relatedBy(Contact.AccountId);
+    ASB_SubQuery subQuery1 = new ASB_SubQuery(Contact.AccountId).selectField(Contact.FirstName);
+    ASB_SubQuery subQuery2 = new ASB_SubQuery(Contact.AccountId).selectField(Contact.LastName);
+    ASB_SubQuery subQuery3 = new ASB_SubQuery(Contact.AccountId);
     Test.startTest();
     ASB_SubQuery actualSubQuery = subQuery1.combine(subQuery2).combine(subQuery3);
     Test.stopTest();
@@ -149,8 +151,8 @@ public with sharing class ASB_SubQuery_Test {
    */
   @IsTest
   static void combineExceptionFrom() {
-    ASB_SubQuery subQuery1 = ASB_SubQuery.relatedBy(Contact.AccountId);
-    ASB_SubQuery subQuery2 = ASB_SubQuery.relatedBy(Order.AccountId);
+    ASB_SubQuery subQuery1 = new ASB_SubQuery(Contact.AccountId);
+    ASB_SubQuery subQuery2 = new ASB_SubQuery(Order.AccountId);
     Test.startTest();
     try {
       subQuery1.combine(subQuery2);
@@ -166,24 +168,24 @@ public with sharing class ASB_SubQuery_Test {
    */
   @IsTest
   static void combineExceptionLimit() {
-    ASB_SubQuery subQuery = ASB_SubQuery.relatedBy(Contact.AccountId);
+    ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId);
     Test.startTest();
     try {
-      subQuery.combine(ASB_SubQuery.relatedBy(Contact.AccountId).recordLimit(10));
+      subQuery.combine(new ASB_SubQuery(Contact.AccountId).recordLimit(10));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
     }
 
     try {
-      subQuery.recordLimit(10).combine(ASB_SubQuery.relatedBy(Contact.AccountId));
+      subQuery.recordLimit(10).combine(new ASB_SubQuery(Contact.AccountId));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
     }
 
     try {
-      subQuery.recordLimit(10).combine(ASB_SubQuery.relatedBy(Contact.AccountId).recordLimit(10));
+      subQuery.recordLimit(10).combine(new ASB_SubQuery(Contact.AccountId).recordLimit(10));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
@@ -196,25 +198,25 @@ public with sharing class ASB_SubQuery_Test {
    */
   @IsTest
   static void combineExceptionOrderBy() {
-    ASB_SubQuery subQuery = ASB_SubQuery.relatedBy(Contact.AccountId);
+    ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId);
     Test.startTest();
     try {
-      subQuery.combine(ASB_SubQuery.relatedBy(Contact.AccountId).orderBy(ASB_OrderBy.field(Contact.Id)));
+      subQuery.combine(new ASB_SubQuery(Contact.AccountId).orderBy(asb.orderByfield(Contact.Id)));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
     }
 
     try {
-      subQuery.orderBy(ASB_OrderBy.field(Contact.Id)).combine(ASB_SubQuery.relatedBy(Contact.AccountId));
+      subQuery.orderBy(asb.orderByfield(Contact.Id)).combine(new ASB_SubQuery(Contact.AccountId));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
     }
 
     try {
-      subQuery.orderBy(ASB_OrderBy.field(Contact.Id))
-        .combine(ASB_SubQuery.relatedBy(Contact.AccountId).orderBy(ASB_OrderBy.field(Contact.Id)));
+      subQuery.orderBy(asb.orderByfield(Contact.Id))
+        .combine(new ASB_SubQuery(Contact.AccountId).orderBy(asb.orderByfield(Contact.Id)));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
@@ -227,11 +229,11 @@ public with sharing class ASB_SubQuery_Test {
    */
   @IsTest
   static void combineExceptionFilter() {
-    ASB_SubQuery subQuery = ASB_SubQuery.relatedBy(Contact.AccountId);
+    ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId);
     Test.startTest();
     try {
       subQuery.combine(
-        ASB_SubQuery.relatedBy(Contact.AccountId).filter(ASB_Where.field(Contact.FirstName).equals().string('test'))
+        new ASB_SubQuery(Contact.AccountId).filter(asb.whereField(Contact.FirstName).equals().string('test'))
       );
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
@@ -239,18 +241,16 @@ public with sharing class ASB_SubQuery_Test {
     }
 
     try {
-      subQuery.filter(ASB_Where.field(Contact.FirstName).equals().string('test'))
-        .combine(ASB_SubQuery.relatedBy(Contact.AccountId));
+      subQuery.filter(asb.whereField(Contact.FirstName).equals().string('test'))
+        .combine(new ASB_SubQuery(Contact.AccountId));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
     }
 
     try {
-      subQuery.filter(ASB_Where.field(Contact.FirstName).equals().string('test'))
-        .combine(
-          ASB_SubQuery.relatedBy(Contact.AccountId).filter(ASB_Where.field(Contact.FirstName).equals().string('test'))
-        );
+      subQuery.filter(asb.whereField(Contact.FirstName).equals().string('test'))
+        .combine(new ASB_SubQuery(Contact.AccountId).filter(asb.whereField(Contact.FirstName).equals().string('test')));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
