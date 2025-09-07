@@ -5,7 +5,7 @@
 public with sharing class ASB_OrderBy implements ASB_Clause {
   private final Schema.SObjectField[] fields;
   private String direction;
-  private String nullsx;
+  private String nullPlacement;
 
   public ASB_OrderBy(Schema.SObjectField[] sObjFields) {
     this.fields = sObjFields;
@@ -34,16 +34,16 @@ public with sharing class ASB_OrderBy implements ASB_Clause {
    * @return  `ASB_OrderBy`
    */
   public ASB_OrderBy nullsFirst() {
-    this.nullsx = 'FIRST';
+    this.nullPlacement = 'FIRST';
     return this;
   }
 
   /**
-   * Orders bu nulls last.
+   * Orders by nulls last.
    * @return  `ASB_OrderBy`
    */
   public ASB_OrderBy nullsLast() {
-    this.nullsx = 'LAST';
+    this.nullPlacement = 'LAST';
     return this;
   }
 
@@ -51,15 +51,15 @@ public with sharing class ASB_OrderBy implements ASB_Clause {
    * Returns complete clause string
    * @return   `String`
    */
-  public String clauseString() {
+  public ASB_ClauseDetail clauseDetail() {
     String[] elements = new List<String>{ String.join(this.fieldStrings(), ', ') };
     if (this.direction != null) {
       elements.add(this.direction);
     }
-    if (this.nullsx != null) {
-      elements.add('NULLS ' + this.nullsx);
+    if (this.nullPlacement != null) {
+      elements.add('NULLS ' + this.nullPlacement);
     }
-    return 'ORDER BY ' + String.join(elements, ' ');
+    return new ASB_ClauseDetail('ORDER BY ' + String.join(elements, ' '));
   }
 
   private String[] fieldStrings() {

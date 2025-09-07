@@ -3,7 +3,7 @@
  * @author Russell Laboe
  * @group Apex SOQL Builder
  */
-public class ASB_Select implements ASB_Clause {
+public with sharing class ASB_Select implements ASB_Clause {
   private final Map<Element, Element> elements;
 
   /**
@@ -94,18 +94,17 @@ public class ASB_Select implements ASB_Clause {
 
   /**
    * Returns instance as a SELECT clause query string.
-   * @return  `String`
+   * @return  `ASB_ClauseDetail`
    */
-  public String clauseString() {
-    return 'SELECT ' + String.join(elementsToStrings(), ', ');
-  }
-
-  private String[] elementsToStrings() {
+  public ASB_ClauseDetail clauseDetail() {
     List<String> elementStrs = new List<String>();
+    Map<String, Object> bindings = new Map<String, Object>();
     for (Element element : this.elements.keySet()) {
-      elementStrs.add(element.queryString());
+      elementStrs.add(element.queryDetail().getClauseString());
+      bindings.putAll(element.queryDetail().getBindings());
     }
-    return elementStrs;
+
+    return new ASB_ClauseDetail('SELECT ' + String.join(elementStrs, ', '), bindings);
   }
 
   private class FieldElement implements Element {
@@ -123,14 +122,14 @@ public class ASB_Select implements ASB_Clause {
      * Returns instance as a query string component.
      * @return  `String`
      */
-    public String queryString() {
+    public ASB_ClauseDetail queryDetail() {
       String[] fieldStrs = new List<String>{};
       for (Integer i = 0; i < this.relationshipPath.size() - 1; i++) {
         fieldStrs.add(this.relationshipPath[i].getDescribe().getRelationshipName());
       }
       fieldStrs.add(this.relationshipPath[this.relationshipPath.size() - 1].getDescribe().getName());
 
-      return String.join(fieldStrs, '.');
+      return new ASB_ClauseDetail(String.join(fieldStrs, '.'));
     }
 
     public Integer hashCode() {
@@ -153,8 +152,10 @@ public class ASB_Select implements ASB_Clause {
      * Returns instance as a query string component.
      * @return  `String`
      */
-    public String queryString() {
-      return '(' + this.subQuery.soqlString() + ')';
+    public ASB_ClauseDetail queryDetail() {
+      String queryString = '(' + this.subQuery.queryDetail().getQueryString() + ')';
+
+      return new ASB_ClauseDetail(queryString, this.subQuery.queryDetail().getBindings());
     }
 
     public Integer hashCode() {
@@ -169,8 +170,8 @@ public class ASB_Select implements ASB_Clause {
   private interface Element {
     /**
      * Returns instance as a query string component.
-     * @return  `String`
+     * @return  `ASB_ClauseDetail`
      */
-    String queryString();
+    ASB_ClauseDetail queryDetail();
   }
 }

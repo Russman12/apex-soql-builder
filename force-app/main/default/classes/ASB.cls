@@ -42,37 +42,8 @@ public with sharing class ASB {
     return new ASB_From(relationshipField);
   }
 
-  public ASB_Where.ComparisonOperator whereField(Schema.SObjectField field) {
-    return whereField(new List<Schema.SObjectField>{ field });
-  }
-  public ASB_Where.ComparisonOperator whereField(
-    Schema.SObjectField relationshipField,
-    Schema.SObjectField parentField
-  ) {
-    return whereField(new List<Schema.SObjectField>{ relationshipField, parentField });
-  }
-  public ASB_Where.ComparisonOperator whereField(Schema.SObjectField[] fieldPath) {
-    return new ASB_Where.ComparisonOperator(fieldPath);
-  }
-
-  public ASB_Where whereAnd(ASB_Where exp1, ASB_Where exp2) {
-    return whereAnd(new List<ASB_Where>{ exp1, exp2 });
-  }
-  public ASB_Where whereAnd(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
-    return whereAnd(new List<ASB_Where>{ exp1, exp2, exp3 });
-  }
-  public ASB_Where whereAnd(ASB_Where[] expressions) {
-    return new ASB_Where(new ASB_Where.AndLogicalGroup(expressions));
-  }
-
-  public ASB_Where whereOr(ASB_Where exp1, ASB_Where exp2) {
-    return whereOr(new List<ASB_Where>{ exp1, exp2 });
-  }
-  public ASB_Where whereOr(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
-    return whereOr(new List<ASB_Where>{ exp1, exp2, exp3 });
-  }
-  public ASB_Where whereOr(ASB_Where[] expressions) {
-    return new ASB_Where(new ASB_Where.OrLogicalGroup(expressions));
+  public ASB_Where.Builder filter() {
+    return new ASB_Where.Builder();
   }
 
   /**

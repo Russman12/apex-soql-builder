@@ -4,7 +4,7 @@
  * @author Russell Laboe
  * @group Apex SOQL Builder
  */
-public class ASB_From implements ASB_Clause {
+public with sharing class ASB_From implements ASB_Clause {
   @TestVisible
   private final String stringVal;
   @TestVisible
@@ -47,8 +47,8 @@ public class ASB_From implements ASB_Clause {
    * Converts the FROM clause to a query string.
    * @return  `String`
    */
-  public String clauseString() {
-    return 'FROM ' + this.stringVal;
+  public ASB_ClauseDetail clauseDetail() {
+    return new ASB_ClauseDetail('FROM ' + this.stringVal);
   }
 
   public Integer hashCode() {
@@ -59,7 +59,6 @@ public class ASB_From implements ASB_Clause {
     return this.hashCode().equals(obj.hashCode());
   }
 
-  @TestVisible
-  private class InvalidRelationshipException extends Exception {
+  public class InvalidRelationshipException extends Exception {
   }
 }

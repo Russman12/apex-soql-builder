@@ -5,8 +5,8 @@
   "description": "Salesforce App",
   "scripts": {
     "lint": "npm run lint:apex && npm run lint:doc",
-    "lint:apex": "sf scanner run --target 'force-app/**/*.cls' --format table --category 'apex-soql-builder' --engine pmd",
-    "lint:doc": "write-good README.md --parse",
+    "lint:apex": "sf code-analyzer run --target 'force-app/**/*.cls' --rule-selector 'pmd:apex-soql-builder'",
+    "lint:doc": "npm run write-good README.md --parse",
     "test": "sf apex run test --result-format human --output-dir ./tests/apex --test-level RunLocalTests --wait 20",
     "test:coverage": "sf apex run test --result-format human --output-dir ./tests/apex --test-level RunLocalTests --code-coverage --detailed-coverage --wait 20",
     "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\" --cache",

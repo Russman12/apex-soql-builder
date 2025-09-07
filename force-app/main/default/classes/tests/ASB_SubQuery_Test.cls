@@ -12,7 +12,11 @@ public with sharing class ASB_SubQuery_Test {
     ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId);
     Test.stopTest();
 
-    System.Assert.areEqual('SELECT Id FROM Contacts', subQuery.soqlString(), 'Unexpected soql string returned');
+    System.Assert.areEqual(
+      'SELECT Id FROM Contacts',
+      subQuery.queryDetail().getQueryString(),
+      'Unexpected soql string returned'
+    );
   }
 
   /**
@@ -24,7 +28,11 @@ public with sharing class ASB_SubQuery_Test {
     ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId).selectField(Contact.Name);
     Test.stopTest();
 
-    System.Assert.areEqual('SELECT Id, Name FROM Contacts', subQuery.soqlString(), 'Unexpected soql string returned');
+    System.Assert.areEqual(
+      'SELECT Id, Name FROM Contacts',
+      subQuery.queryDetail().getQueryString(),
+      'Unexpected soql string returned'
+    );
   }
 
   /**
@@ -39,7 +47,7 @@ public with sharing class ASB_SubQuery_Test {
 
     System.Assert.areEqual(
       'SELECT Id, Account.Name FROM Contacts',
-      subQuery.soqlString(),
+      subQuery.queryDetail().getQueryString(),
       'Unexpected soql string returned'
     );
   }
@@ -55,7 +63,7 @@ public with sharing class ASB_SubQuery_Test {
 
     System.Assert.areEqual(
       'SELECT Id, Account.Name FROM Contacts',
-      subQuery.soqlString(),
+      subQuery.queryDetail().getQueryString(),
       'Unexpected soql string returned'
     );
   }
@@ -73,7 +81,7 @@ public with sharing class ASB_SubQuery_Test {
 
     System.Assert.areEqual(
       'SELECT Id, (SELECT Id FROM Cases) FROM Contacts',
-      outerSub.soqlString(),
+      outerSub.queryDetail().getQueryString(),
       'Unexpected soql string returned'
     );
   }
@@ -84,13 +92,12 @@ public with sharing class ASB_SubQuery_Test {
   @isTest
   static void filter() {
     Test.startTest();
-    ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId)
-      .filter(asb.whereField(Contact.Name).equals().string('test'));
+    ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId).filter(asb.filter().field(Contact.Name).eq('test'));
     Test.stopTest();
 
     System.Assert.areEqual(
-      'SELECT Id FROM Contacts WHERE Name = \'test\'',
-      subQuery.soqlString(),
+      'SELECT Id FROM Contacts WHERE Name = :WHERE_Name1',
+      subQuery.queryDetail().getQueryString(),
       'Unexpected soql string returned'
     );
   }
@@ -106,7 +113,7 @@ public with sharing class ASB_SubQuery_Test {
 
     System.Assert.areEqual(
       'SELECT Id FROM Contacts ORDER BY Name',
-      subQuery.soqlString(),
+      subQuery.queryDetail().getQueryString(),
       'Unexpected soql string returned'
     );
   }
@@ -121,8 +128,8 @@ public with sharing class ASB_SubQuery_Test {
     Test.stopTest();
 
     System.Assert.areEqual(
-      'SELECT Id FROM Contacts LIMIT 10',
-      subQuery.soqlString(),
+      'SELECT Id FROM Contacts LIMIT :RECORD_LIMIT',
+      subQuery.queryDetail().getQueryString(),
       'Unexpected soql string returned'
     );
   }
@@ -141,7 +148,7 @@ public with sharing class ASB_SubQuery_Test {
 
     System.Assert.areEqual(
       'SELECT Id, FirstName, LastName FROM Contacts',
-      actualSubQuery.soqlString(),
+      actualSubQuery.queryDetail().getQueryString(),
       'Unexpected soql string returned'
     );
   }
@@ -232,25 +239,22 @@ public with sharing class ASB_SubQuery_Test {
     ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId);
     Test.startTest();
     try {
-      subQuery.combine(
-        new ASB_SubQuery(Contact.AccountId).filter(asb.whereField(Contact.FirstName).equals().string('test'))
-      );
+      subQuery.combine(new ASB_SubQuery(Contact.AccountId).filter(asb.filter().field(Contact.FirstName).eq('test')));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
     }
 
     try {
-      subQuery.filter(asb.whereField(Contact.FirstName).equals().string('test'))
-        .combine(new ASB_SubQuery(Contact.AccountId));
+      subQuery.filter(asb.filter().field(Contact.FirstName).eq('test')).combine(new ASB_SubQuery(Contact.AccountId));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
     }
 
     try {
-      subQuery.filter(asb.whereField(Contact.FirstName).equals().string('test'))
-        .combine(new ASB_SubQuery(Contact.AccountId).filter(asb.whereField(Contact.FirstName).equals().string('test')));
+      subQuery.filter(asb.filter().field(Contact.FirstName).eq('test'))
+        .combine(new ASB_SubQuery(Contact.AccountId).filter(asb.filter().field(Contact.FirstName).eq('test')));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');

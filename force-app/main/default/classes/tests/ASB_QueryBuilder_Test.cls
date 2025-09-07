@@ -10,12 +10,16 @@ public with sharing class ASB_QueryBuilder_Test {
   @isTest
   static void clauseString() {
     ASB_SubQuery contactsSelect = new ASB_SubQuery(Contact.AccountId).selectField(Contact.Id).selectField(Contact.Name);
+    String accName1 = 'test';
+    List<String> accNames = new List<String>{ 'name1', 'name2' };
+    Integer lgAccNum = 10;
+    Integer recordLimit = 5;
 
-    ASB_Where testAccWhere = asb.whereField(Account.Name).equals().string('test');
-    ASB_Where confirmedAccs = asb.whereField(Account.Name).isIn().bind('accNames');
-    ASB_Where largeAccs = asb.whereField(Account.NumberOfEmployees).greaterThan().literal('10');
+    ASB_Where testAccWhere = asb.filter().field(Account.Name).eq(accName1);
+    ASB_Where confirmedAccs = asb.filter().field(Account.Name).isIn(accNames);
+    ASB_Where largeAccs = asb.filter().field(Account.NumberOfEmployees).gt(lgAccNum);
 
-    ASB_Where confirmedLargeAccs = asb.whereAnd(confirmedAccs, largeAccs);
+    ASB_Where confirmedLargeAccs = asb.filter().andGroup(confirmedAccs, largeAccs);
 
     ASB_Select selection = new ASB_Select()
       .field(Account.Id)
@@ -27,17 +31,28 @@ public with sharing class ASB_QueryBuilder_Test {
 
     ASB_QueryBuilder queryBuilder = asb.make(Account.getSObjectType())
       .selection(selection)
-      .filter(asb.whereOr(testAccWhere, confirmedLargeAccs))
+      .filter(asb.filter().orGroup(testAccWhere, confirmedLargeAccs))
       .orderBy(asb.orderByfield(Account.Name).descending())
-      .recordLimit(5);
+      .recordLimit(recordLimit);
 
     Test.startTest();
-    String soqlString = queryBuilder.soqlString();
+    ASB_Query.Detail queryDetail = queryBuilder.queryDetail();
     Test.stopTest();
 
     System.assertEquals(
-      'SELECT Id, Name, OwnerId, Owner.LastName, Owner.Profile.Name, (SELECT Id, Name FROM Contacts) FROM Account WHERE Name = \'test\' OR (Name IN :accNames AND NumberOfEmployees > 10) ORDER BY Name DESC LIMIT 5',
-      soqlString,
+      'SELECT Id, Name, OwnerId, Owner.LastName, Owner.Profile.Name, (SELECT Id, Name FROM Contacts) FROM Account WHERE Name = :WHERE_Name1 OR (Name IN :WHERE_Name2 AND NumberOfEmployees > :WHERE_NumberOfEmployees1) ORDER BY Name DESC LIMIT :RECORD_LIMIT',
+      queryDetail.getQueryString(),
+      'unexpected soql string returned'
+    );
+
+    System.assertEquals(
+      new Map<String, Object>{
+        'RECORD_LIMIT' => recordLimit,
+        'WHERE_Name1' => accName1,
+        'WHERE_Name2' => accNames,
+        'WHERE_NumberOfEmployees1' => lgAccNum
+      },
+      queryDetail.getBindings(),
       'unexpected soql string returned'
     );
   }
@@ -58,7 +73,7 @@ public with sharing class ASB_QueryBuilder_Test {
     Test.startTest();
     List<Account> queriedAccs = (List<Account>) asb.make(Account.getSObjectType())
       .selection(new ASB_Select().field(Account.Id).field(Account.Name))
-      .filter(asb.whereField(Account.Name).equals().string('test2'))
+      .filter(asb.filter().field(Account.Name).eq('test2'))
       .query();
     Test.stopTest();
 
@@ -83,9 +98,9 @@ public with sharing class ASB_QueryBuilder_Test {
     Test.startTest();
     List<Account> queriedAccs = (List<Account>) asb.make(Account.getSObjectType())
       .selection(new ASB_Select().field(Account.Id).field(Account.Name))
-      .filter(asb.whereField(Account.Name).isIn().bind('accNames'))
+      .filter(asb.filter().field(Account.Name).isIn(new List<String>{ 'test2', 'test3' }))
       .orderBy(asb.orderByfield(Account.Name).ascending())
-      .query(new Map<String, Object>{ 'accNames' => new List<String>{ 'test2', 'test3' } });
+      .query();
     Test.stopTest();
 
     System.Assert.areEqual(2, queriedAccs.size(), 'unexpected number of accounts returned');

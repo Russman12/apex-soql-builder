@@ -25,7 +25,7 @@ public with sharing class ASB_QueryBuilder extends ASB_Query {
    * @return  `ASB`
    */
   public ASB_QueryBuilder selection(ASB_Select asbSelect) {
-    return (ASB_QueryBuilder) superSelect(asbSelect);
+    return (ASB_QueryBuilder) setSelect(asbSelect);
   }
 
   /**
@@ -34,7 +34,7 @@ public with sharing class ASB_QueryBuilder extends ASB_Query {
    * @return  `ASB`
    */
   public ASB_QueryBuilder filter(ASB_Where asbWhere) {
-    return (ASB_QueryBuilder) superWhere(asbWhere);
+    return (ASB_QueryBuilder) setWhere(asbWhere);
   }
   /**
    * Sets given `ASB_OrderBy` clause to query.
@@ -42,7 +42,7 @@ public with sharing class ASB_QueryBuilder extends ASB_Query {
    * @return  `ASB`
    */
   public ASB_QueryBuilder orderBy(ASB_OrderBy asbOrder) {
-    return (ASB_QueryBuilder) superOrderBy(asbOrder);
+    return (ASB_QueryBuilder) setOrderBy(asbOrder);
   }
   /**
    * Sets the given `ASB_Limit` to query.
@@ -50,7 +50,7 @@ public with sharing class ASB_QueryBuilder extends ASB_Query {
    * @return  `ASB`
    */
   public ASB_QueryBuilder recordLimit(Integer limitx) {
-    return (ASB_QueryBuilder) superLimit(limitx);
+    return (ASB_QueryBuilder) setLimit(limitx);
   }
 
   /**
@@ -58,17 +58,24 @@ public with sharing class ASB_QueryBuilder extends ASB_Query {
    * @return  `List<SObject>`
    */
   public List<SObject> query() {
-    return this.query(new Map<String, Object>());
-  }
+    if (Limits.getQueries() == Limits.getLimitQueries()) {
+      throw new LimitException(
+        'Executing this 1 query result in exceeding the query limit for this context. Currently ' +
+          Limits.getQueries() +
+          '/' +
+          Limits.getLimitQueries()
+      );
+    }
 
-  /**
-   * Executes the SOQL query with variable bindings.
-   * @param binds map of bindings to use for query.
-   * @return  `List<SObject>`
-   */
-  public List<SObject> query(Map<String, Object> binds) {
-    //TODO: perform check against query limit and throw exception if limit is reached
-    List<SObject> queryResults = Database.queryWithBinds(this.soqlString(), binds, this.accessLevel);
+    ASB_Query.Detail queryDetail = this.queryDetail();
+    System.debug(System.LoggingLevel.INFO, 'query: ' + queryDetail.getQueryString());
+    System.debug(System.LoggingLevel.INFO, 'binds: ' + queryDetail.getBindings());
+
+    List<SObject> queryResults = Database.queryWithBinds(
+      queryDetail.getQueryString(),
+      queryDetail.getBindings(),
+      this.accessLevel
+    );
 
     return queryResults;
   }
@@ -77,26 +84,23 @@ public with sharing class ASB_QueryBuilder extends ASB_Query {
    * Converts ASB_QueryBuilder to SOQL string.
    * @return  `String`
    */
-  public String soqlString() {
-    ASB_Clause[] clauses = new List<ASB_Clause>{
-      this.asbSelect,
-      this.asbFrom,
-      this.asbWhere,
-      this.asbOrderBy,
-      this.asbLimit
-    };
-
-    ASB_Clause[] setClauses = new List<ASB_Clause>{};
-    for (ASB_Clause clause : clauses) {
+  public ASB_Query.Detail queryDetail() {
+    ASB_ClauseDetail[] clauseDetails = new List<ASB_ClauseDetail>{};
+    for (ASB_Clause clause : this.getClauses()) {
       if (clause != null) {
-        setClauses.add(clause);
+        clauseDetails.add(clause.clauseDetail());
       }
     }
 
-    String[] strs = new List<String>{};
-    for (ASB_Clause clause : setClauses) {
-      strs.add(clause.clauseString());
+    String[] clauseStrings = new List<String>{};
+    Map<String, Object> bindings = new Map<String, Object>();
+    for (ASB_ClauseDetail clauseDetail : clauseDetails) {
+      clauseStrings.add(clauseDetail.getClauseString());
+      bindings.putAll(clauseDetail.getBindings());
     }
-    return String.join(strs, ' ');
+    return new ASB_Query.Detail(String.join(clauseStrings, ' '), bindings);
+  }
+
+  public class LimitException extends Exception {
   }
 }

@@ -2,10 +2,6 @@
 public with sharing class ASB_Test {
   private static ASB factory = new ASB();
 
-  private static ASB_Where whereExp = new ASB_Where(
-    (new ASB_Where.ComparisonOperator(new List<Schema.SObjectField>{ Account.Id })).equals().literal('test')
-  );
-
   /**
    * Ensures make executes as expected
    */
@@ -57,51 +53,15 @@ public with sharing class ASB_Test {
   }
 
   /**
-   * Ensures all whereField methods execute as expected
+   * Ensures all filter().field methods execute as expected
    */
   @isTest
-  static void whereField() {
+  static void filter() {
     Test.startTest();
-    ASB_Where.ComparisonOperator result1 = factory.whereField(Account.Name);
-    ASB_Where.ComparisonOperator result2 = factory.whereField(Account.Name, Account.ParentId);
-    ASB_Where.ComparisonOperator result3 = factory.whereField(new List<Schema.SObjectField>{ Account.Name });
+    ASB_Where.Builder result1 = factory.filter();
     Test.stopTest();
 
-    System.Assert.isNotNull(result1, 'unexpected ASB_Where.ComparisonOperator returned');
-    System.Assert.isNotNull(result2, 'unexpected ASB_Where.ComparisonOperator returned');
-    System.Assert.isNotNull(result3, 'unexpected ASB_Where.ComparisonOperator returned');
-  }
-
-  /**
-   * Ensures all whereAnd methods executes as expected
-   */
-  @isTest
-  static void whereAnd() {
-    Test.startTest();
-    ASB_Where result1 = factory.whereAnd(whereExp, whereExp);
-    ASB_Where result2 = factory.whereAnd(whereExp, whereExp, whereExp);
-    ASB_Where result3 = factory.whereAnd(new List<ASB_Where>{ whereExp });
-    Test.stopTest();
-
-    System.Assert.isNotNull(result1, 'unexpected ASB_Where returned');
-    System.Assert.isNotNull(result2, 'unexpected ASB_Where returned');
-    System.Assert.isNotNull(result3, 'unexpected ASB_Where returned');
-  }
-
-  /**
-   * Ensures all whereOr methods execute as expected
-   */
-  @isTest
-  static void whereOr() {
-    Test.startTest();
-    ASB_Where result1 = factory.whereOr(whereExp, whereExp);
-    ASB_Where result2 = factory.whereOr(whereExp, whereExp, whereExp);
-    ASB_Where result3 = factory.whereOr(new List<ASB_Where>{ whereExp });
-    Test.stopTest();
-
-    System.Assert.isNotNull(result1, 'unexpected ASB_Where returned');
-    System.Assert.isNotNull(result2, 'unexpected ASB_Where returned');
-    System.Assert.isNotNull(result3, 'unexpected ASB_Where returned');
+    System.Assert.isNotNull(result1, 'unexpected ASB_Where.Builder returned');
   }
 
   /**

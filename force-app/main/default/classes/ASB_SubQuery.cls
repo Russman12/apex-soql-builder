@@ -16,7 +16,7 @@ public with sharing class ASB_SubQuery extends ASB_Query {
    * @return  `ASB`
    */
   public ASB_SubQuery selectField(Schema.SObjectField field) {
-    return (ASB_SubQuery) superSelect(asbSelect.field(field));
+    return (ASB_SubQuery) setSelect(asbSelect.field(field));
   }
 
   /**
@@ -31,7 +31,7 @@ public with sharing class ASB_SubQuery extends ASB_Query {
    * ```
    */
   public ASB_SubQuery selectParentField(Schema.SObjectField[] fieldPath) {
-    return (ASB_SubQuery) superSelect(asbSelect.parent(fieldPath));
+    return (ASB_SubQuery) setSelect(asbSelect.parent(fieldPath));
   }
   /**
    * Adds given parent fieldPath to select clause.
@@ -59,7 +59,7 @@ public with sharing class ASB_SubQuery extends ASB_Query {
    * ```
    */
   public ASB_SubQuery selectSubQuery(ASB_SubQuery subQuery) {
-    return (ASB_SubQuery) superSelect(asbSelect.subQuery(subQuery));
+    return (ASB_SubQuery) setSelect(asbSelect.subQuery(subQuery));
   }
   /**
    * Adds given `ASB_Where` clause filter to query.
@@ -67,7 +67,7 @@ public with sharing class ASB_SubQuery extends ASB_Query {
    * @return  `ASB`
    */
   public ASB_SubQuery filter(ASB_Where asbWhere) {
-    return (ASB_SubQuery) superWhere(asbWhere);
+    return (ASB_SubQuery) setWhere(asbWhere);
   }
   /**
    * Sets given `ASB_OrderBy` clause to query.
@@ -75,7 +75,7 @@ public with sharing class ASB_SubQuery extends ASB_Query {
    * @return  `ASB`
    */
   public ASB_SubQuery orderBy(ASB_OrderBy asbOrder) {
-    return (ASB_SubQuery) superOrderBy(asbOrder);
+    return (ASB_SubQuery) setOrderBy(asbOrder);
   }
   /**
    * Sets the given `ASB_Limit` to query.
@@ -83,7 +83,7 @@ public with sharing class ASB_SubQuery extends ASB_Query {
    * @return  `ASB`
    */
   public ASB_SubQuery recordLimit(Integer limitx) {
-    return (ASB_SubQuery) superLimit(limitx);
+    return (ASB_SubQuery) setLimit(limitx);
   }
 
   public Schema.sObjectField relatedBy() {
@@ -97,8 +97,8 @@ public with sharing class ASB_SubQuery extends ASB_Query {
    * @exception `InvalidCombineException` thrown if any element of the query cannot be combined
    */
   public ASB_SubQuery combine(ASB_SubQuery subQuery) {
-    if (this.asbFrom != subQuery.asbFrom) {
-      throw new InvalidCombineException('unable to combine subQueries selecting from different sObjects');
+    if (!this.asbFrom.equals(subQuery.asbFrom)) {
+      throw new InvalidCombineException('unable to combine subQueries from different relationships');
     }
     if (this.asbLimit != null || subQuery.asbLimit != null) {
       throw new InvalidCombineException('unable to combine subQueries with record limits');
@@ -116,7 +116,7 @@ public with sharing class ASB_SubQuery extends ASB_Query {
   }
 
   public Integer hashCode() {
-    return this.soqlString().hashCode();
+    return this.queryDetail().hashCode();
   }
 
   public Boolean equals(Object obj) {
@@ -127,7 +127,7 @@ public with sharing class ASB_SubQuery extends ASB_Query {
    * Converts SubQuery to SOQL string.
    * @return  `String`
    */
-  public String soqlString() {
+  public ASB_Query.Detail queryDetail() {
     ASB_Clause[] clauses = new List<ASB_Clause>{
       this.asbSelect,
       this.asbFrom,
@@ -136,18 +136,20 @@ public with sharing class ASB_SubQuery extends ASB_Query {
       this.asbLimit
     };
 
-    ASB_Clause[] setClauses = new List<ASB_Clause>{};
+    ASB_ClauseDetail[] clauseDetails = new List<ASB_ClauseDetail>{};
     for (ASB_Clause clause : clauses) {
       if (clause != null) {
-        setClauses.add(clause);
+        clauseDetails.add(clause.clauseDetail());
       }
     }
 
     String[] strs = new List<String>{};
-    for (ASB_Clause clause : setClauses) {
-      strs.add(clause.clauseString());
+    Map<String, Object> bindings = new Map<String, Object>();
+    for (ASB_ClauseDetail clauseDetail : clauseDetails) {
+      strs.add(clauseDetail.getClauseString());
+      bindings.putAll(clauseDetail.getBindings());
     }
-    return String.join(strs, ' ');
+    return new ASB_Query.Detail(String.join(strs, ' '), bindings);
   }
 
   @TestVisible
