@@ -4,13 +4,27 @@
  */
 public abstract with sharing class ASB_Query {
   protected ASB_Select asbSelect;
-  protected final ASB_From asbFrom;
+  public final ASB_From asbFrom;
   protected ASB_Where asbWhere;
   protected ASB_OrderBy asbOrderBy;
   protected ASB_Limit asbLimit;
 
   protected virtual ASB_Clause[] getClauses() {
-    return new List<ASB_Clause>{ this.asbSelect, this.asbFrom, this.asbWhere, this.asbOrderBy, this.asbLimit };
+    List<ASB_Clause> assignedClauses = new List<ASB_Clause>();
+    for (
+      ASB_Clause clause : new List<ASB_Clause>{
+        this.asbSelect,
+        this.asbFrom,
+        this.asbWhere,
+        this.asbOrderBy,
+        this.asbLimit
+      }
+    ) {
+      if (clause != null) {
+        assignedClauses.add(clause);
+      }
+    }
+    return assignedClauses;
   }
 
   protected ASB_Query(ASB_From asbFrom) {

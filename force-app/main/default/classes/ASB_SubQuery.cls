@@ -2,12 +2,16 @@
  * Encompasses functionality relating to a SOQL subquery.
  * @author Russell Laboe
  */
-public with sharing class ASB_SubQuery extends ASB_Query {
+public with sharing class ASB_SubQuery extends ASB_Query implements ASB_Bindable {
   private final Schema.sObjectField relationshipField;
+
+  private String bindPrefix = '';
+  private Map<String, Object> binds = new Map<String, Object>();
 
   public ASB_SubQuery(Schema.sObjectField field) {
     super(new ASB_From(field));
     this.relationshipField = field;
+    this.bindPrefix = this.asbFrom.getRelationshipName() + '_';
   }
 
   /**
@@ -96,7 +100,7 @@ public with sharing class ASB_SubQuery extends ASB_Query {
    * @return  `ASB_SubQuery`
    * @exception `InvalidCombineException` thrown if any element of the query cannot be combined
    */
-  public ASB_SubQuery combine(ASB_SubQuery subQuery) {
+  public ASB_SubQuery mergeInto(ASB_SubQuery subQuery) {
     if (!this.asbFrom.equals(subQuery.asbFrom)) {
       throw new InvalidCombineException('unable to combine subQueries from different relationships');
     }
@@ -109,18 +113,9 @@ public with sharing class ASB_SubQuery extends ASB_Query {
     if (this.asbWhere != null || subQuery.asbWhere != null) {
       throw new InvalidCombineException('unable to combine subQueries with filters');
     }
+    this.asbSelect.mergeInto(subQuery.asbSelect);
 
-    this.asbSelect.combine(subQuery.asbSelect);
-
-    return this;
-  }
-
-  public Integer hashCode() {
-    return this.queryDetail().hashCode();
-  }
-
-  public Boolean equals(Object obj) {
-    return this.hashCode().equals(obj.hashCode());
+    return subQuery;
   }
 
   /**
@@ -128,28 +123,25 @@ public with sharing class ASB_SubQuery extends ASB_Query {
    * @return  `String`
    */
   public ASB_Query.Detail queryDetail() {
-    ASB_Clause[] clauses = new List<ASB_Clause>{
-      this.asbSelect,
-      this.asbFrom,
-      this.asbWhere,
-      this.asbOrderBy,
-      this.asbLimit
-    };
-
-    ASB_ClauseDetail[] clauseDetails = new List<ASB_ClauseDetail>{};
-    for (ASB_Clause clause : clauses) {
-      if (clause != null) {
-        clauseDetails.add(clause.clauseDetail());
+    String[] strs = new List<String>{};
+    for (ASB_Clause clause : this.getClauses()) {
+      if (clause instanceof ASB_Bindable) {
+        ((ASB_Bindable) clause).setBindPrefix(this.bindPrefix);
+        strs.add(clause.clauseString());
+        this.binds.putAll(((ASB_Bindable) clause).getBinds());
+      } else {
+        strs.add(clause.clauseString());
       }
     }
+    return new ASB_Query.Detail(String.join(strs, ' '), this.binds);
+  }
 
-    String[] strs = new List<String>{};
-    Map<String, Object> bindings = new Map<String, Object>();
-    for (ASB_ClauseDetail clauseDetail : clauseDetails) {
-      strs.add(clauseDetail.getClauseString());
-      bindings.putAll(clauseDetail.getBindings());
-    }
-    return new ASB_Query.Detail(String.join(strs, ' '), bindings);
+  /* --- ASB_Bindable interface --- */
+  public void setBindPrefix(String prefix) {
+    this.bindPrefix = prefix;
+  }
+  public Map<String, Object> getBinds() {
+    return new Map<String, Object>(this.binds);
   }
 
   @TestVisible

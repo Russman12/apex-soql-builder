@@ -85,20 +85,17 @@ public with sharing class ASB_QueryBuilder extends ASB_Query {
    * @return  `String`
    */
   public ASB_Query.Detail queryDetail() {
-    ASB_ClauseDetail[] clauseDetails = new List<ASB_ClauseDetail>{};
+    String[] clauseStrings = new List<String>{};
+    Map<String, Object> binds = new Map<String, Object>();
     for (ASB_Clause clause : this.getClauses()) {
       if (clause != null) {
-        clauseDetails.add(clause.clauseDetail());
+        clauseStrings.add(clause.clauseString());
+        if (clause instanceof ASB_Bindable) {
+          binds.putAll(((ASB_Bindable) clause).getBinds());
+        }
       }
     }
-
-    String[] clauseStrings = new List<String>{};
-    Map<String, Object> bindings = new Map<String, Object>();
-    for (ASB_ClauseDetail clauseDetail : clauseDetails) {
-      clauseStrings.add(clauseDetail.getClauseString());
-      bindings.putAll(clauseDetail.getBindings());
-    }
-    return new ASB_Query.Detail(String.join(clauseStrings, ' '), bindings);
+    return new ASB_Query.Detail(String.join(clauseStrings, ' '), binds);
   }
 
   public class LimitException extends Exception {

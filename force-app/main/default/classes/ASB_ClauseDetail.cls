@@ -15,7 +15,4 @@ public with sharing class ASB_ClauseDetail {
   public String getClauseString() {
     return this.clauseString;
   }
-  public Map<String, Object> getBindings() {
-    return this.bindings;
-  }
 }

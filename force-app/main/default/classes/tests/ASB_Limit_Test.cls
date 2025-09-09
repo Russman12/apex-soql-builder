@@ -13,12 +13,12 @@ private class ASB_Limit_Test {
     ASB_Limit asbLimit = new ASB_Limit(expectedLimit);
     System.Assert.areEqual(
       'LIMIT :' + ASB_Limit.BIND_NAME,
-      asbLimit.clauseDetail().getClauseString(),
+      asbLimit.clauseString(),
       'unexpected LIMIT clause string returned'
     );
     System.Assert.areEqual(
       expectedLimit,
-      asbLimit.clauseDetail().getBindings().get(ASB_Limit.BIND_NAME),
+      asbLimit.getBinds().get(ASB_Limit.BIND_NAME),
       'unexpected LIMIT clause string returned'
     );
   }

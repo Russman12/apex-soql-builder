@@ -96,7 +96,7 @@ public with sharing class ASB_SubQuery_Test {
     Test.stopTest();
 
     System.Assert.areEqual(
-      'SELECT Id FROM Contacts WHERE Name = :WHERE_Name1',
+      'SELECT Id FROM Contacts WHERE Name = :Contacts_Name1',
       subQuery.queryDetail().getQueryString(),
       'Unexpected soql string returned'
     );
@@ -128,41 +128,41 @@ public with sharing class ASB_SubQuery_Test {
     Test.stopTest();
 
     System.Assert.areEqual(
-      'SELECT Id FROM Contacts LIMIT :RECORD_LIMIT',
+      'SELECT Id FROM Contacts LIMIT :Contacts_RECORD_LIMIT',
       subQuery.queryDetail().getQueryString(),
       'Unexpected soql string returned'
     );
   }
 
   /**
-   * Ensures combine returns expected query
+   * Ensures mergeInto returns expected query
    */
   @IsTest
-  static void combine() {
+  static void mergeInto() {
     ASB_SubQuery subQuery1 = new ASB_SubQuery(Contact.AccountId).selectField(Contact.FirstName);
     ASB_SubQuery subQuery2 = new ASB_SubQuery(Contact.AccountId).selectField(Contact.LastName);
     ASB_SubQuery subQuery3 = new ASB_SubQuery(Contact.AccountId);
     Test.startTest();
-    ASB_SubQuery actualSubQuery = subQuery1.combine(subQuery2).combine(subQuery3);
+    ASB_SubQuery actualSubQuery = subQuery1.mergeInto(subQuery2).mergeInto(subQuery3);
     Test.stopTest();
 
     System.Assert.areEqual(
-      'SELECT Id, FirstName, LastName FROM Contacts',
+      'SELECT Id, LastName, FirstName FROM Contacts',
       actualSubQuery.queryDetail().getQueryString(),
       'Unexpected soql string returned'
     );
   }
 
   /**
-   * Ensures combine throws exception if from clauses are different
+   * Ensures mergeInto throws exception if from clauses are different
    */
   @IsTest
-  static void combineExceptionFrom() {
+  static void mergeIntoExceptionFrom() {
     ASB_SubQuery subQuery1 = new ASB_SubQuery(Contact.AccountId);
     ASB_SubQuery subQuery2 = new ASB_SubQuery(Order.AccountId);
     Test.startTest();
     try {
-      subQuery1.combine(subQuery2);
+      subQuery1.mergeInto(subQuery2);
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
@@ -171,28 +171,28 @@ public with sharing class ASB_SubQuery_Test {
   }
 
   /**
-   * Ensures combine throws exception if recordLimit is set
+   * Ensures mergeInto throws exception if recordLimit is set
    */
   @IsTest
-  static void combineExceptionLimit() {
+  static void mergeIntoExceptionLimit() {
     ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId);
     Test.startTest();
     try {
-      subQuery.combine(new ASB_SubQuery(Contact.AccountId).recordLimit(10));
+      subQuery.mergeInto(new ASB_SubQuery(Contact.AccountId).recordLimit(10));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
     }
 
     try {
-      subQuery.recordLimit(10).combine(new ASB_SubQuery(Contact.AccountId));
+      subQuery.recordLimit(10).mergeInto(new ASB_SubQuery(Contact.AccountId));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
     }
 
     try {
-      subQuery.recordLimit(10).combine(new ASB_SubQuery(Contact.AccountId).recordLimit(10));
+      subQuery.recordLimit(10).mergeInto(new ASB_SubQuery(Contact.AccountId).recordLimit(10));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
@@ -201,21 +201,21 @@ public with sharing class ASB_SubQuery_Test {
   }
 
   /**
-   * Ensures combine throws exception if orderBy is set
+   * Ensures mergeInto throws exception if orderBy is set
    */
   @IsTest
-  static void combineExceptionOrderBy() {
+  static void mergeIntoExceptionOrderBy() {
     ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId);
     Test.startTest();
     try {
-      subQuery.combine(new ASB_SubQuery(Contact.AccountId).orderBy(asb.orderByfield(Contact.Id)));
+      subQuery.mergeInto(new ASB_SubQuery(Contact.AccountId).orderBy(asb.orderByfield(Contact.Id)));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
     }
 
     try {
-      subQuery.orderBy(asb.orderByfield(Contact.Id)).combine(new ASB_SubQuery(Contact.AccountId));
+      subQuery.orderBy(asb.orderByfield(Contact.Id)).mergeInto(new ASB_SubQuery(Contact.AccountId));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
@@ -223,7 +223,7 @@ public with sharing class ASB_SubQuery_Test {
 
     try {
       subQuery.orderBy(asb.orderByfield(Contact.Id))
-        .combine(new ASB_SubQuery(Contact.AccountId).orderBy(asb.orderByfield(Contact.Id)));
+        .mergeInto(new ASB_SubQuery(Contact.AccountId).orderBy(asb.orderByfield(Contact.Id)));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
@@ -232,21 +232,21 @@ public with sharing class ASB_SubQuery_Test {
   }
 
   /**
-   * Ensures combine throws exception if filter is set
+   * Ensures mergeInto throws exception if filter is set
    */
   @IsTest
-  static void combineExceptionFilter() {
+  static void mergeIntoExceptionFilter() {
     ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId);
     Test.startTest();
     try {
-      subQuery.combine(new ASB_SubQuery(Contact.AccountId).filter(asb.filter().field(Contact.FirstName).eq('test')));
+      subQuery.mergeInto(new ASB_SubQuery(Contact.AccountId).filter(asb.filter().field(Contact.FirstName).eq('test')));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
     }
 
     try {
-      subQuery.filter(asb.filter().field(Contact.FirstName).eq('test')).combine(new ASB_SubQuery(Contact.AccountId));
+      subQuery.filter(asb.filter().field(Contact.FirstName).eq('test')).mergeInto(new ASB_SubQuery(Contact.AccountId));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');
@@ -254,7 +254,7 @@ public with sharing class ASB_SubQuery_Test {
 
     try {
       subQuery.filter(asb.filter().field(Contact.FirstName).eq('test'))
-        .combine(new ASB_SubQuery(Contact.AccountId).filter(asb.filter().field(Contact.FirstName).eq('test')));
+        .mergeInto(new ASB_SubQuery(Contact.AccountId).filter(asb.filter().field(Contact.FirstName).eq('test')));
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
       System.Assert.isInstanceOfType(e, ASB_SubQuery.InvalidCombineException.class, 'unexpected exception thrown');

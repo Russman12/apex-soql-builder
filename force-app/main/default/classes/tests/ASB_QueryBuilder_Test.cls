@@ -40,7 +40,7 @@ public with sharing class ASB_QueryBuilder_Test {
     Test.stopTest();
 
     System.assertEquals(
-      'SELECT Id, Name, OwnerId, Owner.LastName, Owner.Profile.Name, (SELECT Id, Name FROM Contacts) FROM Account WHERE Name = :WHERE_Name1 OR (Name IN :WHERE_Name2 AND NumberOfEmployees > :WHERE_NumberOfEmployees1) ORDER BY Name DESC LIMIT :RECORD_LIMIT',
+      'SELECT Id, Name, OwnerId, Owner.LastName, Owner.Profile.Name, (SELECT Id, Name FROM Contacts) FROM Account WHERE Name = :Name1 OR (Name IN :Name2 AND NumberOfEmployees > :NumberOfEmployees1) ORDER BY Name DESC LIMIT :RECORD_LIMIT',
       queryDetail.getQueryString(),
       'unexpected soql string returned'
     );
@@ -48,12 +48,12 @@ public with sharing class ASB_QueryBuilder_Test {
     System.assertEquals(
       new Map<String, Object>{
         'RECORD_LIMIT' => recordLimit,
-        'WHERE_Name1' => accName1,
-        'WHERE_Name2' => accNames,
-        'WHERE_NumberOfEmployees1' => lgAccNum
+        'Name1' => accName1,
+        'Name2' => accNames,
+        'NumberOfEmployees1' => lgAccNum
       },
       queryDetail.getBindings(),
-      'unexpected soql string returned'
+      'unexpected bindings returned'
     );
   }
 

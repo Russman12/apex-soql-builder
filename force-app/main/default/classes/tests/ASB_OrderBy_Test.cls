@@ -8,11 +8,7 @@ public with sharing class ASB_OrderBy_Test {
     ASB_OrderBy asbOrder = new ASB_OrderBy(new List<Schema.SObjectField>{ Account.Name, Account.Id });
 
     Test.startTest();
-    System.Assert.areEqual(
-      'ORDER BY Name, Id',
-      asbOrder.clauseDetail().getClauseString(),
-      'unexpected Order By clause returned'
-    );
+    System.Assert.areEqual('ORDER BY Name, Id', asbOrder.clauseString(), 'unexpected Order By clause returned');
     Test.stopTest();
   }
 
@@ -26,12 +22,12 @@ public with sharing class ASB_OrderBy_Test {
     Test.startTest();
     System.Assert.areEqual(
       'ORDER BY Name, Id ASC',
-      asbOrder.ascending().clauseDetail().getClauseString(),
+      asbOrder.ascending().clauseString(),
       'unexpected Order By clause returned'
     );
     System.Assert.areEqual(
       'ORDER BY Name, Id DESC',
-      asbOrder.descending().clauseDetail().getClauseString(),
+      asbOrder.descending().clauseString(),
       'unexpected Order By clause returned'
     );
     Test.stopTest();
@@ -47,12 +43,12 @@ public with sharing class ASB_OrderBy_Test {
     Test.startTest();
     System.Assert.areEqual(
       'ORDER BY Name, Id NULLS FIRST',
-      asbOrder.nullsFirst().clauseDetail().getClauseString(),
+      asbOrder.nullsFirst().clauseString(),
       'unexpected Order By clause returned'
     );
     System.Assert.areEqual(
       'ORDER BY Name, Id NULLS LAST',
-      asbOrder.nullsLast().clauseDetail().getClauseString(),
+      asbOrder.nullsLast().clauseString(),
       'unexpected Order By clause returned'
     );
     Test.stopTest();
@@ -68,12 +64,12 @@ public with sharing class ASB_OrderBy_Test {
     Test.startTest();
     System.Assert.areEqual(
       'ORDER BY Name, Id DESC NULLS FIRST',
-      asbOrder.descending().nullsFirst().clauseDetail().getClauseString(),
+      asbOrder.descending().nullsFirst().clauseString(),
       'unexpected Order By clause returned'
     );
     System.Assert.areEqual(
       'ORDER BY Name, Id ASC NULLS LAST',
-      asbOrder.nullsLast().ascending().clauseDetail().getClauseString(),
+      asbOrder.nullsLast().ascending().clauseString(),
       'unexpected Order By clause returned'
     );
     Test.stopTest();

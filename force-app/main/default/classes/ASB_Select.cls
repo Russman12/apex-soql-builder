@@ -3,14 +3,17 @@
  * @author Russell Laboe
  * @group Apex SOQL Builder
  */
-public with sharing class ASB_Select implements ASB_Clause {
-  private final Map<Element, Element> elements;
+public with sharing class ASB_Select implements ASB_Clause, ASB_Bindable {
+  private final List<Element> elements;
+
+  private String bindPrefix = '';
+  private Map<String, Object> binds = new Map<String, Object>();
 
   /**
    * Creates new instance of `ASB_Select`
    */
   public ASB_Select() {
-    this.elements = new Map<Element, Element>{};
+    this.elements = new List<Element>();
   }
 
   /**
@@ -19,8 +22,7 @@ public with sharing class ASB_Select implements ASB_Clause {
    * @return  `ASB_Select`
    */
   public ASB_Select field(Schema.SObjectField field) {
-    Element e = new FieldElement(field);
-    this.elements.put(e, e);
+    (new FieldElement(field)).mergeInto(this.elements);
     return this;
   }
 
@@ -30,13 +32,8 @@ public with sharing class ASB_Select implements ASB_Clause {
    * @return  `ASB_Select`
    */
   public ASB_Select subQuery(ASB_SubQuery subQuery) {
-    Element e = new SubqueryElement(subQuery);
-    SubqueryElement thisSubQueryElement = ((SubqueryElement) this.elements.get(e));
-    if (this.elements.keySet().contains(e) && thisSubQueryElement.subQuery != subQuery) {
-      thisSubQueryElement.subQuery.combine(subQuery);
-    } else {
-      this.elements.put(e, e);
-    }
+    (new SubqueryElement(subQuery)).mergeInto(this.elements);
+
     return this;
   }
 
@@ -73,38 +70,44 @@ public with sharing class ASB_Select implements ASB_Clause {
    * @return  `ASB_Select`
    */
   public ASB_Select parent(List<Schema.SObjectField> fieldPath) {
-    Element e = new FieldElement(fieldPath);
-    this.elements.put(e, e);
+    (new FieldElement(fieldPath)).mergeInto(elements);
     return this;
   }
 
-  /**
-   * Combines given `ASB_Select` instance with this instance.
-   * @param asbSelect `ASB_Select` to combine with this instance.
-   * @return  `ASB_Select`
-   */
-  public ASB_Select combine(ASB_Select asbSelect) {
-    for (Element e : asbSelect.elements.keySet()) {
-      if (!this.elements.containsKey(e)) {
-        this.elements.put(e, e);
-      }
+  public void mergeInto(ASB_Select asbSelect) {
+    for (Element e : this.elements) {
+      e.mergeInto(asbSelect.elements);
     }
-    return this;
   }
+
+  /* --- ASB_Clause Interface --- */
 
   /**
    * Returns instance as a SELECT clause query string.
-   * @return  `ASB_ClauseDetail`
+   * @return  `String`
    */
-  public ASB_ClauseDetail clauseDetail() {
+  public String clauseString() {
     List<String> elementStrs = new List<String>();
-    Map<String, Object> bindings = new Map<String, Object>();
-    for (Element element : this.elements.keySet()) {
-      elementStrs.add(element.queryDetail().getClauseString());
-      bindings.putAll(element.queryDetail().getBindings());
+    for (Element element : this.elements) {
+      if (element instanceof ASB_Bindable) {
+        ((ASB_Bindable) element).setBindPrefix(this.bindPrefix);
+        elementStrs.add(element.queryString());
+        this.binds.putAll(((ASB_Bindable) element).getBinds());
+      } else {
+        elementStrs.add(element.queryString());
+      }
     }
 
-    return new ASB_ClauseDetail('SELECT ' + String.join(elementStrs, ', '), bindings);
+    return 'SELECT ' + String.join(elementStrs, ', ');
+  }
+
+  /* --- ASB_Bindable Interface --- */
+  public void setBindPrefix(String prefix) {
+    this.bindPrefix = prefix;
+  }
+
+  public Map<String, Object> getBinds() {
+    return new Map<String, Object>(this.binds);
   }
 
   private class FieldElement implements Element {
@@ -122,14 +125,20 @@ public with sharing class ASB_Select implements ASB_Clause {
      * Returns instance as a query string component.
      * @return  `String`
      */
-    public ASB_ClauseDetail queryDetail() {
+    public String queryString() {
       String[] fieldStrs = new List<String>{};
       for (Integer i = 0; i < this.relationshipPath.size() - 1; i++) {
         fieldStrs.add(this.relationshipPath[i].getDescribe().getRelationshipName());
       }
       fieldStrs.add(this.relationshipPath[this.relationshipPath.size() - 1].getDescribe().getName());
 
-      return new ASB_ClauseDetail(String.join(fieldStrs, '.'));
+      return String.join(fieldStrs, '.');
+    }
+
+    public void mergeInto(List<Element> target) {
+      if (!target.contains(this)) {
+        target.add(this);
+      }
     }
 
     public Integer hashCode() {
@@ -137,7 +146,7 @@ public with sharing class ASB_Select implements ASB_Clause {
     }
 
     public Boolean equals(Object obj) {
-      return this.hashCode().equals(obj.hashCode());
+      return obj instanceof FieldElement && this.relationshipPath.equals(((FieldElement) obj).relationshipPath);
     }
   }
 
@@ -152,26 +161,39 @@ public with sharing class ASB_Select implements ASB_Clause {
      * Returns instance as a query string component.
      * @return  `String`
      */
-    public ASB_ClauseDetail queryDetail() {
+    public String queryString() {
+      this.subQuery.setBindPrefix(this.subQuery.asbFrom.getRelationshipName());
       String queryString = '(' + this.subQuery.queryDetail().getQueryString() + ')';
-
-      return new ASB_ClauseDetail(queryString, this.subQuery.queryDetail().getBindings());
+      return queryString;
     }
 
-    public Integer hashCode() {
-      return this.subQuery.relatedBy().hashCode();
+    public void mergeInto(List<Element> target) {
+      SubqueryElement targetElement = findByRelationship(target, this.subQuery.relatedBy());
+
+      if (targetElement == null) {
+        target.add(this);
+      } else {
+        this.subQuery.mergeInto(targetElement.subQuery);
+      }
     }
 
-    public Boolean equals(Object obj) {
-      return this.hashCode().equals(obj.hashCode());
+    private SubqueryElement findByRelationship(List<Element> target, Schema.SObjectField relatedBy) {
+      for (Element e : target) {
+        if (e instanceof SubqueryElement && ((SubqueryElement) e).subQuery.relatedBy() == relatedBy) {
+          return (SubqueryElement) e;
+        }
+      }
+      return null;
     }
   }
 
   private interface Element {
     /**
      * Returns instance as a query string component.
-     * @return  `ASB_ClauseDetail`
+     * @return  `String`
      */
-    ASB_ClauseDetail queryDetail();
+    String queryString();
+
+    void mergeInto(List<Element> target);
   }
 }

@@ -19,26 +19,26 @@ private class ASB_Where_Test {
    */
   @IsTest
   static void makeEQ() {
-    ASB_ClauseDetail[] expectedClauses = new List<ASB_ClauseDetail>{
-      new ASB_ClauseDetail('WHERE Name = :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedStr }),
-      new ASB_ClauseDetail('WHERE Name = :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedInt }),
-      new ASB_ClauseDetail('WHERE Name = :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDec }),
-      new ASB_ClauseDetail('WHERE Name = :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDate }),
-      new ASB_ClauseDetail('WHERE Name = :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDateTime }),
-      new ASB_ClauseDetail('WHERE Name = :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedBool })
+    Expectation[] expectations = new List<Expectation>{
+      new Expectation('WHERE Name = :Name1', new Map<String, Object>{ 'Name1' => expectedStr }),
+      new Expectation('WHERE Name = :Name1', new Map<String, Object>{ 'Name1' => expectedInt }),
+      new Expectation('WHERE Name = :Name1', new Map<String, Object>{ 'Name1' => expectedDec }),
+      new Expectation('WHERE Name = :Name1', new Map<String, Object>{ 'Name1' => expectedDate }),
+      new Expectation('WHERE Name = :Name1', new Map<String, Object>{ 'Name1' => expectedDateTime }),
+      new Expectation('WHERE Name = :Name1', new Map<String, Object>{ 'Name1' => expectedBool })
     };
 
-    ASB_ClauseDetail[] actualClauses = new List<ASB_ClauseDetail>{
-      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedStr).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedInt).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedDec).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedDate).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedDateTime).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedBool).clauseDetail()
+    ASB_Where[] tests = new List<ASB_Where>{
+      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedStr),
+      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedInt),
+      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedDec),
+      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedDate),
+      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedDateTime),
+      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedBool)
     };
 
     Test.startTest();
-    assertDetails(expectedClauses, actualClauses);
+    assertExpectations(expectations, tests);
     Test.stopTest();
   }
 
@@ -47,26 +47,26 @@ private class ASB_Where_Test {
    */
   @IsTest
   static void makeNE() {
-    ASB_ClauseDetail[] expectedClauses = new List<ASB_ClauseDetail>{
-      new ASB_ClauseDetail('WHERE Name != :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedStr }),
-      new ASB_ClauseDetail('WHERE Name != :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedInt }),
-      new ASB_ClauseDetail('WHERE Name != :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDec }),
-      new ASB_ClauseDetail('WHERE Name != :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDate }),
-      new ASB_ClauseDetail('WHERE Name != :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDateTime }),
-      new ASB_ClauseDetail('WHERE Name != :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedBool })
+    Expectation[] expectations = new List<Expectation>{
+      new Expectation('WHERE Name != :Name1', new Map<String, Object>{ 'Name1' => expectedStr }),
+      new Expectation('WHERE Name != :Name1', new Map<String, Object>{ 'Name1' => expectedInt }),
+      new Expectation('WHERE Name != :Name1', new Map<String, Object>{ 'Name1' => expectedDec }),
+      new Expectation('WHERE Name != :Name1', new Map<String, Object>{ 'Name1' => expectedDate }),
+      new Expectation('WHERE Name != :Name1', new Map<String, Object>{ 'Name1' => expectedDateTime }),
+      new Expectation('WHERE Name != :Name1', new Map<String, Object>{ 'Name1' => expectedBool })
     };
 
-    ASB_ClauseDetail[] actualClauses = new List<ASB_ClauseDetail>{
-      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedStr).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedInt).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedDec).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedDate).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedDateTime).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedBool).clauseDetail()
+    ASB_Where[] tests = new List<ASB_Where>{
+      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedStr),
+      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedInt),
+      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedDec),
+      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedDate),
+      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedDateTime),
+      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedBool)
     };
 
     Test.startTest();
-    assertDetails(expectedClauses, actualClauses);
+    assertExpectations(expectations, tests);
     Test.stopTest();
   }
 
@@ -75,22 +75,22 @@ private class ASB_Where_Test {
    */
   @IsTest
   static void makeGT() {
-    ASB_ClauseDetail[] expectedClauses = new List<ASB_ClauseDetail>{
-      new ASB_ClauseDetail('WHERE Name > :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedInt }),
-      new ASB_ClauseDetail('WHERE Name > :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDec }),
-      new ASB_ClauseDetail('WHERE Name > :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDate }),
-      new ASB_ClauseDetail('WHERE Name > :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDateTime })
+    Expectation[] expectations = new List<Expectation>{
+      new Expectation('WHERE Name > :Name1', new Map<String, Object>{ 'Name1' => expectedInt }),
+      new Expectation('WHERE Name > :Name1', new Map<String, Object>{ 'Name1' => expectedDec }),
+      new Expectation('WHERE Name > :Name1', new Map<String, Object>{ 'Name1' => expectedDate }),
+      new Expectation('WHERE Name > :Name1', new Map<String, Object>{ 'Name1' => expectedDateTime })
     };
 
-    ASB_ClauseDetail[] actualClauses = new List<ASB_ClauseDetail>{
-      new ASB_Where.FieldComparison(nameFieldPath).gt(expectedInt).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).gt(expectedDec).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).gt(expectedDate).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).gt(expectedDateTime).clauseDetail()
+    ASB_Where[] tests = new List<ASB_Where>{
+      new ASB_Where.FieldComparison(nameFieldPath).gt(expectedInt),
+      new ASB_Where.FieldComparison(nameFieldPath).gt(expectedDec),
+      new ASB_Where.FieldComparison(nameFieldPath).gt(expectedDate),
+      new ASB_Where.FieldComparison(nameFieldPath).gt(expectedDateTime)
     };
 
     Test.startTest();
-    assertDetails(expectedClauses, actualClauses);
+    assertExpectations(expectations, tests);
     Test.stopTest();
   }
 
@@ -99,22 +99,22 @@ private class ASB_Where_Test {
    */
   @IsTest
   static void makeGTE() {
-    ASB_ClauseDetail[] expectedClauses = new List<ASB_ClauseDetail>{
-      new ASB_ClauseDetail('WHERE Name >= :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedInt }),
-      new ASB_ClauseDetail('WHERE Name >= :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDec }),
-      new ASB_ClauseDetail('WHERE Name >= :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDate }),
-      new ASB_ClauseDetail('WHERE Name >= :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDateTime })
+    Expectation[] expectations = new List<Expectation>{
+      new Expectation('WHERE Name >= :Name1', new Map<String, Object>{ 'Name1' => expectedInt }),
+      new Expectation('WHERE Name >= :Name1', new Map<String, Object>{ 'Name1' => expectedDec }),
+      new Expectation('WHERE Name >= :Name1', new Map<String, Object>{ 'Name1' => expectedDate }),
+      new Expectation('WHERE Name >= :Name1', new Map<String, Object>{ 'Name1' => expectedDateTime })
     };
 
-    ASB_ClauseDetail[] actualClauses = new List<ASB_ClauseDetail>{
-      new ASB_Where.FieldComparison(nameFieldPath).gte(expectedInt).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).gte(expectedDec).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).gte(expectedDate).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).gte(expectedDateTime).clauseDetail()
+    ASB_Where[] tests = new List<ASB_Where>{
+      new ASB_Where.FieldComparison(nameFieldPath).gte(expectedInt),
+      new ASB_Where.FieldComparison(nameFieldPath).gte(expectedDec),
+      new ASB_Where.FieldComparison(nameFieldPath).gte(expectedDate),
+      new ASB_Where.FieldComparison(nameFieldPath).gte(expectedDateTime)
     };
 
     Test.startTest();
-    assertDetails(expectedClauses, actualClauses);
+    assertExpectations(expectations, tests);
     Test.stopTest();
   }
 
@@ -123,22 +123,22 @@ private class ASB_Where_Test {
    */
   @IsTest
   static void makeLT() {
-    ASB_ClauseDetail[] expectedClauses = new List<ASB_ClauseDetail>{
-      new ASB_ClauseDetail('WHERE Name < :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedInt }),
-      new ASB_ClauseDetail('WHERE Name < :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDec }),
-      new ASB_ClauseDetail('WHERE Name < :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDate }),
-      new ASB_ClauseDetail('WHERE Name < :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDateTime })
+    Expectation[] expectations = new List<Expectation>{
+      new Expectation('WHERE Name < :Name1', new Map<String, Object>{ 'Name1' => expectedInt }),
+      new Expectation('WHERE Name < :Name1', new Map<String, Object>{ 'Name1' => expectedDec }),
+      new Expectation('WHERE Name < :Name1', new Map<String, Object>{ 'Name1' => expectedDate }),
+      new Expectation('WHERE Name < :Name1', new Map<String, Object>{ 'Name1' => expectedDateTime })
     };
 
-    ASB_ClauseDetail[] actualClauses = new List<ASB_ClauseDetail>{
-      new ASB_Where.FieldComparison(nameFieldPath).lt(expectedInt).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).lt(expectedDec).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).lt(expectedDate).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).lt(expectedDateTime).clauseDetail()
+    ASB_Where[] tests = new List<ASB_Where>{
+      new ASB_Where.FieldComparison(nameFieldPath).lt(expectedInt),
+      new ASB_Where.FieldComparison(nameFieldPath).lt(expectedDec),
+      new ASB_Where.FieldComparison(nameFieldPath).lt(expectedDate),
+      new ASB_Where.FieldComparison(nameFieldPath).lt(expectedDateTime)
     };
 
     Test.startTest();
-    assertDetails(expectedClauses, actualClauses);
+    assertExpectations(expectations, tests);
     Test.stopTest();
   }
 
@@ -147,22 +147,22 @@ private class ASB_Where_Test {
    */
   @IsTest
   static void makeLTE() {
-    ASB_ClauseDetail[] expectedClauses = new List<ASB_ClauseDetail>{
-      new ASB_ClauseDetail('WHERE Name <= :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedInt }),
-      new ASB_ClauseDetail('WHERE Name <= :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDec }),
-      new ASB_ClauseDetail('WHERE Name <= :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDate }),
-      new ASB_ClauseDetail('WHERE Name <= :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedDateTime })
+    Expectation[] expectations = new List<Expectation>{
+      new Expectation('WHERE Name <= :Name1', new Map<String, Object>{ 'Name1' => expectedInt }),
+      new Expectation('WHERE Name <= :Name1', new Map<String, Object>{ 'Name1' => expectedDec }),
+      new Expectation('WHERE Name <= :Name1', new Map<String, Object>{ 'Name1' => expectedDate }),
+      new Expectation('WHERE Name <= :Name1', new Map<String, Object>{ 'Name1' => expectedDateTime })
     };
 
-    ASB_ClauseDetail[] actualClauses = new List<ASB_ClauseDetail>{
-      new ASB_Where.FieldComparison(nameFieldPath).lte(expectedInt).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).lte(expectedDec).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).lte(expectedDate).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).lte(expectedDateTime).clauseDetail()
+    ASB_Where[] tests = new List<ASB_Where>{
+      new ASB_Where.FieldComparison(nameFieldPath).lte(expectedInt),
+      new ASB_Where.FieldComparison(nameFieldPath).lte(expectedDec),
+      new ASB_Where.FieldComparison(nameFieldPath).lte(expectedDate),
+      new ASB_Where.FieldComparison(nameFieldPath).lte(expectedDateTime)
     };
 
     Test.startTest();
-    assertDetails(expectedClauses, actualClauses);
+    assertExpectations(expectations, tests);
     Test.stopTest();
   }
 
@@ -171,39 +171,23 @@ private class ASB_Where_Test {
    */
   @isTest
   static void makeOther() {
-    ASB_ClauseDetail[] expectedClauses = new List<ASB_ClauseDetail>{
-      new ASB_ClauseDetail('WHERE Name = :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => null }),
-      new ASB_ClauseDetail('WHERE Name != :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => null }),
-      new ASB_ClauseDetail('WHERE Name IN :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedList }),
-      new ASB_ClauseDetail('WHERE Name LIKE :WHERE_Name1', new Map<String, Object>{ 'WHERE_Name1' => expectedStr })
+    Expectation[] expectations = new List<Expectation>{
+      new Expectation('WHERE Name = :Name1', new Map<String, Object>{ 'Name1' => null }),
+      new Expectation('WHERE Name != :Name1', new Map<String, Object>{ 'Name1' => null }),
+      new Expectation('WHERE Name IN :Name1', new Map<String, Object>{ 'Name1' => expectedList }),
+      new Expectation('WHERE Name LIKE :Name1', new Map<String, Object>{ 'Name1' => expectedStr })
     };
 
-    ASB_ClauseDetail[] actualClauses = new List<ASB_ClauseDetail>{
-      new ASB_Where.FieldComparison(nameFieldPath).isNull().clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).isNotNull().clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).isIn(expectedList).clauseDetail(),
-      new ASB_Where.FieldComparison(nameFieldPath).isLike(expectedStr).clauseDetail()
+    ASB_Where[] tests = new List<ASB_Where>{
+      new ASB_Where.FieldComparison(nameFieldPath).isNull(),
+      new ASB_Where.FieldComparison(nameFieldPath).isNotNull(),
+      new ASB_Where.FieldComparison(nameFieldPath).isIn(expectedList),
+      new ASB_Where.FieldComparison(nameFieldPath).isLike(expectedStr)
     };
 
     Test.startTest();
-    assertDetails(expectedClauses, actualClauses);
+    assertExpectations(expectations, tests);
     Test.stopTest();
-  }
-
-  static void assertDetails(ASB_ClauseDetail[] expectedClauses, ASB_ClauseDetail[] actualClauses) {
-    System.Assert.areEqual(expectedClauses.size(), actualClauses.size(), 'unexpected number of ASB_ClauseDetails');
-    for (Integer i = 0; i < expectedClauses.size(); i++) {
-      System.Assert.areEqual(
-        expectedClauses[i].getClauseString(),
-        actualClauses[i].getClauseString(),
-        'unexpected clause returned. idx: ' + i
-      );
-      System.Assert.areEqual(
-        expectedClauses[i].getBindings(),
-        actualClauses[i].getBindings(),
-        'unexpected bindings returned. idx: ' + i
-      );
-    }
   }
 
   /**
@@ -220,21 +204,16 @@ private class ASB_Where_Test {
     ASB_Where clause3 = new ASB_Where.FieldComparison(new List<Schema.SObjectField>{ Account.Name }).isIn(expectedList);
 
     String[] expectedClauses = new List<String>{
-      'WHERE Owner.LastName = :WHERE_Owner_LastName1 AND Owner.Profile.Name != :WHERE_Owner_Profile_Name1',
-      'WHERE Owner.LastName = :WHERE_Owner_LastName1 AND Owner.Profile.Name != :WHERE_Owner_Profile_Name1 AND Name IN :WHERE_Name1',
-      'WHERE Owner.LastName = :WHERE_Owner_LastName1 AND Owner.Profile.Name != :WHERE_Owner_Profile_Name1 AND Name IN :WHERE_Name1 AND Owner.LastName = :WHERE_Owner_LastName2 AND Owner.Profile.Name != :WHERE_Owner_Profile_Name2'
+      'WHERE Owner.LastName = :Owner_LastName1 AND Owner.Profile.Name != :Owner_Profile_Name1',
+      'WHERE Owner.LastName = :Owner_LastName1 AND Owner.Profile.Name != :Owner_Profile_Name1 AND Name IN :Name1',
+      'WHERE Owner.LastName = :Owner_LastName1 AND Owner.Profile.Name != :Owner_Profile_Name1 AND Name IN :Name1 AND Owner.LastName = :Owner_LastName2 AND Owner.Profile.Name != :Owner_Profile_Name2'
     };
 
     String[] actualClauses = new List<String>{
-      new ASB_Where(new ASB_Where.AndLogicalGroup(new List<ASB_Where>{ clause1, clause2 }))
-        .clauseDetail()
-        .getClauseString(),
-      new ASB_Where(new ASB_Where.AndLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3 }))
-        .clauseDetail()
-        .getClauseString(),
+      new ASB_Where(new ASB_Where.AndLogicalGroup(new List<ASB_Where>{ clause1, clause2 })).clauseString(),
+      new ASB_Where(new ASB_Where.AndLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3 })).clauseString(),
       new ASB_Where(new ASB_Where.AndLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3, clause1, clause2 }))
-        .clauseDetail()
-        .getClauseString()
+        .clauseString()
     };
 
     Test.startTest();
@@ -259,21 +238,16 @@ private class ASB_Where_Test {
       .isIn(new List<String>{ 'Foo', 'Bar' });
 
     String[] expectedClauses = new List<String>{
-      'WHERE Owner.LastName = :WHERE_Owner_LastName1 OR Owner.Profile.Name != :WHERE_Owner_Profile_Name1',
-      'WHERE Owner.LastName = :WHERE_Owner_LastName1 OR Owner.Profile.Name != :WHERE_Owner_Profile_Name1 OR Name IN :WHERE_Name1',
-      'WHERE Owner.LastName = :WHERE_Owner_LastName1 OR Owner.Profile.Name != :WHERE_Owner_Profile_Name1 OR Name IN :WHERE_Name1 OR Owner.LastName = :WHERE_Owner_LastName2 OR Owner.Profile.Name != :WHERE_Owner_Profile_Name2'
+      'WHERE Owner.LastName = :Owner_LastName1 OR Owner.Profile.Name != :Owner_Profile_Name1',
+      'WHERE Owner.LastName = :Owner_LastName1 OR Owner.Profile.Name != :Owner_Profile_Name1 OR Name IN :Name1',
+      'WHERE Owner.LastName = :Owner_LastName1 OR Owner.Profile.Name != :Owner_Profile_Name1 OR Name IN :Name1 OR Owner.LastName = :Owner_LastName2 OR Owner.Profile.Name != :Owner_Profile_Name2'
     };
 
     String[] actualClauses = new List<String>{
-      new ASB_Where(new ASB_Where.OrLogicalGroup(new List<ASB_Where>{ clause1, clause2 }))
-        .clauseDetail()
-        .getClauseString(),
-      new ASB_Where(new ASB_Where.OrLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3 }))
-        .clauseDetail()
-        .getClauseString(),
+      new ASB_Where(new ASB_Where.OrLogicalGroup(new List<ASB_Where>{ clause1, clause2 })).clauseString(),
+      new ASB_Where(new ASB_Where.OrLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3 })).clauseString(),
       new ASB_Where(new ASB_Where.OrLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3, clause1, clause2 }))
-        .clauseDetail()
-        .getClauseString()
+        .clauseString()
     };
 
     Test.startTest();
@@ -281,5 +255,27 @@ private class ASB_Where_Test {
       System.Assert.areEqual(expectedClauses[i], actualClauses[i], 'unexpected clause returned. idx: ' + i);
     }
     Test.stopTest();
+  }
+
+  static void assertExpectations(Expectation[] expectations, ASB_Where[] tests) {
+    System.Assert.areEqual(expectations.size(), tests.size(), 'unexpected number of clauses');
+    for (Integer i = 0; i < expectations.size(); i++) {
+      expectations[i].test(tests[i]);
+    }
+  }
+
+  private class Expectation {
+    String query;
+    Map<String, Object> binds;
+
+    private Expectation(String query, Map<String, Object> binds) {
+      this.query = query;
+      this.binds = binds;
+    }
+
+    private void test(ASB_Where asbWhere) {
+      System.Assert.areEqual(asbWhere.clauseString(), this.query, 'unexpected clause returned: ' + this);
+      System.Assert.areEqual(asbWhere.getBinds(), this.binds, 'unexpected binds returned: ' + this);
+    }
   }
 }

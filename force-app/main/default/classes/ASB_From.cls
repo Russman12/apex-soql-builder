@@ -47,8 +47,12 @@ public with sharing class ASB_From implements ASB_Clause {
    * Converts the FROM clause to a query string.
    * @return  `String`
    */
-  public ASB_ClauseDetail clauseDetail() {
-    return new ASB_ClauseDetail('FROM ' + this.stringVal);
+  public String clauseString() {
+    return 'FROM ' + this.stringVal;
+  }
+
+  public String getRelationshipName() {
+    return this.stringVal;
   }
 
   public Integer hashCode() {

@@ -51,7 +51,7 @@ public with sharing class ASB_OrderBy implements ASB_Clause {
    * Returns complete clause string
    * @return   `String`
    */
-  public ASB_ClauseDetail clauseDetail() {
+  public String clauseString() {
     String[] elements = new List<String>{ String.join(this.fieldStrings(), ', ') };
     if (this.direction != null) {
       elements.add(this.direction);
@@ -59,7 +59,7 @@ public with sharing class ASB_OrderBy implements ASB_Clause {
     if (this.nullPlacement != null) {
       elements.add('NULLS ' + this.nullPlacement);
     }
-    return new ASB_ClauseDetail('ORDER BY ' + String.join(elements, ' '));
+    return 'ORDER BY ' + String.join(elements, ' ');
   }
 
   private String[] fieldStrings() {

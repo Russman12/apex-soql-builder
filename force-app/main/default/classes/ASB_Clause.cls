@@ -7,5 +7,5 @@ public interface ASB_Clause {
    * Returns a complete clause as a string
    * @return  `String`
    */
-  ASB_ClauseDetail clauseDetail();
+  String clauseString();
 }
