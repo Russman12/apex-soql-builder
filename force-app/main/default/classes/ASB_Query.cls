@@ -52,23 +52,5 @@ public abstract with sharing class ASB_Query {
     return this;
   }
 
-  private abstract Detail queryDetail();
-
-  public class Detail {
-    private String queryString;
-    private Map<String, Object> bindings;
-
-    public Detail(String queryString, Map<String, Object> bindings) {
-      this.queryString = queryString;
-      this.bindings = bindings;
-    }
-
-    public String getQueryString() {
-      return this.queryString;
-    }
-
-    public Map<String, Object> getBindings() {
-      return this.bindings;
-    }
-  }
+  private abstract String queryDetail(ASB_BindContext ctx);
 }

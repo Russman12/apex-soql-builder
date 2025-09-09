@@ -4,6 +4,8 @@
  */
 @isTest
 private class ASB_Where_Test {
+  private static ASB_BindContext ctx = new ASB_BindContext();
+
   private static String expectedStr = 'Foo';
   private static List<String> expectedList = new List<String>{ 'Foo', 'Bar' };
   private static Integer expectedInt = 10;
@@ -203,23 +205,37 @@ private class ASB_Where_Test {
       .ne(expectedStr);
     ASB_Where clause3 = new ASB_Where.FieldComparison(new List<Schema.SObjectField>{ Account.Name }).isIn(expectedList);
 
-    String[] expectedClauses = new List<String>{
-      'WHERE Owner.LastName = :Owner_LastName1 AND Owner.Profile.Name != :Owner_Profile_Name1',
-      'WHERE Owner.LastName = :Owner_LastName1 AND Owner.Profile.Name != :Owner_Profile_Name1 AND Name IN :Name1',
-      'WHERE Owner.LastName = :Owner_LastName1 AND Owner.Profile.Name != :Owner_Profile_Name1 AND Name IN :Name1 AND Owner.LastName = :Owner_LastName2 AND Owner.Profile.Name != :Owner_Profile_Name2'
+    Expectation[] expectations = new List<Expectation>{
+      new Expectation(
+        'WHERE Owner.LastName = :Owner_LastName1 AND Owner.Profile.Name != :Owner_Profile_Name1',
+        new Map<String, Object>{ 'Owner_LastName1' => expectedStr, 'Owner_Profile_Name1' => expectedStr }
+      ),
+      new Expectation(
+        'WHERE Owner.LastName = :Owner_LastName1 AND Owner.Profile.Name != :Owner_Profile_Name1 AND Name IN :Name1',
+        new Map<String, Object>{
+          'Owner_LastName1' => expectedStr,
+          'Owner_Profile_Name1' => expectedStr,
+          'Name1' => expectedList
+        }
+      ),
+      new Expectation(
+        'WHERE Owner.LastName = :Owner_LastName1 AND Owner.Profile.Name != :Owner_Profile_Name1 AND Name IN :Name1 AND Owner.LastName = :Owner_LastName1 AND Owner.Profile.Name != :Owner_Profile_Name1',
+        new Map<String, Object>{
+          'Owner_LastName1' => expectedStr,
+          'Owner_Profile_Name1' => expectedStr,
+          'Name1' => expectedList
+        }
+      )
     };
 
-    String[] actualClauses = new List<String>{
-      new ASB_Where(new ASB_Where.AndLogicalGroup(new List<ASB_Where>{ clause1, clause2 })).clauseString(),
-      new ASB_Where(new ASB_Where.AndLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3 })).clauseString(),
+    ASB_Where[] tests = new List<ASB_Where>{
+      new ASB_Where(new ASB_Where.AndLogicalGroup(new List<ASB_Where>{ clause1, clause2 })),
+      new ASB_Where(new ASB_Where.AndLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3 })),
       new ASB_Where(new ASB_Where.AndLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3, clause1, clause2 }))
-        .clauseString()
     };
 
     Test.startTest();
-    for (Integer i = 0; i < expectedClauses.size(); i++) {
-      System.Assert.areEqual(expectedClauses[i], actualClauses[i], 'unexpected clause returned. idx: ' + i);
-    }
+    assertExpectations(expectations, tests);
     Test.stopTest();
   }
 
@@ -229,31 +245,44 @@ private class ASB_Where_Test {
   @isTest
   static void orx() {
     ASB_Where clause1 = new ASB_Where.FieldComparison(new List<Schema.SObjectField>{ Account.OwnerId, User.LastName })
-      .eq('Foo');
+      .eq(expectedStr);
     ASB_Where clause2 = new ASB_Where.FieldComparison(
         new List<Schema.SObjectField>{ Account.OwnerId, User.ProfileId, Profile.Name }
       )
-      .ne('Foo');
-    ASB_Where clause3 = new ASB_Where.FieldComparison(new List<Schema.SObjectField>{ Account.Name })
-      .isIn(new List<String>{ 'Foo', 'Bar' });
+      .ne(expectedStr);
+    ASB_Where clause3 = new ASB_Where.FieldComparison(new List<Schema.SObjectField>{ Account.Name }).isIn(expectedList);
 
-    String[] expectedClauses = new List<String>{
-      'WHERE Owner.LastName = :Owner_LastName1 OR Owner.Profile.Name != :Owner_Profile_Name1',
-      'WHERE Owner.LastName = :Owner_LastName1 OR Owner.Profile.Name != :Owner_Profile_Name1 OR Name IN :Name1',
-      'WHERE Owner.LastName = :Owner_LastName1 OR Owner.Profile.Name != :Owner_Profile_Name1 OR Name IN :Name1 OR Owner.LastName = :Owner_LastName2 OR Owner.Profile.Name != :Owner_Profile_Name2'
+    Expectation[] expectations = new List<Expectation>{
+      new Expectation(
+        'WHERE Owner.LastName = :Owner_LastName1 OR Owner.Profile.Name != :Owner_Profile_Name1',
+        new Map<String, Object>{ 'Owner_LastName1' => expectedStr, 'Owner_Profile_Name1' => expectedStr }
+      ),
+      new Expectation(
+        'WHERE Owner.LastName = :Owner_LastName1 OR Owner.Profile.Name != :Owner_Profile_Name1 OR Name IN :Name1',
+        new Map<String, Object>{
+          'Owner_LastName1' => expectedStr,
+          'Owner_Profile_Name1' => expectedStr,
+          'Name1' => expectedList
+        }
+      ),
+      new Expectation(
+        'WHERE Owner.LastName = :Owner_LastName1 OR Owner.Profile.Name != :Owner_Profile_Name1 OR Name IN :Name1 OR Owner.LastName = :Owner_LastName1 OR Owner.Profile.Name != :Owner_Profile_Name1',
+        new Map<String, Object>{
+          'Owner_LastName1' => expectedStr,
+          'Owner_Profile_Name1' => expectedStr,
+          'Name1' => expectedList
+        }
+      )
     };
 
-    String[] actualClauses = new List<String>{
-      new ASB_Where(new ASB_Where.OrLogicalGroup(new List<ASB_Where>{ clause1, clause2 })).clauseString(),
-      new ASB_Where(new ASB_Where.OrLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3 })).clauseString(),
+    ASB_Where[] tests = new List<ASB_Where>{
+      new ASB_Where(new ASB_Where.OrLogicalGroup(new List<ASB_Where>{ clause1, clause2 })),
+      new ASB_Where(new ASB_Where.OrLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3 })),
       new ASB_Where(new ASB_Where.OrLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3, clause1, clause2 }))
-        .clauseString()
     };
 
     Test.startTest();
-    for (Integer i = 0; i < expectedClauses.size(); i++) {
-      System.Assert.areEqual(expectedClauses[i], actualClauses[i], 'unexpected clause returned. idx: ' + i);
-    }
+    assertExpectations(expectations, tests);
     Test.stopTest();
   }
 
@@ -267,6 +296,7 @@ private class ASB_Where_Test {
   private class Expectation {
     String query;
     Map<String, Object> binds;
+    ASB_BindContext ctx = new ASB_BindContext();
 
     private Expectation(String query, Map<String, Object> binds) {
       this.query = query;
@@ -274,8 +304,8 @@ private class ASB_Where_Test {
     }
 
     private void test(ASB_Where asbWhere) {
-      System.Assert.areEqual(asbWhere.clauseString(), this.query, 'unexpected clause returned: ' + this);
-      System.Assert.areEqual(asbWhere.getBinds(), this.binds, 'unexpected binds returned: ' + this);
+      System.Assert.areEqual(this.query, asbWhere.clauseString(ctx), 'unexpected clause returned: ' + this);
+      System.Assert.areEqual(this.binds, ctx.getBinds(), 'unexpected binds returned: ' + this);
     }
   }
 }

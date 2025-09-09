@@ -1,5 +1,7 @@
 @isTest
 public with sharing class ASB_SubQuery_Test {
+  private static ASB_BindContext ctx = new ASB_BindContext();
+
   //TODO: mock this
   private static ASB asb = new ASB();
 
@@ -12,11 +14,7 @@ public with sharing class ASB_SubQuery_Test {
     ASB_SubQuery subQuery = new ASB_SubQuery(Contact.AccountId);
     Test.stopTest();
 
-    System.Assert.areEqual(
-      'SELECT Id FROM Contacts',
-      subQuery.queryDetail().getQueryString(),
-      'Unexpected soql string returned'
-    );
+    System.Assert.areEqual('SELECT Id FROM Contacts', subQuery.queryDetail(ctx), 'Unexpected soql string returned');
   }
 
   /**
@@ -30,7 +28,7 @@ public with sharing class ASB_SubQuery_Test {
 
     System.Assert.areEqual(
       'SELECT Id, Name FROM Contacts',
-      subQuery.queryDetail().getQueryString(),
+      subQuery.queryDetail(ctx),
       'Unexpected soql string returned'
     );
   }
@@ -47,7 +45,7 @@ public with sharing class ASB_SubQuery_Test {
 
     System.Assert.areEqual(
       'SELECT Id, Account.Name FROM Contacts',
-      subQuery.queryDetail().getQueryString(),
+      subQuery.queryDetail(ctx),
       'Unexpected soql string returned'
     );
   }
@@ -63,7 +61,7 @@ public with sharing class ASB_SubQuery_Test {
 
     System.Assert.areEqual(
       'SELECT Id, Account.Name FROM Contacts',
-      subQuery.queryDetail().getQueryString(),
+      subQuery.queryDetail(ctx),
       'Unexpected soql string returned'
     );
   }
@@ -81,7 +79,7 @@ public with sharing class ASB_SubQuery_Test {
 
     System.Assert.areEqual(
       'SELECT Id, (SELECT Id FROM Cases) FROM Contacts',
-      outerSub.queryDetail().getQueryString(),
+      outerSub.queryDetail(ctx),
       'Unexpected soql string returned'
     );
   }
@@ -97,7 +95,7 @@ public with sharing class ASB_SubQuery_Test {
 
     System.Assert.areEqual(
       'SELECT Id FROM Contacts WHERE Name = :Contacts_Name1',
-      subQuery.queryDetail().getQueryString(),
+      subQuery.queryDetail(ctx),
       'Unexpected soql string returned'
     );
   }
@@ -113,7 +111,7 @@ public with sharing class ASB_SubQuery_Test {
 
     System.Assert.areEqual(
       'SELECT Id FROM Contacts ORDER BY Name',
-      subQuery.queryDetail().getQueryString(),
+      subQuery.queryDetail(ctx),
       'Unexpected soql string returned'
     );
   }
@@ -128,8 +126,8 @@ public with sharing class ASB_SubQuery_Test {
     Test.stopTest();
 
     System.Assert.areEqual(
-      'SELECT Id FROM Contacts LIMIT :Contacts_RECORD_LIMIT',
-      subQuery.queryDetail().getQueryString(),
+      'SELECT Id FROM Contacts LIMIT :RECORD_LIMIT1',
+      subQuery.queryDetail(ctx),
       'Unexpected soql string returned'
     );
   }
@@ -148,7 +146,7 @@ public with sharing class ASB_SubQuery_Test {
 
     System.Assert.areEqual(
       'SELECT Id, LastName, FirstName FROM Contacts',
-      actualSubQuery.queryDetail().getQueryString(),
+      actualSubQuery.queryDetail(ctx),
       'Unexpected soql string returned'
     );
   }

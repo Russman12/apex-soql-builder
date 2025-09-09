@@ -4,6 +4,8 @@
  */
 @isTest
 public with sharing class ASB_QueryBuilder_Test {
+  private static ASB_BindContext ctx = new ASB_BindContext();
+
   //TODO: mock this
   private static ASB asb = new ASB();
 
@@ -36,23 +38,23 @@ public with sharing class ASB_QueryBuilder_Test {
       .recordLimit(recordLimit);
 
     Test.startTest();
-    ASB_Query.Detail queryDetail = queryBuilder.queryDetail();
+    String queryString = queryBuilder.queryDetail(ctx);
     Test.stopTest();
 
     System.assertEquals(
-      'SELECT Id, Name, OwnerId, Owner.LastName, Owner.Profile.Name, (SELECT Id, Name FROM Contacts) FROM Account WHERE Name = :Name1 OR (Name IN :Name2 AND NumberOfEmployees > :NumberOfEmployees1) ORDER BY Name DESC LIMIT :RECORD_LIMIT',
-      queryDetail.getQueryString(),
+      'SELECT Id, Name, OwnerId, Owner.LastName, Owner.Profile.Name, (SELECT Id, Name FROM Contacts) FROM Account WHERE Name = :Name1 OR (Name IN :Name2 AND NumberOfEmployees > :NumberOfEmployees1) ORDER BY Name DESC LIMIT :RECORD_LIMIT1',
+      queryString,
       'unexpected soql string returned'
     );
 
     System.assertEquals(
       new Map<String, Object>{
-        'RECORD_LIMIT' => recordLimit,
+        'RECORD_LIMIT1' => recordLimit,
         'Name1' => accName1,
         'Name2' => accNames,
         'NumberOfEmployees1' => lgAccNum
       },
-      queryDetail.getBindings(),
+      ctx.getBinds(),
       'unexpected bindings returned'
     );
   }

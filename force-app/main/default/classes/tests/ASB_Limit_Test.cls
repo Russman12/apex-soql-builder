@@ -4,6 +4,8 @@
  */
 @isTest
 private class ASB_Limit_Test {
+  private static ASB_BindContext ctx = new ASB_BindContext();
+
   /**
    * Ensures clauseString() returns expected clause String
    */
@@ -12,13 +14,13 @@ private class ASB_Limit_Test {
     Integer expectedLimit = 10;
     ASB_Limit asbLimit = new ASB_Limit(expectedLimit);
     System.Assert.areEqual(
-      'LIMIT :' + ASB_Limit.BIND_NAME,
-      asbLimit.clauseString(),
+      'LIMIT :RECORD_LIMIT1',
+      asbLimit.clauseString(ctx),
       'unexpected LIMIT clause string returned'
     );
     System.Assert.areEqual(
       expectedLimit,
-      asbLimit.getBinds().get(ASB_Limit.BIND_NAME),
+      ctx.getBinds().get('RECORD_LIMIT1'),
       'unexpected LIMIT clause string returned'
     );
   }

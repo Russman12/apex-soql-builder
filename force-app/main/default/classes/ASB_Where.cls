@@ -2,38 +2,23 @@
  * Encompasses functionality relating to building a WHERE clause.
  * @author Russell Laboe
  */
-public with sharing class ASB_Where implements ASB_Clause, Expression, ASB_Bindable {
+public with sharing class ASB_Where implements ASB_Clause, Expression {
   private final Expression expression;
-
-  private String bindPrefix = '';
-  private Map<String, Object> binds = new Map<String, Object>();
 
   public ASB_Where(Expression expression) {
     this.expression = expression;
   }
 
-  public String clauseString() {
-    this.binds = new Map<String, Object>();
-    String queryString = this.expression.queryString(this.bindPrefix, this.binds);
+  public String clauseString(ASB_BindContext ctx) {
+    String queryString = this.expression.queryString(ctx);
     if (this.expression instanceof LogicalGroup) {
       queryString = queryString.removeStart('(').removeEnd(')');
     }
-
     return 'WHERE ' + queryString;
   }
 
-  public String queryString(String bindPrefix, Map<String, Object> bindings) {
-    return this.expression.queryString(bindPrefix, bindings);
-  }
-
-  /* -- Bindable interface -- */
-
-  public void setBindPrefix(String prefix) {
-    this.bindPrefix = prefix;
-  }
-
-  public Map<String, Object> getBinds() {
-    return this.binds;
+  public String queryString(ASB_BindContext ctx) {
+    return this.expression.queryString(ctx);
   }
 
   public class Builder {
@@ -72,7 +57,7 @@ public with sharing class ASB_Where implements ASB_Clause, Expression, ASB_Binda
     /**
      * Returns query string and puts bindings in given bindings map
      */
-    String queryString(String bindPrefix, Map<String, Object> bindings);
+    String queryString(ASB_BindContext ctx);
   }
 
   private abstract class LogicalGroup implements Expression {
@@ -80,27 +65,21 @@ public with sharing class ASB_Where implements ASB_Clause, Expression, ASB_Binda
     private final String logicOperator;
 
     private LogicalGroup(List<Expression> expressions, String logicOperator) {
-      Expression[] exps = new List<Expression>();
+      this.expressions = new List<Expression>();
       for (Expression ex : expressions) {
         if (ex != null) {
-          exps.add(ex);
+          this.expressions.add(ex);
         }
       }
-
-      this.expressions = exps;
       this.logicOperator = logicOperator;
     }
 
-    public String queryString(String bindPrefix, Map<String, Object> bindings) {
-      return '(' + String.join(expStrings(bindPrefix, bindings), ' ' + this.logicOperator + ' ') + ')';
-    }
-
-    private List<String> expStrings(String bindPrefix, Map<String, Object> bindings) {
-      String[] expStrs = new List<String>{};
+    public String queryString(ASB_BindContext ctx) {
+      List<String> parts = new List<String>();
       for (Expression exp : this.expressions) {
-        expStrs.add(exp.queryString(bindPrefix, bindings));
+        parts.add(exp.queryString(ctx));
       }
-      return expStrs;
+      return '(' + String.join(parts, ' ' + this.logicOperator + ' ') + ')';
     }
   }
 
@@ -267,57 +246,35 @@ public with sharing class ASB_Where implements ASB_Clause, Expression, ASB_Binda
   /**
    * Represents a Field Expression portion of a WHERE clause.
    */
-  public class FieldExpression implements ASB_Where.Expression {
+  public class FieldExpression implements Expression {
     private final List<SObjectField> fieldPath;
     private final String comparisonOperator;
     private final Object value;
-    private String bindPrefix;
 
     private String fieldPathString;
 
-    /**
-     * Private constructor should only be called from within the parent class
-     */
     private FieldExpression(List<SObjectField> fieldPath, String comparisonOperator, Object value) {
       this.fieldPath = fieldPath;
       this.comparisonOperator = comparisonOperator;
       this.value = value;
     }
 
-    private String getBindName(String bindPrefix, Map<String, Object> bindings) {
-      String baseName =
-        bindPrefix + this.fieldPathString().right(40).replaceAll('_', '').replaceAll('\\.', '_').removeStart('_');
-      String bindName = baseName;
-      Integer counter = 0;
-      do {
-        counter++;
-        bindName = baseName + counter;
-      } while (bindings.containsKey(bindName));
-
-      // bind prefix must be less than 255 chars, cannot have '.' chars, and cannot start with '_'
-
-      bindings.put(bindName, this.value);
-      return bindName;
-    }
-
     private String fieldPathString() {
       if (fieldPathString == null) {
-        String[] fieldStrs = new List<String>{};
-        for (Integer i = 0; i < this.fieldPath.size() - 1; i++) {
-          fieldStrs.add(this.fieldPath[i].getDescribe().getRelationshipName());
+        List<String> fieldStrs = new List<String>();
+        for (Integer i = 0; i < fieldPath.size() - 1; i++) {
+          fieldStrs.add(fieldPath[i].getDescribe().getRelationshipName());
         }
-        fieldStrs.add(this.fieldPath[this.fieldPath.size() - 1].getDescribe().getName());
-        this.fieldPathString = String.join(fieldStrs, '.');
+        fieldStrs.add(fieldPath[fieldPath.size() - 1].getDescribe().getName());
+        fieldPathString = String.join(fieldStrs, '.');
       }
-      return this.fieldPathString;
+      return fieldPathString;
     }
 
-    /**
-     * Returns FeildExpression as a SOQL String
-     * @return `String`
-     */
-    public String queryString(String bindPrefix, Map<String, Object> bindings) {
-      return this.fieldPathString() + ' ' + this.comparisonOperator + ' :' + this.getBindName(bindPrefix, bindings);
+    public String queryString(ASB_BindContext ctx) {
+      String prefix = fieldPathString().right(40).replaceAll('_', '').replaceAll('\\.', '_').removeStart('_');
+      String bindToken = ctx.bind(this, value, prefix);
+      return fieldPathString() + ' ' + comparisonOperator + ' ' + bindToken;
     }
   }
 }

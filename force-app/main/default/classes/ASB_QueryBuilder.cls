@@ -67,15 +67,12 @@ public with sharing class ASB_QueryBuilder extends ASB_Query {
       );
     }
 
-    ASB_Query.Detail queryDetail = this.queryDetail();
-    System.debug(System.LoggingLevel.INFO, 'query: ' + queryDetail.getQueryString());
-    System.debug(System.LoggingLevel.INFO, 'binds: ' + queryDetail.getBindings());
+    ASB_BindContext bindCtx = new ASB_BindContext();
+    String queryString = this.queryDetail(bindCtx);
+    System.debug(System.LoggingLevel.INFO, 'query: ' + queryString);
+    System.debug(System.LoggingLevel.INFO, 'binds: ' + bindCtx.getBinds());
 
-    List<SObject> queryResults = Database.queryWithBinds(
-      queryDetail.getQueryString(),
-      queryDetail.getBindings(),
-      this.accessLevel
-    );
+    List<SObject> queryResults = Database.queryWithBinds(queryString, bindCtx.getBinds(), this.accessLevel);
 
     return queryResults;
   }
@@ -84,18 +81,15 @@ public with sharing class ASB_QueryBuilder extends ASB_Query {
    * Converts ASB_QueryBuilder to SOQL string.
    * @return  `String`
    */
-  public ASB_Query.Detail queryDetail() {
+  public String queryDetail(ASB_BindContext ctx) {
     String[] clauseStrings = new List<String>{};
     Map<String, Object> binds = new Map<String, Object>();
     for (ASB_Clause clause : this.getClauses()) {
       if (clause != null) {
-        clauseStrings.add(clause.clauseString());
-        if (clause instanceof ASB_Bindable) {
-          binds.putAll(((ASB_Bindable) clause).getBinds());
-        }
+        clauseStrings.add(clause.clauseString(ctx));
       }
     }
-    return new ASB_Query.Detail(String.join(clauseStrings, ' '), binds);
+    return String.join(clauseStrings, ' ');
   }
 
   public class LimitException extends Exception {

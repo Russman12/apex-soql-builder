@@ -8,7 +8,7 @@ public with sharing class ASB_OrderBy_Test {
     ASB_OrderBy asbOrder = new ASB_OrderBy(new List<Schema.SObjectField>{ Account.Name, Account.Id });
 
     Test.startTest();
-    System.Assert.areEqual('ORDER BY Name, Id', asbOrder.clauseString(), 'unexpected Order By clause returned');
+    System.Assert.areEqual('ORDER BY Name, Id', asbOrder.clauseString(null), 'unexpected Order By clause returned');
     Test.stopTest();
   }
 
@@ -22,12 +22,12 @@ public with sharing class ASB_OrderBy_Test {
     Test.startTest();
     System.Assert.areEqual(
       'ORDER BY Name, Id ASC',
-      asbOrder.ascending().clauseString(),
+      asbOrder.ascending().clauseString(null),
       'unexpected Order By clause returned'
     );
     System.Assert.areEqual(
       'ORDER BY Name, Id DESC',
-      asbOrder.descending().clauseString(),
+      asbOrder.descending().clauseString(null),
       'unexpected Order By clause returned'
     );
     Test.stopTest();
@@ -43,12 +43,12 @@ public with sharing class ASB_OrderBy_Test {
     Test.startTest();
     System.Assert.areEqual(
       'ORDER BY Name, Id NULLS FIRST',
-      asbOrder.nullsFirst().clauseString(),
+      asbOrder.nullsFirst().clauseString(null),
       'unexpected Order By clause returned'
     );
     System.Assert.areEqual(
       'ORDER BY Name, Id NULLS LAST',
-      asbOrder.nullsLast().clauseString(),
+      asbOrder.nullsLast().clauseString(null),
       'unexpected Order By clause returned'
     );
     Test.stopTest();
@@ -64,12 +64,12 @@ public with sharing class ASB_OrderBy_Test {
     Test.startTest();
     System.Assert.areEqual(
       'ORDER BY Name, Id DESC NULLS FIRST',
-      asbOrder.descending().nullsFirst().clauseString(),
+      asbOrder.descending().nullsFirst().clauseString(null),
       'unexpected Order By clause returned'
     );
     System.Assert.areEqual(
       'ORDER BY Name, Id ASC NULLS LAST',
-      asbOrder.nullsLast().ascending().clauseString(),
+      asbOrder.nullsLast().ascending().clauseString(null),
       'unexpected Order By clause returned'
     );
     Test.stopTest();

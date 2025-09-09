@@ -3,11 +3,8 @@
  * @author Russell Laboe
  * @group Apex SOQL Builder
  */
-public with sharing class ASB_Select implements ASB_Clause, ASB_Bindable {
+public with sharing class ASB_Select implements ASB_Clause {
   private final List<Element> elements;
-
-  private String bindPrefix = '';
-  private Map<String, Object> binds = new Map<String, Object>();
 
   /**
    * Creates new instance of `ASB_Select`
@@ -86,28 +83,13 @@ public with sharing class ASB_Select implements ASB_Clause, ASB_Bindable {
    * Returns instance as a SELECT clause query string.
    * @return  `String`
    */
-  public String clauseString() {
+  public String clauseString(ASB_BindContext ctx) {
     List<String> elementStrs = new List<String>();
     for (Element element : this.elements) {
-      if (element instanceof ASB_Bindable) {
-        ((ASB_Bindable) element).setBindPrefix(this.bindPrefix);
-        elementStrs.add(element.queryString());
-        this.binds.putAll(((ASB_Bindable) element).getBinds());
-      } else {
-        elementStrs.add(element.queryString());
-      }
+      elementStrs.add(element.queryString(ctx));
     }
 
     return 'SELECT ' + String.join(elementStrs, ', ');
-  }
-
-  /* --- ASB_Bindable Interface --- */
-  public void setBindPrefix(String prefix) {
-    this.bindPrefix = prefix;
-  }
-
-  public Map<String, Object> getBinds() {
-    return new Map<String, Object>(this.binds);
   }
 
   private class FieldElement implements Element {
@@ -125,7 +107,7 @@ public with sharing class ASB_Select implements ASB_Clause, ASB_Bindable {
      * Returns instance as a query string component.
      * @return  `String`
      */
-    public String queryString() {
+    public String queryString(ASB_BindContext ctx) {
       String[] fieldStrs = new List<String>{};
       for (Integer i = 0; i < this.relationshipPath.size() - 1; i++) {
         fieldStrs.add(this.relationshipPath[i].getDescribe().getRelationshipName());
@@ -161,10 +143,8 @@ public with sharing class ASB_Select implements ASB_Clause, ASB_Bindable {
      * Returns instance as a query string component.
      * @return  `String`
      */
-    public String queryString() {
-      this.subQuery.setBindPrefix(this.subQuery.asbFrom.getRelationshipName());
-      String queryString = '(' + this.subQuery.queryDetail().getQueryString() + ')';
-      return queryString;
+    public String queryString(ASB_BindContext ctx) {
+      return '(' + this.subQuery.queryDetail(ctx) + ')';
     }
 
     public void mergeInto(List<Element> target) {
@@ -192,7 +172,7 @@ public with sharing class ASB_Select implements ASB_Clause, ASB_Bindable {
      * Returns instance as a query string component.
      * @return  `String`
      */
-    String queryString();
+    String queryString(ASB_BindContext ctx);
 
     void mergeInto(List<Element> target);
   }

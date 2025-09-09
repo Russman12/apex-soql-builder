@@ -51,7 +51,7 @@ public with sharing class ASB_OrderBy implements ASB_Clause {
    * Returns complete clause string
    * @return   `String`
    */
-  public String clauseString() {
+  public String clauseString(ASB_BindContext ctx) {
     String[] elements = new List<String>{ String.join(this.fieldStrings(), ', ') };
     if (this.direction != null) {
       elements.add(this.direction);

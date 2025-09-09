@@ -47,7 +47,7 @@ public with sharing class ASB_From implements ASB_Clause {
    * Converts the FROM clause to a query string.
    * @return  `String`
    */
-  public String clauseString() {
+  public String clauseString(ASB_BindContext ctx) {
     return 'FROM ' + this.stringVal;
   }
 

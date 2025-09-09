@@ -2,11 +2,10 @@
  * Encompasses functionality relating to a SOQL subquery.
  * @author Russell Laboe
  */
-public with sharing class ASB_SubQuery extends ASB_Query implements ASB_Bindable {
+public with sharing class ASB_SubQuery extends ASB_Query {
   private final Schema.sObjectField relationshipField;
 
   private String bindPrefix = '';
-  private Map<String, Object> binds = new Map<String, Object>();
 
   public ASB_SubQuery(Schema.sObjectField field) {
     super(new ASB_From(field));
@@ -122,26 +121,12 @@ public with sharing class ASB_SubQuery extends ASB_Query implements ASB_Bindable
    * Converts SubQuery to SOQL string.
    * @return  `String`
    */
-  public ASB_Query.Detail queryDetail() {
+  public String queryDetail(ASB_BindContext ctx) {
     String[] strs = new List<String>{};
     for (ASB_Clause clause : this.getClauses()) {
-      if (clause instanceof ASB_Bindable) {
-        ((ASB_Bindable) clause).setBindPrefix(this.bindPrefix);
-        strs.add(clause.clauseString());
-        this.binds.putAll(((ASB_Bindable) clause).getBinds());
-      } else {
-        strs.add(clause.clauseString());
-      }
+      strs.add(clause.clauseString(ctx));
     }
-    return new ASB_Query.Detail(String.join(strs, ' '), this.binds);
-  }
-
-  /* --- ASB_Bindable interface --- */
-  public void setBindPrefix(String prefix) {
-    this.bindPrefix = prefix;
-  }
-  public Map<String, Object> getBinds() {
-    return new Map<String, Object>(this.binds);
+    return String.join(strs, ' ');
   }
 
   @TestVisible

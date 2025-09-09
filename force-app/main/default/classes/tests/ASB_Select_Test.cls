@@ -4,6 +4,8 @@
  */
 @isTest
 private class ASB_Select_Test {
+  private static ASB_BindContext ctx = new ASB_BindContext();
+
   /**
    * Ensures adding field produces correct clause
    */
@@ -11,11 +13,11 @@ private class ASB_Select_Test {
   static void field() {
     ASB_Select selection = new ASB_Select();
     Test.startTest();
-    String clauseString = selection.field(Account.Id).field(Account.Name).clauseString();
+    String clauseString = selection.field(Account.Id).field(Account.Name).clauseString(ctx);
     Test.stopTest();
 
     System.Assert.areEqual('SELECT Id, Name', clauseString, 'Unexpected clause string returned');
-    System.Assert.areEqual(new Map<String, Object>(), selection.getBinds(), 'Unexpected clause string returned');
+    System.Assert.areEqual(new Map<String, Object>(), ctx.getBinds(), 'Unexpected clause string returned');
   }
 
   /**
@@ -26,7 +28,7 @@ private class ASB_Select_Test {
     Test.startTest();
     String clauseString = (new ASB_Select().field(Account.Id))
       .subQuery(new ASB_SubQuery(Contact.AccountId).selectField(Contact.Id))
-      .clauseString();
+      .clauseString(ctx);
     Test.stopTest();
 
     System.Assert.areEqual('SELECT Id, (SELECT Id FROM Contacts)', clauseString, 'Unexpected clause string returned');
@@ -41,7 +43,7 @@ private class ASB_Select_Test {
     String clauseString = (new ASB_Select().field(Account.Id))
       .parent(new List<Schema.SobjectField>{ Account.OwnerId, User.Name })
       .parent(new List<Schema.SobjectField>{ Account.OwnerId, User.ProfileId, Profile.Name })
-      .clauseString();
+      .clauseString(ctx);
     Test.stopTest();
 
     System.Assert.areEqual(
@@ -63,17 +65,17 @@ private class ASB_Select_Test {
     ASB_SubQuery subQuery2 = new ASB_SubQuery(Contact.AccountId).selectField(Contact.LastName);
     ASB_SubQuery subQuery3 = new ASB_SubQuery(User.AccountId).selectField(User.Name);
     Test.startTest();
-    String clauseString1 = (new ASB_Select().field(Account.Id)).field(Account.Id).clauseString();
+    String clauseString1 = (new ASB_Select().field(Account.Id)).field(Account.Id).clauseString(ctx);
     String clauseString2 = (new ASB_Select().field(Account.Id))
       .parent(parentRelationshipPath1)
       .parent(parentRelationshipPath1)
       .parent(parentRelationshipPath2)
-      .clauseString();
+      .clauseString(ctx);
     String clauseString3 = (new ASB_Select().field(Account.Id))
       .subQuery(subQuery1)
       .subQuery(subQuery2)
       .subQuery(subQuery3)
-      .clauseString();
+      .clauseString(ctx);
     Test.stopTest();
 
     System.Assert.areEqual('SELECT Id', clauseString1, 'Unexpected clause string returned');

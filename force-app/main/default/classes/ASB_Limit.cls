@@ -4,7 +4,7 @@
  * @author Russell Laboe
  * @group Apex SOQL Builder
  */
-public with sharing class ASB_Limit implements ASB_Clause, ASB_Bindable {
+public with sharing class ASB_Limit implements ASB_Clause {
   @TestVisible
   private static final String BIND_NAME = 'RECORD_LIMIT';
 
@@ -24,27 +24,12 @@ public with sharing class ASB_Limit implements ASB_Clause, ASB_Bindable {
     this.limitx = limitx;
   }
 
-  private String getBindName() {
-    return this.bindPrefix + BIND_NAME;
-  }
-
   /**
    * Returns complete clause string
    * @return   `String`
    */
-  public String clauseString() {
-    this.binds = new Map<String, Object>{ this.getBindName() => this.limitx };
-    return 'LIMIT :' + this.getBindName();
-  }
-
-  /* -- Bindable interface -- */
-
-  public void setBindPrefix(String prefix) {
-    this.bindPrefix = prefix;
-  }
-
-  public Map<String, Object> getBinds() {
-    return this.binds;
+  public String clauseString(ASB_BindContext ctx) {
+    return 'LIMIT ' + ctx.bind(this, this.limitx, BIND_NAME);
   }
 
   public class IllegalArgumentException extends Exception {
