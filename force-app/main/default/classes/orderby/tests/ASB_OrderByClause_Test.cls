@@ -1,11 +1,11 @@
 @isTest
-public with sharing class ASB_OrderBy_Test {
+public with sharing class ASB_OrderByClause_Test {
   /**
    * Ensures clauseString() returns expected string when given list of fields
    */
   @isTest
   static void clauseStringconstructor() {
-    ASB_OrderBy asbOrder = new ASB_OrderBy(new List<Schema.SObjectField>{ Account.Name, Account.Id });
+    ASB_OrderByClause asbOrder = new ASB_OrderByClause(new List<Schema.SObjectField>{ Account.Name, Account.Id });
 
     Test.startTest();
     System.Assert.areEqual('ORDER BY Name, Id', asbOrder.clauseString(null), 'unexpected Order By clause returned');
@@ -17,7 +17,7 @@ public with sharing class ASB_OrderBy_Test {
    */
   @isTest
   static void clauseStringNullsx() {
-    ASB_OrderBy asbOrder = new ASB_OrderBy(new List<Schema.SObjectField>{ Account.Name, Account.Id });
+    ASB_OrderByClause asbOrder = new ASB_OrderByClause(new List<Schema.SObjectField>{ Account.Name, Account.Id });
 
     Test.startTest();
     System.Assert.areEqual(
@@ -38,7 +38,7 @@ public with sharing class ASB_OrderBy_Test {
    */
   @isTest
   static void clauseStringDirection() {
-    ASB_OrderBy asbOrder = new ASB_OrderBy(new List<Schema.SObjectField>{ Account.Name, Account.Id });
+    ASB_OrderByClause asbOrder = new ASB_OrderByClause(new List<Schema.SObjectField>{ Account.Name, Account.Id });
 
     Test.startTest();
     System.Assert.areEqual(
@@ -59,7 +59,7 @@ public with sharing class ASB_OrderBy_Test {
    */
   @isTest
   static void clauseStringComplex() {
-    ASB_OrderBy asbOrder = new ASB_OrderBy(new List<Schema.SObjectField>{ Account.Name, Account.Id });
+    ASB_OrderByClause asbOrder = new ASB_OrderByClause(new List<Schema.SObjectField>{ Account.Name, Account.Id });
 
     Test.startTest();
     System.Assert.areEqual(

@@ -4,7 +4,7 @@
  * @author Russell Laboe
  * @group Apex SOQL Builder
  */
-public with sharing class ASB_Limit implements ASB_Clause {
+public with sharing class ASB_LimitClause implements ASB_Clause {
   @TestVisible
   private static final String BIND_NAME = 'RECORD_LIMIT';
 
@@ -17,7 +17,7 @@ public with sharing class ASB_Limit implements ASB_Clause {
    * Creates new limit instance.
    * @param limitx value to set limit to.
    */
-  public ASB_Limit(Integer limitx) {
+  public ASB_LimitClause(Integer limitx) {
     if (limitx <= 0) {
       throw new IllegalArgumentException('LIMIT must be positive');
     }

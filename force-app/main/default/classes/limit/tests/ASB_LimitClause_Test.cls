@@ -3,7 +3,7 @@
  * @author Russell Laboe
  */
 @isTest
-private class ASB_Limit_Test {
+private class ASB_LimitClause_Test {
   private static ASB_BindContext ctx = new ASB_BindContext();
 
   /**
@@ -12,7 +12,7 @@ private class ASB_Limit_Test {
   @IsTest
   static void clauseString() {
     Integer expectedLimit = 10;
-    ASB_Limit asbLimit = new ASB_Limit(expectedLimit);
+    ASB_LimitClause asbLimit = new ASB_LimitClause(expectedLimit);
     System.Assert.areEqual(
       'LIMIT :RECORD_LIMIT1',
       asbLimit.clauseString(ctx),
@@ -32,10 +32,10 @@ private class ASB_Limit_Test {
   static void illegalArgument() {
     Test.startTest();
     try {
-      new ASB_Limit(-10);
+      new ASB_LimitClause(-10);
       System.Assert.fail('expected exception not thrown');
     } catch (Exception e) {
-      System.Assert.isInstanceOfType(e, ASB_Limit.IllegalArgumentException.class, 'Unexpected exception thrown');
+      System.Assert.isInstanceOfType(e, ASB_LimitClause.IllegalArgumentException.class, 'Unexpected exception thrown');
     }
     Test.stopTest();
   }

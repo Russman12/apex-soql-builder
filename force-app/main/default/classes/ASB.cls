@@ -5,11 +5,11 @@ public with sharing class ASB {
    * @return  `ASB`
    */
   public ASB_QueryBuilder make(Schema.SObjectType sObjType) {
-    return new ASB_QueryBuilder(sObjType);
+    return new ASB_QueryBuilder(fromSObject(sObjType), selection());
   }
 
-  public ASB_Select selection() {
-    return new ASB_Select();
+  public ASB_SelectClause selection() {
+    return new ASB_SelectClause(null);
   }
 
   /**
@@ -22,28 +22,16 @@ public with sharing class ASB {
    *   asb.subQuery(Contact.AccountId).selectField(Account.Id);
    * ```
    */
-  public ASB_SubQuery subQuery(Schema.sObjectField relationshipField) {
-    return new ASB_SubQuery(relationshipField);
+  public ASB_SubQueryBuilder subQuery(Schema.sObjectField relationshipField) {
+    return new ASB_SubQueryBuilder(fromRelationship(relationshipField), subSelection());
   }
 
-  /**
-   * Creates new instance of ASB_From based on given SObjectType.
-   * @param sObjType Type to make the FROM clause for.
-   */
-  public ASB_From fromx(Schema.SObjectType sObjType) {
-    return new ASB_From(sObjType);
+  public ASB_SubSelectClause subSelection() {
+    return new ASB_SubSelectClause(null);
   }
 
-  /**
-   * Creates new instance of ASB_From based on given relationship field.
-   * @param relationshipField the relationship to make the FROM clause for.
-   */
-  public ASB_From fromx(Schema.SObjectField relationshipField) {
-    return new ASB_From(relationshipField);
-  }
-
-  public ASB_Where.Builder filter() {
-    return new ASB_Where.Builder();
+  public ASB_WhereClause.Builder filter() {
+    return new ASB_WhereClause.Builder();
   }
 
   /**
@@ -51,7 +39,7 @@ public with sharing class ASB {
    * @param field
    * @return  `ASB_OrderBy`
    */
-  public ASB_OrderBy orderByField(Schema.SObjectField field) {
+  public ASB_OrderByClause orderByField(Schema.SObjectField field) {
     return orderByFields(new List<Schema.SObjectField>{ field });
   }
 
@@ -61,17 +49,17 @@ public with sharing class ASB {
    * @param field2
    * @return  `ASB_OrderBy`
    */
-  public ASB_OrderBy orderByFields(Schema.SObjectField field1, Schema.SObjectField field2) {
+  public ASB_OrderByClause orderByFields(Schema.SObjectField field1, Schema.SObjectField field2) {
     return orderByFields(new List<Schema.SObjectField>{ field1, field2 });
   }
 
   /**
    * Sets fields in Order By clause.
    * @param fields
-   * @return  `ASB_OrderBy`
+   * @return  `ASB_OrderByClause`
    */
-  public ASB_OrderBy orderByFields(Schema.SObjectField[] fields) {
-    return new ASB_OrderBy(fields);
+  public ASB_OrderByClause orderByFields(Schema.SObjectField[] fields) {
+    return new ASB_OrderByClause(fields);
   }
 
   /**
@@ -79,7 +67,14 @@ public with sharing class ASB {
    * @param recordLimit
    * @return  `ASB_Limit`
    */
-  public ASB_Limit recordLimit(Integer recordLimit) {
-    return new ASB_Limit(recordLimit);
+  public ASB_LimitClause recordLimit(Integer recordLimit) {
+    return new ASB_LimitClause(recordLimit);
+  }
+
+  private ASB_FromSObjectClause fromSObject(Schema.SObjectType sObjType) {
+    return new ASB_FromSObjectClause(sObjType);
+  }
+  private ASB_FromRelationshipClause fromRelationship(Schema.SObjectField relationshipField) {
+    return new ASB_FromRelationshipClause(relationshipField);
   }
 }

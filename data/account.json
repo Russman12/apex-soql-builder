@@ -3,13 +3,6 @@
     {
       "attributes": {
         "type": "Account",
-        "referenceId": "AccountRef1"
-      },
-      "Name": "Sample Account for Entitlements"
-    },
-    {
-      "attributes": {
-        "type": "Account",
         "referenceId": "AccountRef2"
       },
       "Name": "Carter",
@@ -24,16 +17,11 @@
       "Name": "Anderson",
       "ParentId": "@AccountRef4",
       "NumberOfEmployees": 10,
-      "BillingAddress": {
-        "city": "New York",
-        "country": "USA",
-        "geocodeAccuracy": null,
-        "latitude": null,
-        "longitude": null,
-        "postalCode": "11234",
-        "state": "New York",
-        "street": "1234 ABCD St"
-      }
+      "BillingCity": "New York",
+      "BillingCountry": "USA",
+      "BillingPostalCode": "11234",
+      "BillingState": "New York",
+      "BillingStreet": "1234 ABCD St"
     },
     {
       "attributes": {
@@ -43,16 +31,11 @@
       "Name": "Bengston",
       "ParentId": "@AccountRef2",
       "NumberOfEmployees": 10,
-      "ShippingAddress": {
-        "city": "Cleveland",
-        "country": "USA",
-        "geocodeAccuracy": null,
-        "latitude": null,
-        "longitude": null,
-        "postalCode": "12345",
-        "state": "OH",
-        "street": "123 ABC Ln"
-      }
+      "ShippingCity": "Cleveland",
+      "ShippingCountry": "USA",
+      "ShippingPostalCode": "12345",
+      "ShippingState": "OH",
+      "ShippingStreet": "123 ABC Ln"
     },
     {
       "attributes": {
@@ -103,16 +86,11 @@
       "Name": "Fisher",
       "ParentId": "@AccountRef6",
       "NumberOfEmployees": 120,
-      "BillingAddress": {
-        "city": "Denver",
-        "country": "USA",
-        "geocodeAccuracy": null,
-        "latitude": null,
-        "longitude": null,
-        "postalCode": "12365",
-        "state": "CO",
-        "street": "5432 Elm Ct"
-      }
+      "BillingCity": "Denver",
+      "BillingCountry": "USA",
+      "BillingPostalCode": "12365",
+      "BillingState": "CO",
+      "BillingStreet": "5432 Elm Ct"
     }
   ]
 }

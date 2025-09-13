@@ -2,12 +2,12 @@
  * Encompasses functionality relating to a SOQL ORDER BY clause.
  * @author Russell Laboe
  */
-public with sharing class ASB_OrderBy implements ASB_Clause {
+public with sharing class ASB_OrderByClause implements ASB_Clause {
   private final Schema.SObjectField[] fields;
   private String direction;
   private String nullPlacement;
 
-  public ASB_OrderBy(Schema.SObjectField[] sObjFields) {
+  public ASB_OrderByClause(Schema.SObjectField[] sObjFields) {
     this.fields = sObjFields;
   }
 
@@ -15,7 +15,7 @@ public with sharing class ASB_OrderBy implements ASB_Clause {
    * Set order direction to descending.
    * @return  `ASB_OrderBy`
    */
-  public ASB_OrderBy descending() {
+  public ASB_OrderByClause descending() {
     this.direction = 'DESC';
     return this;
   }
@@ -24,7 +24,7 @@ public with sharing class ASB_OrderBy implements ASB_Clause {
    * Set order direction to Ascending.
    * @return  `ASB_OrderBy`
    */
-  public ASB_OrderBy ascending() {
+  public ASB_OrderByClause ascending() {
     this.direction = 'ASC';
     return this;
   }
@@ -33,7 +33,7 @@ public with sharing class ASB_OrderBy implements ASB_Clause {
    * Orders by nulls first.
    * @return  `ASB_OrderBy`
    */
-  public ASB_OrderBy nullsFirst() {
+  public ASB_OrderByClause nullsFirst() {
     this.nullPlacement = 'FIRST';
     return this;
   }
@@ -42,7 +42,7 @@ public with sharing class ASB_OrderBy implements ASB_Clause {
    * Orders by nulls last.
    * @return  `ASB_OrderBy`
    */
-  public ASB_OrderBy nullsLast() {
+  public ASB_OrderByClause nullsLast() {
     this.nullPlacement = 'LAST';
     return this;
   }

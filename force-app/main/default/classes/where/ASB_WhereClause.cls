@@ -2,10 +2,10 @@
  * Encompasses functionality relating to building a WHERE clause.
  * @author Russell Laboe
  */
-public with sharing class ASB_Where implements ASB_Clause, Expression {
+public with sharing class ASB_WhereClause implements ASB_Clause, Expression {
   private final Expression expression;
 
-  public ASB_Where(Expression expression) {
+  public ASB_WhereClause(Expression expression) {
     this.expression = expression;
   }
 
@@ -32,24 +32,24 @@ public with sharing class ASB_Where implements ASB_Clause, Expression {
       return new FieldComparison(fieldPath);
     }
 
-    public ASB_Where andGroup(ASB_Where exp1, ASB_Where exp2) {
-      return andGroup(new List<ASB_Where>{ exp1, exp2 });
+    public ASB_WhereClause andGroup(ASB_WhereClause exp1, ASB_WhereClause exp2) {
+      return andGroup(new List<ASB_WhereClause>{ exp1, exp2 });
     }
-    public ASB_Where andGroup(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
-      return andGroup(new List<ASB_Where>{ exp1, exp2, exp3 });
+    public ASB_WhereClause andGroup(ASB_WhereClause exp1, ASB_WhereClause exp2, ASB_WhereClause exp3) {
+      return andGroup(new List<ASB_WhereClause>{ exp1, exp2, exp3 });
     }
-    public ASB_Where andGroup(ASB_Where[] expressions) {
-      return new ASB_Where(new ASB_Where.AndLogicalGroup(expressions));
+    public ASB_WhereClause andGroup(ASB_WhereClause[] expressions) {
+      return new ASB_WhereClause(new AndLogicalGroup(expressions));
     }
 
-    public ASB_Where orGroup(ASB_Where exp1, ASB_Where exp2) {
-      return orGroup(new List<ASB_Where>{ exp1, exp2 });
+    public ASB_WhereClause orGroup(ASB_WhereClause exp1, ASB_WhereClause exp2) {
+      return orGroup(new List<ASB_WhereClause>{ exp1, exp2 });
     }
-    public ASB_Where orGroup(ASB_Where exp1, ASB_Where exp2, ASB_Where exp3) {
-      return orGroup(new List<ASB_Where>{ exp1, exp2, exp3 });
+    public ASB_WhereClause orGroup(ASB_WhereClause exp1, ASB_WhereClause exp2, ASB_WhereClause exp3) {
+      return orGroup(new List<ASB_WhereClause>{ exp1, exp2, exp3 });
     }
-    public ASB_Where orGroup(ASB_Where[] expressions) {
-      return new ASB_Where(new ASB_Where.OrLogicalGroup(expressions));
+    public ASB_WhereClause orGroup(ASB_WhereClause[] expressions) {
+      return new ASB_WhereClause(new OrLogicalGroup(expressions));
     }
   }
 
@@ -102,144 +102,144 @@ public with sharing class ASB_Where implements ASB_Clause, Expression {
     }
 
     // --- equals ---
-    public ASB_Where eq(String str) {
+    public ASB_WhereClause eq(String str) {
       return makeEQ(str);
     }
-    public ASB_Where eq(Integer val) {
+    public ASB_WhereClause eq(Integer val) {
       return makeEQ(val);
     }
-    public ASB_Where eq(Decimal val) {
+    public ASB_WhereClause eq(Decimal val) {
       return makeEQ(val);
     }
-    public ASB_Where eq(Date val) {
+    public ASB_WhereClause eq(Date val) {
       return makeEQ(val);
     }
-    public ASB_Where eq(Datetime val) {
+    public ASB_WhereClause eq(Datetime val) {
       return makeEQ(val);
     }
-    public ASB_Where eq(Boolean val) {
+    public ASB_WhereClause eq(Boolean val) {
       return makeEQ(val);
     }
-    public ASB_Where isNull() {
+    public ASB_WhereClause isNull() {
       return makeEQ(null);
     }
 
-    private ASB_Where makeEQ(Object val) {
+    private ASB_WhereClause makeEQ(Object val) {
       return makeWhere('=', val);
     }
 
     // --- not equals ---
-    public ASB_Where ne(String str) {
+    public ASB_WhereClause ne(String str) {
       return makeNE(str);
     }
-    public ASB_Where ne(Integer val) {
+    public ASB_WhereClause ne(Integer val) {
       return makeNE(val);
     }
-    public ASB_Where ne(Decimal val) {
+    public ASB_WhereClause ne(Decimal val) {
       return makeNE(val);
     }
-    public ASB_Where ne(Date val) {
+    public ASB_WhereClause ne(Date val) {
       return makeNE(val);
     }
-    public ASB_Where ne(Datetime val) {
+    public ASB_WhereClause ne(Datetime val) {
       return makeNE(val);
     }
-    public ASB_Where ne(Boolean val) {
+    public ASB_WhereClause ne(Boolean val) {
       return makeNE(val);
     }
-    public ASB_Where isNotNull() {
+    public ASB_WhereClause isNotNull() {
       return makeNE(null);
     }
 
-    private ASB_Where makeNE(Object val) {
+    private ASB_WhereClause makeNE(Object val) {
       return makeWhere('!=', val);
     }
 
     // --- greater than ---
-    public ASB_Where gt(Integer val) {
+    public ASB_WhereClause gt(Integer val) {
       return makeGT(val);
     }
-    public ASB_Where gt(Decimal val) {
+    public ASB_WhereClause gt(Decimal val) {
       return makeGT(val);
     }
-    public ASB_Where gt(Date val) {
+    public ASB_WhereClause gt(Date val) {
       return makeGT(val);
     }
-    public ASB_Where gt(Datetime val) {
+    public ASB_WhereClause gt(Datetime val) {
       return makeGT(val);
     }
 
-    private ASB_Where makeGT(Object val) {
+    private ASB_WhereClause makeGT(Object val) {
       return makeWhere('>', val);
     }
 
     // --- greater than or equal to ---
-    public ASB_Where gte(Integer val) {
+    public ASB_WhereClause gte(Integer val) {
       return makeGTE(val);
     }
-    public ASB_Where gte(Decimal val) {
+    public ASB_WhereClause gte(Decimal val) {
       return makeGTE(val);
     }
-    public ASB_Where gte(Date val) {
+    public ASB_WhereClause gte(Date val) {
       return makeGTE(val);
     }
-    public ASB_Where gte(Datetime val) {
+    public ASB_WhereClause gte(Datetime val) {
       return makeGTE(val);
     }
 
-    private ASB_Where makeGTE(Object val) {
+    private ASB_WhereClause makeGTE(Object val) {
       return makeWhere('>=', val);
     }
 
     // --- less than ---
-    public ASB_Where lt(Integer val) {
+    public ASB_WhereClause lt(Integer val) {
       return makeLT(val);
     }
-    public ASB_Where lt(Decimal val) {
+    public ASB_WhereClause lt(Decimal val) {
       return makeLT(val);
     }
-    public ASB_Where lt(Date val) {
+    public ASB_WhereClause lt(Date val) {
       return makeLT(val);
     }
-    public ASB_Where lt(Datetime val) {
+    public ASB_WhereClause lt(Datetime val) {
       return makeLT(val);
     }
 
-    private ASB_Where makeLT(Object val) {
+    private ASB_WhereClause makeLT(Object val) {
       return makeWhere('<', val);
     }
 
     // --- less than or equal to ---
-    public ASB_Where lte(Integer val) {
+    public ASB_WhereClause lte(Integer val) {
       return makeLTE(val);
     }
-    public ASB_Where lte(Decimal val) {
+    public ASB_WhereClause lte(Decimal val) {
       return makeLTE(val);
     }
-    public ASB_Where lte(Date val) {
+    public ASB_WhereClause lte(Date val) {
       return makeLTE(val);
     }
-    public ASB_Where lte(Datetime val) {
+    public ASB_WhereClause lte(Datetime val) {
       return makeLTE(val);
     }
 
-    private ASB_Where makeLTE(Object val) {
+    private ASB_WhereClause makeLTE(Object val) {
       return makeWhere('<=', val);
     }
 
     // --- IN ---
-    public ASB_Where isIn(List<Object> vals) {
+    public ASB_WhereClause isIn(List<Object> vals) {
       return makeWhere('IN', vals);
     }
 
     // --- LIKE ---
-    public ASB_Where isLike(String pattern) {
+    public ASB_WhereClause isLike(String pattern) {
       return makeWhere('LIKE', pattern);
     }
 
     // --- Helper to construct WHERE ---
-    private ASB_Where makeWhere(String op, Object val) {
-      return new ASB_Where(new FieldExpression(this.fieldPath, op, val));
+    private ASB_WhereClause makeWhere(String op, Object val) {
+      return new ASB_WhereClause(new FieldExpression(this.fieldPath, op, val));
     }
   }
 

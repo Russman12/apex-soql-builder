@@ -11,19 +11,22 @@ public with sharing class ASB_QueryBuilder_Test {
 
   @isTest
   static void clauseString() {
-    ASB_SubQuery contactsSelect = new ASB_SubQuery(Contact.AccountId).selectField(Contact.Id).selectField(Contact.Name);
+    ASB_SubQueryBuilder contactsSelect = new ASB_SubQueryBuilder(
+      new ASB_FromRelationshipClause(Contact.AccountId),
+      ASB.subSelection().field(Contact.Id).field(Contact.Name)
+    );
     String accName1 = 'test';
     List<String> accNames = new List<String>{ 'name1', 'name2' };
     Integer lgAccNum = 10;
     Integer recordLimit = 5;
 
-    ASB_Where testAccWhere = asb.filter().field(Account.Name).eq(accName1);
-    ASB_Where confirmedAccs = asb.filter().field(Account.Name).isIn(accNames);
-    ASB_Where largeAccs = asb.filter().field(Account.NumberOfEmployees).gt(lgAccNum);
+    ASB_WhereClause testAccWhere = asb.filter().field(Account.Name).eq(accName1);
+    ASB_WhereClause confirmedAccs = asb.filter().field(Account.Name).isIn(accNames);
+    ASB_WhereClause largeAccs = asb.filter().field(Account.NumberOfEmployees).gt(lgAccNum);
 
-    ASB_Where confirmedLargeAccs = asb.filter().andGroup(confirmedAccs, largeAccs);
+    ASB_WhereClause confirmedLargeAccs = asb.filter().andGroup(confirmedAccs, largeAccs);
 
-    ASB_Select selection = new ASB_Select()
+    ASB_SelectClause selection = new ASB_SelectClause(null)
       .field(Account.Id)
       .field(Account.Name)
       .field(Account.OwnerId)
@@ -38,7 +41,7 @@ public with sharing class ASB_QueryBuilder_Test {
       .recordLimit(recordLimit);
 
     Test.startTest();
-    String queryString = queryBuilder.queryDetail(ctx);
+    String queryString = queryBuilder.queryEngine.queryDetail(ctx);
     Test.stopTest();
 
     System.assertEquals(
@@ -74,7 +77,7 @@ public with sharing class ASB_QueryBuilder_Test {
     //build Query
     Test.startTest();
     List<Account> queriedAccs = (List<Account>) asb.make(Account.getSObjectType())
-      .selection(new ASB_Select().field(Account.Id).field(Account.Name))
+      .selection(new ASB_SelectClause(null).field(Account.Id).field(Account.Name))
       .filter(asb.filter().field(Account.Name).eq('test2'))
       .query();
     Test.stopTest();
@@ -99,7 +102,7 @@ public with sharing class ASB_QueryBuilder_Test {
     //build Query
     Test.startTest();
     List<Account> queriedAccs = (List<Account>) asb.make(Account.getSObjectType())
-      .selection(new ASB_Select().field(Account.Id).field(Account.Name))
+      .selection(new ASB_SelectClause(null).field(Account.Id).field(Account.Name))
       .filter(asb.filter().field(Account.Name).isIn(new List<String>{ 'test2', 'test3' }))
       .orderBy(asb.orderByfield(Account.Name).ascending())
       .query();

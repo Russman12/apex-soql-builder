@@ -10,13 +10,17 @@
  * ```
  * @author Russell Laboe
  */
-public with sharing class ASB_QueryBuilder extends ASB_Query {
+public with sharing class ASB_QueryBuilder {
   private static final System.AccessLevel DEFAULT_ACCESS_LEVEL = System.AccessLevel.SYSTEM_MODE;
 
   public System.AccessLevel accessLevel = DEFAULT_ACCESS_LEVEL;
+  @testVisible
+  private final ASB_QueryEngine queryEngine;
+  private final ASB_SelectClause selectClause;
 
-  public ASB_QueryBuilder(Schema.SObjectType sObjType) {
-    super(new ASB_From(sObjType));
+  public ASB_QueryBuilder(ASB_FromSObjectClause fromSObj, ASB_SelectClause selectClause) {
+    this.queryEngine = new ASB_QueryEngine(fromSObj, selectClause);
+    this.selectClause = selectClause;
   }
 
   /**
@@ -24,33 +28,24 @@ public with sharing class ASB_QueryBuilder extends ASB_Query {
    * @param field Field to add to Select Clause.
    * @return  `ASB`
    */
-  public ASB_QueryBuilder selection(ASB_Select asbSelect) {
-    return (ASB_QueryBuilder) setSelect(asbSelect);
+  public ASB_QueryBuilder selection(ASB_SelectClause selectClause) {
+    selectClause.mergeInto(this.selectClause);
+    return this;
   }
 
-  /**
-   * Adds given `ASB_Where` clause filter to query.
-   * @param asbWhere where clasue to add to query.
-   * @return  `ASB`
-   */
-  public ASB_QueryBuilder filter(ASB_Where asbWhere) {
-    return (ASB_QueryBuilder) setWhere(asbWhere);
+  public ASB_QueryBuilder filter(ASB_WhereClause asbWhere) {
+    queryEngine.setWhere(asbWhere);
+    return this;
   }
-  /**
-   * Sets given `ASB_OrderBy` clause to query.
-   * @param asbOrder order by clause to add to query.
-   * @return  `ASB`
-   */
-  public ASB_QueryBuilder orderBy(ASB_OrderBy asbOrder) {
-    return (ASB_QueryBuilder) setOrderBy(asbOrder);
+
+  public ASB_QueryBuilder orderBy(ASB_OrderByClause orderBy) {
+    queryEngine.setOrderBy(orderBy);
+    return this;
   }
-  /**
-   * Sets the given `ASB_Limit` to query.
-   * @param limitx limit to add to query.
-   * @return  `ASB`
-   */
-  public ASB_QueryBuilder recordLimit(Integer limitx) {
-    return (ASB_QueryBuilder) setLimit(limitx);
+
+  public ASB_QueryBuilder recordLimit(Integer recordLimit) {
+    queryEngine.setLimit(recordLimit);
+    return this;
   }
 
   /**
@@ -68,28 +63,13 @@ public with sharing class ASB_QueryBuilder extends ASB_Query {
     }
 
     ASB_BindContext bindCtx = new ASB_BindContext();
-    String queryString = this.queryDetail(bindCtx);
+    String queryString = queryEngine.queryDetail(bindCtx);
     System.debug(System.LoggingLevel.INFO, 'query: ' + queryString);
     System.debug(System.LoggingLevel.INFO, 'binds: ' + bindCtx.getBinds());
 
     List<SObject> queryResults = Database.queryWithBinds(queryString, bindCtx.getBinds(), this.accessLevel);
 
     return queryResults;
-  }
-
-  /**
-   * Converts ASB_QueryBuilder to SOQL string.
-   * @return  `String`
-   */
-  public String queryDetail(ASB_BindContext ctx) {
-    String[] clauseStrings = new List<String>{};
-    Map<String, Object> binds = new Map<String, Object>();
-    for (ASB_Clause clause : this.getClauses()) {
-      if (clause != null) {
-        clauseStrings.add(clause.clauseString(ctx));
-      }
-    }
-    return String.join(clauseStrings, ' ');
   }
 
   public class LimitException extends Exception {

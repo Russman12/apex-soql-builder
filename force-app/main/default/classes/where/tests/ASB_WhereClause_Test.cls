@@ -3,7 +3,7 @@
  * @author Russell Laboe
  */
 @isTest
-private class ASB_Where_Test {
+private class ASB_WhereClause_Test {
   private static ASB_BindContext ctx = new ASB_BindContext();
 
   private static String expectedStr = 'Foo';
@@ -30,13 +30,13 @@ private class ASB_Where_Test {
       new Expectation('WHERE Name = :Name1', new Map<String, Object>{ 'Name1' => expectedBool })
     };
 
-    ASB_Where[] tests = new List<ASB_Where>{
-      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedStr),
-      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedInt),
-      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedDec),
-      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedDate),
-      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedDateTime),
-      new ASB_Where.FieldComparison(nameFieldPath).eq(expectedBool)
+    ASB_WhereClause[] tests = new List<ASB_WhereClause>{
+      new ASB_WhereClause.FieldComparison(nameFieldPath).eq(expectedStr),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).eq(expectedInt),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).eq(expectedDec),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).eq(expectedDate),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).eq(expectedDateTime),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).eq(expectedBool)
     };
 
     Test.startTest();
@@ -58,13 +58,13 @@ private class ASB_Where_Test {
       new Expectation('WHERE Name != :Name1', new Map<String, Object>{ 'Name1' => expectedBool })
     };
 
-    ASB_Where[] tests = new List<ASB_Where>{
-      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedStr),
-      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedInt),
-      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedDec),
-      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedDate),
-      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedDateTime),
-      new ASB_Where.FieldComparison(nameFieldPath).ne(expectedBool)
+    ASB_WhereClause[] tests = new List<ASB_WhereClause>{
+      new ASB_WhereClause.FieldComparison(nameFieldPath).ne(expectedStr),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).ne(expectedInt),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).ne(expectedDec),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).ne(expectedDate),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).ne(expectedDateTime),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).ne(expectedBool)
     };
 
     Test.startTest();
@@ -84,11 +84,11 @@ private class ASB_Where_Test {
       new Expectation('WHERE Name > :Name1', new Map<String, Object>{ 'Name1' => expectedDateTime })
     };
 
-    ASB_Where[] tests = new List<ASB_Where>{
-      new ASB_Where.FieldComparison(nameFieldPath).gt(expectedInt),
-      new ASB_Where.FieldComparison(nameFieldPath).gt(expectedDec),
-      new ASB_Where.FieldComparison(nameFieldPath).gt(expectedDate),
-      new ASB_Where.FieldComparison(nameFieldPath).gt(expectedDateTime)
+    ASB_WhereClause[] tests = new List<ASB_WhereClause>{
+      new ASB_WhereClause.FieldComparison(nameFieldPath).gt(expectedInt),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).gt(expectedDec),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).gt(expectedDate),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).gt(expectedDateTime)
     };
 
     Test.startTest();
@@ -108,11 +108,11 @@ private class ASB_Where_Test {
       new Expectation('WHERE Name >= :Name1', new Map<String, Object>{ 'Name1' => expectedDateTime })
     };
 
-    ASB_Where[] tests = new List<ASB_Where>{
-      new ASB_Where.FieldComparison(nameFieldPath).gte(expectedInt),
-      new ASB_Where.FieldComparison(nameFieldPath).gte(expectedDec),
-      new ASB_Where.FieldComparison(nameFieldPath).gte(expectedDate),
-      new ASB_Where.FieldComparison(nameFieldPath).gte(expectedDateTime)
+    ASB_WhereClause[] tests = new List<ASB_WhereClause>{
+      new ASB_WhereClause.FieldComparison(nameFieldPath).gte(expectedInt),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).gte(expectedDec),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).gte(expectedDate),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).gte(expectedDateTime)
     };
 
     Test.startTest();
@@ -132,11 +132,11 @@ private class ASB_Where_Test {
       new Expectation('WHERE Name < :Name1', new Map<String, Object>{ 'Name1' => expectedDateTime })
     };
 
-    ASB_Where[] tests = new List<ASB_Where>{
-      new ASB_Where.FieldComparison(nameFieldPath).lt(expectedInt),
-      new ASB_Where.FieldComparison(nameFieldPath).lt(expectedDec),
-      new ASB_Where.FieldComparison(nameFieldPath).lt(expectedDate),
-      new ASB_Where.FieldComparison(nameFieldPath).lt(expectedDateTime)
+    ASB_WhereClause[] tests = new List<ASB_WhereClause>{
+      new ASB_WhereClause.FieldComparison(nameFieldPath).lt(expectedInt),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).lt(expectedDec),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).lt(expectedDate),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).lt(expectedDateTime)
     };
 
     Test.startTest();
@@ -156,11 +156,11 @@ private class ASB_Where_Test {
       new Expectation('WHERE Name <= :Name1', new Map<String, Object>{ 'Name1' => expectedDateTime })
     };
 
-    ASB_Where[] tests = new List<ASB_Where>{
-      new ASB_Where.FieldComparison(nameFieldPath).lte(expectedInt),
-      new ASB_Where.FieldComparison(nameFieldPath).lte(expectedDec),
-      new ASB_Where.FieldComparison(nameFieldPath).lte(expectedDate),
-      new ASB_Where.FieldComparison(nameFieldPath).lte(expectedDateTime)
+    ASB_WhereClause[] tests = new List<ASB_WhereClause>{
+      new ASB_WhereClause.FieldComparison(nameFieldPath).lte(expectedInt),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).lte(expectedDec),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).lte(expectedDate),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).lte(expectedDateTime)
     };
 
     Test.startTest();
@@ -180,11 +180,11 @@ private class ASB_Where_Test {
       new Expectation('WHERE Name LIKE :Name1', new Map<String, Object>{ 'Name1' => expectedStr })
     };
 
-    ASB_Where[] tests = new List<ASB_Where>{
-      new ASB_Where.FieldComparison(nameFieldPath).isNull(),
-      new ASB_Where.FieldComparison(nameFieldPath).isNotNull(),
-      new ASB_Where.FieldComparison(nameFieldPath).isIn(expectedList),
-      new ASB_Where.FieldComparison(nameFieldPath).isLike(expectedStr)
+    ASB_WhereClause[] tests = new List<ASB_WhereClause>{
+      new ASB_WhereClause.FieldComparison(nameFieldPath).isNull(),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).isNotNull(),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).isIn(expectedList),
+      new ASB_WhereClause.FieldComparison(nameFieldPath).isLike(expectedStr)
     };
 
     Test.startTest();
@@ -197,13 +197,16 @@ private class ASB_Where_Test {
    */
   @isTest
   static void andx() {
-    ASB_Where clause1 = new ASB_Where.FieldComparison(new List<Schema.SObjectField>{ Account.OwnerId, User.LastName })
+    ASB_WhereClause clause1 = new ASB_WhereClause.FieldComparison(
+        new List<Schema.SObjectField>{ Account.OwnerId, User.LastName }
+      )
       .eq(expectedStr);
-    ASB_Where clause2 = new ASB_Where.FieldComparison(
+    ASB_WhereClause clause2 = new ASB_WhereClause.FieldComparison(
         new List<Schema.SObjectField>{ Account.OwnerId, User.ProfileId, Profile.Name }
       )
       .ne(expectedStr);
-    ASB_Where clause3 = new ASB_Where.FieldComparison(new List<Schema.SObjectField>{ Account.Name }).isIn(expectedList);
+    ASB_WhereClause clause3 = new ASB_WhereClause.FieldComparison(new List<Schema.SObjectField>{ Account.Name })
+      .isIn(expectedList);
 
     Expectation[] expectations = new List<Expectation>{
       new Expectation(
@@ -228,10 +231,12 @@ private class ASB_Where_Test {
       )
     };
 
-    ASB_Where[] tests = new List<ASB_Where>{
-      new ASB_Where(new ASB_Where.AndLogicalGroup(new List<ASB_Where>{ clause1, clause2 })),
-      new ASB_Where(new ASB_Where.AndLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3 })),
-      new ASB_Where(new ASB_Where.AndLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3, clause1, clause2 }))
+    ASB_WhereClause[] tests = new List<ASB_WhereClause>{
+      new ASB_WhereClause(new ASB_WhereClause.AndLogicalGroup(new List<ASB_WhereClause>{ clause1, clause2 })),
+      new ASB_WhereClause(new ASB_WhereClause.AndLogicalGroup(new List<ASB_WhereClause>{ clause1, clause2, clause3 })),
+      new ASB_WhereClause(
+        new ASB_WhereClause.AndLogicalGroup(new List<ASB_WhereClause>{ clause1, clause2, clause3, clause1, clause2 })
+      )
     };
 
     Test.startTest();
@@ -244,13 +249,16 @@ private class ASB_Where_Test {
    */
   @isTest
   static void orx() {
-    ASB_Where clause1 = new ASB_Where.FieldComparison(new List<Schema.SObjectField>{ Account.OwnerId, User.LastName })
+    ASB_WhereClause clause1 = new ASB_WhereClause.FieldComparison(
+        new List<Schema.SObjectField>{ Account.OwnerId, User.LastName }
+      )
       .eq(expectedStr);
-    ASB_Where clause2 = new ASB_Where.FieldComparison(
+    ASB_WhereClause clause2 = new ASB_WhereClause.FieldComparison(
         new List<Schema.SObjectField>{ Account.OwnerId, User.ProfileId, Profile.Name }
       )
       .ne(expectedStr);
-    ASB_Where clause3 = new ASB_Where.FieldComparison(new List<Schema.SObjectField>{ Account.Name }).isIn(expectedList);
+    ASB_WhereClause clause3 = new ASB_WhereClause.FieldComparison(new List<Schema.SObjectField>{ Account.Name })
+      .isIn(expectedList);
 
     Expectation[] expectations = new List<Expectation>{
       new Expectation(
@@ -275,10 +283,12 @@ private class ASB_Where_Test {
       )
     };
 
-    ASB_Where[] tests = new List<ASB_Where>{
-      new ASB_Where(new ASB_Where.OrLogicalGroup(new List<ASB_Where>{ clause1, clause2 })),
-      new ASB_Where(new ASB_Where.OrLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3 })),
-      new ASB_Where(new ASB_Where.OrLogicalGroup(new List<ASB_Where>{ clause1, clause2, clause3, clause1, clause2 }))
+    ASB_WhereClause[] tests = new List<ASB_WhereClause>{
+      new ASB_WhereClause(new ASB_WhereClause.OrLogicalGroup(new List<ASB_WhereClause>{ clause1, clause2 })),
+      new ASB_WhereClause(new ASB_WhereClause.OrLogicalGroup(new List<ASB_WhereClause>{ clause1, clause2, clause3 })),
+      new ASB_WhereClause(
+        new ASB_WhereClause.OrLogicalGroup(new List<ASB_WhereClause>{ clause1, clause2, clause3, clause1, clause2 })
+      )
     };
 
     Test.startTest();
@@ -286,7 +296,7 @@ private class ASB_Where_Test {
     Test.stopTest();
   }
 
-  static void assertExpectations(Expectation[] expectations, ASB_Where[] tests) {
+  static void assertExpectations(Expectation[] expectations, ASB_WhereClause[] tests) {
     System.Assert.areEqual(expectations.size(), tests.size(), 'unexpected number of clauses');
     for (Integer i = 0; i < expectations.size(); i++) {
       expectations[i].test(tests[i]);
@@ -303,7 +313,7 @@ private class ASB_Where_Test {
       this.binds = binds;
     }
 
-    private void test(ASB_Where asbWhere) {
+    private void test(ASB_WhereClause asbWhere) {
       System.Assert.areEqual(this.query, asbWhere.clauseString(ctx), 'unexpected clause returned: ' + this);
       System.Assert.areEqual(this.binds, ctx.getBinds(), 'unexpected binds returned: ' + this);
     }

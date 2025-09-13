@@ -13,7 +13,10 @@
     "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
     "precommit": "npm run prettier && npm run lint",
     "version:create": "sf package version create --package \"Apex SOQL Builder\" --installation-key-bypass --wait 10",
-    "create": "sf org:create:scratch --definition-file config\\project-scratch-def.json --alias apexsoqlbuilder --duration-days 7 --set-default --json && sf data import tree --plan data/plan.json"
+    "data:reset": "sf apex run --file ./data/reset.apex",
+    "data:seed": "sf data import tree --plan data/plan.json",
+    "scratch": "sf org:create:scratch --definition-file config\\project-scratch-def.json --alias apexsoqlbuilder --duration-days 7 --set-default --json",
+    "create": "npm run scratch && npm run data:seed"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.2.2",
