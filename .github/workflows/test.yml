@@ -1,0 +1,35 @@
+name: Test
+on: [push]
+
+jobs:
+  test-apex:
+    runs-on: ubuntu-latest
+    environment: release
+    container:
+      image: salesforce/cli:latest-full
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Setup
+        run: |
+          npm install
+          echo ${{ secrets.SF_AUTH_URL }} | sf org login sfdx-url --set-default-dev-hub --alias hub --sfdx-url-stdin
+          sf config set target-dev-hub=hub --global
+
+      - name: Auth/Create Scratch org
+        run: |
+          sf org create scratch --no-namespace --definition-file config/project-scratch-def.json --alias hub --duration-days 1 --set-default
+          sf project deploy start
+
+      - name: Run Apex Tests
+        run: npm run test:coverage
+
+      - name: Delete scratch org
+        if: always()
+        run: sf org delete scratch --no-prompt

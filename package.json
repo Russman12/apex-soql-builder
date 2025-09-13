@@ -15,8 +15,8 @@
     "version:create": "sf package version create --package \"Apex SOQL Builder\" --installation-key-bypass --wait 10",
     "data:reset": "sf apex run --file ./data/reset.apex",
     "data:seed": "sf data import tree --plan data/plan.json",
-    "scratch": "sf org:create:scratch --definition-file config\\project-scratch-def.json --alias apexsoqlbuilder --duration-days 7 --set-default --json",
-    "create": "npm run scratch && npm run data:seed",
+    "scratch": "sf org create scratch --definition-file config/project-scratch-def.json --alias apexsoqlbuilder --duration-days 7 --set-default --json",
+    "create": "npm run scratch && sf project deploy start && npm run data:seed",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -26,6 +26,7 @@
     "husky": "^9.1.7",
     "prettier": "^3.1.0",
     "prettier-plugin-apex": "^2.0.1",
+    "semantic-release": "^24.2.8",
     "write-good": "^1.0.8"
   }
 }
