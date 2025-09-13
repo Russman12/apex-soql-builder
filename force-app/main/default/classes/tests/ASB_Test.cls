@@ -1,9 +1,13 @@
+/**
+ * @description Unit tests for the ASB class.
+ * Ensures correct behavior for the SOQL builder entry point and its methods.
+ */
 @isTest
 public with sharing class ASB_Test {
   private static ASB factory = new ASB();
 
   /**
-   * Ensures make executes as expected
+   * Ensures make executes as expected.
    */
   @isTest
   static void make() {
@@ -15,7 +19,7 @@ public with sharing class ASB_Test {
   }
 
   /**
-   * Ensures selection executes as expected
+   * Ensures selection executes as expected.
    */
   @isTest
   static void selection() {
@@ -27,7 +31,7 @@ public with sharing class ASB_Test {
   }
 
   /**
-   * Ensures subQuery executes as expected
+   * Ensures subQuery executes as expected.
    */
   @isTest
   static void subQuery() {
@@ -39,7 +43,7 @@ public with sharing class ASB_Test {
   }
 
   /**
-   * Ensures all filter().field methods execute as expected
+   * Ensures all filter().field methods execute as expected.
    */
   @isTest
   static void filter() {
@@ -51,7 +55,7 @@ public with sharing class ASB_Test {
   }
 
   /**
-   * Ensures all orderByfields methods execute as expected
+   * Ensures all orderByfields methods execute as expected.
    */
   @isTest
   static void orderByFields() {
@@ -67,7 +71,7 @@ public with sharing class ASB_Test {
   }
 
   /**
-   * Ensures all orderByfields methods execute as expected
+   * Ensures recordLimit method executes as expected.
    */
   @isTest
   static void recordLimit() {

@@ -1,5 +1,6 @@
 /**
- * Provides unit test coverage for ASB_Where class
+ * @description Unit tests for ASB_WhereClause.
+ * Ensures correct behavior for SOQL WHERE clause logic.
  * @author Russell Laboe
  */
 @isTest
@@ -17,7 +18,7 @@ private class ASB_WhereClause_Test {
   private static List<Schema.SObjectField> nameFieldPath = new List<Schema.SObjectField>{ Account.Name };
 
   /**
-   * Ensures clause is built as expected for eq method calls
+   * Ensures clause is built as expected for eq method calls.
    */
   @IsTest
   static void makeEQ() {
@@ -45,7 +46,7 @@ private class ASB_WhereClause_Test {
   }
 
   /**
-   * Ensures clause is built as expected for ne method calls
+   * Ensures clause is built as expected for ne method calls.
    */
   @IsTest
   static void makeNE() {
@@ -73,7 +74,7 @@ private class ASB_WhereClause_Test {
   }
 
   /**
-   * Ensures clause is built as expected for gt method calls
+   * Ensures clause is built as expected for gt method calls.
    */
   @IsTest
   static void makeGT() {
@@ -97,7 +98,7 @@ private class ASB_WhereClause_Test {
   }
 
   /**
-   * Ensures clause is built as expected for gte method calls
+   * Ensures clause is built as expected for gte method calls.
    */
   @IsTest
   static void makeGTE() {
@@ -121,7 +122,7 @@ private class ASB_WhereClause_Test {
   }
 
   /**
-   * Ensures clause is built as expected for lt method calls
+   * Ensures clause is built as expected for lt method calls.
    */
   @IsTest
   static void makeLT() {
@@ -145,7 +146,7 @@ private class ASB_WhereClause_Test {
   }
 
   /**
-   * Ensures clause is built as expected for lte method calls
+   * Ensures clause is built as expected for lte method calls.
    */
   @IsTest
   static void makeLTE() {
@@ -169,7 +170,7 @@ private class ASB_WhereClause_Test {
   }
 
   /**
-   * Ensures clause is built as expected for other method calls
+   * Ensures clause is built as expected for other method calls.
    */
   @isTest
   static void makeOther() {
@@ -193,7 +194,7 @@ private class ASB_WhereClause_Test {
   }
 
   /**
-   * Ensures clause is built as expected when given `and` logical group
+   * Ensures clause is built as expected when given `and` logical group.
    */
   @isTest
   static void andx() {
@@ -245,7 +246,7 @@ private class ASB_WhereClause_Test {
   }
 
   /**
-   * Ensures clause is built as expected when given `or` logical group
+   * Ensures clause is built as expected when given `or` logical group.
    */
   @isTest
   static void orx() {

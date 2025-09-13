@@ -1,11 +1,12 @@
 /**
- * Provides unit test coverage for ASB_FromSObject
+ * @description Unit tests for ASB_FromSObjectClause.
+ * Ensures correct behavior for SObject-based FROM clause logic.
  * @author Russell Laboe
  */
 @IsTest
 private class ASB_FromSObjectClause_Test {
   /**
-   * Ensures clauseString returns expected string
+   * Ensures clauseString returns expected string.
    */
   @IsTest
   static void constructorAndClauseString() {
@@ -24,7 +25,7 @@ private class ASB_FromSObjectClause_Test {
   }
 
   /**
-   * Ensures equality checks function as expected
+   * Ensures equality and hashCode methods function as expected.
    */
   @IsTest
   static void equalityAndHashCode() {

@@ -1,3 +1,7 @@
+/**
+ * @description Unit tests for ASB_SubQueryBuilder.
+ * Ensures correct behavior for SOQL subquery builder logic.
+ */
 @isTest
 public with sharing class ASB_SubQueryBuilder_Test {
   private static ASB_BindContext ctx = new ASB_BindContext();
@@ -6,7 +10,7 @@ public with sharing class ASB_SubQueryBuilder_Test {
   private static ASB asb = new ASB();
 
   /**
-   * Ensures relatedBy method returns expected instance
+   * Ensures relatedBy method returns expected instance.
    */
   @isTest
   static void relatedBy() {
@@ -21,7 +25,7 @@ public with sharing class ASB_SubQueryBuilder_Test {
   }
 
   /**
-   * Ensures selectField adds field to SELECT clause
+   * Ensures selectField adds field to SELECT clause.
    */
   @isTest
   static void selectField() {
@@ -143,7 +147,7 @@ public with sharing class ASB_SubQueryBuilder_Test {
   }
 
   /**
-   * Ensures mergeInto returns expected query
+   * Ensures mergeInto returns expected query.
    */
   @IsTest
   static void mergeInto() {
@@ -171,7 +175,7 @@ public with sharing class ASB_SubQueryBuilder_Test {
   }
 
   /**
-   * Ensures mergeInto throws exception if from clauses are different
+   * Ensures mergeInto throws exception if from clauses are different.
    */
   @IsTest
   static void mergeIntoExceptionFrom() {
@@ -198,7 +202,7 @@ public with sharing class ASB_SubQueryBuilder_Test {
   }
 
   /**
-   * Ensures mergeInto throws exception if recordLimit is set
+   * Ensures mergeInto throws exception if recordLimit is set.
    */
   @IsTest
   static void mergeIntoExceptionLimit() {
@@ -253,7 +257,7 @@ public with sharing class ASB_SubQueryBuilder_Test {
   }
 
   /**
-   * Ensures mergeInto throws exception if orderBy is set
+   * Ensures mergeInto throws exception if orderBy is set.
    */
   @IsTest
   static void mergeIntoExceptionOrderBy() {
@@ -308,7 +312,7 @@ public with sharing class ASB_SubQueryBuilder_Test {
   }
 
   /**
-   * Ensures mergeInto throws exception if filter is set
+   * Ensures mergeInto throws exception if filter is set.
    */
   @IsTest
   static void mergeIntoExceptionFilter() {

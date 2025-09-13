@@ -3,6 +3,8 @@
  * @description This class encompasses functionality relating to building a LIMIT clause.
  * @author Russell Laboe
  * @group Apex SOQL Builder
+ * @example
+ *   ASB_LimitClause limit = new ASB().recordLimit(10);
  */
 public with sharing class ASB_LimitClause implements ASB_Clause {
   @TestVisible
@@ -14,8 +16,11 @@ public with sharing class ASB_LimitClause implements ASB_Clause {
   private final Integer limitx;
 
   /**
-   * Creates new limit instance.
+   * @apexdoc
+   * @description Creates new limit instance.
    * @param limitx value to set limit to.
+   * @example
+   *   new ASB().recordLimit(10);
    */
   public ASB_LimitClause(Integer limitx) {
     if (limitx <= 0) {
@@ -25,8 +30,12 @@ public with sharing class ASB_LimitClause implements ASB_Clause {
   }
 
   /**
-   * Returns complete clause string
-   * @return   `String`
+   * @apexdoc
+   * @description Returns complete clause string
+   * @param ctx The bind context for query string generation.
+   * @return   String
+   * @example
+   *   String soql = new ASB().recordLimit(10).clauseString(new ASB_BindContext());
    */
   public String clauseString(ASB_BindContext ctx) {
     return 'LIMIT ' + ctx.bind(this, this.limitx, BIND_NAME);

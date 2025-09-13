@@ -1,71 +1,121 @@
+/**
+ * @class ASB
+ * @description Entry point for Apex SOQL Builder. Provides methods to construct SOQL query components.
+ * @example
+ *   ASB asb = new ASB();
+ *   ASB_QueryBuilder builder = asb.make(Account.SObjectType);
+ */
 public with sharing class ASB {
   /**
-   * Creates new ASB_QueryBuilder instance.
+   * @apexdoc
+   * @description Creates new ASB_QueryBuilder instance for the given SObject type.
    * @param sObjType Type to make the FROM clause for.
-   * @return  `ASB`
+   * @return ASB_QueryBuilder
+   * @example
+   *   ASB asb = new ASB();
+   *   ASB_QueryBuilder builder = asb.make(Account.SObjectType);
    */
   public ASB_QueryBuilder make(Schema.SObjectType sObjType) {
     return new ASB_QueryBuilder(fromSObject(sObjType), selection());
   }
 
+  /**
+   * @apexdoc
+   * @description Creates a new ASB_SelectClause instance.
+   * @return ASB_SelectClause
+   * @example
+   *   ASB asb = new ASB();
+   *   ASB_SelectClause select = asb.selection();
+   */
   public ASB_SelectClause selection() {
     return new ASB_SelectClause(null);
   }
 
   /**
-   * Creates a new `ASB_SubQuery` from given relationship field. The relationship field is the field that exists on a child object.
+   * @apexdoc
+   * @description Creates a new ASB_SubQueryBuilder from the given relationship field.
    * @param relationshipField Relationship field from child to parent.
-   * @return  `ASB_SubQuery`
+   * @return ASB_SubQueryBuilder
    * @example
-   * ```apex
-   *   // this subquery would be added to an `ASB` which is selecting from Account
-   *   asb.subQuery(Contact.AccountId).selectField(Account.Id);
-   * ```
+   *   ASB asb = new ASB();
+   *   ASB_SubQueryBuilder subQuery = asb.subQuery(Contact.AccountId);
    */
   public ASB_SubQueryBuilder subQuery(Schema.sObjectField relationshipField) {
     return new ASB_SubQueryBuilder(fromRelationship(relationshipField), subSelection());
   }
 
+  /**
+   * @apexdoc
+   * @description Creates a new ASB_SubSelectClause instance.
+   * @return ASB_SubSelectClause
+   * @example
+   *   ASB asb = new ASB();
+   *   ASB_SubSelectClause subSelect = asb.subSelection();
+   */
   public ASB_SubSelectClause subSelection() {
     return new ASB_SubSelectClause(null);
   }
 
+  /**
+   * @apexdoc
+   * @description Creates a new ASB_WhereClause.Builder instance.
+   * @return ASB_WhereClause.Builder
+   * @example
+   *   ASB asb = new ASB();
+   *   ASB_WhereClause.Builder where = asb.filter();
+   */
   public ASB_WhereClause.Builder filter() {
     return new ASB_WhereClause.Builder();
   }
 
   /**
-   * Sets field in Order By clause.
-   * @param field
-   * @return  `ASB_OrderBy`
+   * @apexdoc
+   * @description Sets a field in the ORDER BY clause.
+   * @param field The field to order by.
+   * @return ASB_OrderByClause
+   * @example
+   *   ASB asb = new ASB();
+   *   ASB_OrderByClause orderBy = asb.orderByField(Account.Name);
    */
   public ASB_OrderByClause orderByField(Schema.SObjectField field) {
     return orderByFields(new List<Schema.SObjectField>{ field });
   }
 
   /**
-   * Sets 2 fields in Order By clause.
-   * @param field1
-   * @param field2
-   * @return  `ASB_OrderBy`
+   * @apexdoc
+   * @description Sets two fields in the ORDER BY clause.
+   * @param field1 The first field.
+   * @param field2 The second field.
+   * @return ASB_OrderByClause
+   * @example
+   *   ASB asb = new ASB();
+   *   ASB_OrderByClause orderBy = asb.orderByFields(Account.Name, Account.Id);
    */
   public ASB_OrderByClause orderByFields(Schema.SObjectField field1, Schema.SObjectField field2) {
     return orderByFields(new List<Schema.SObjectField>{ field1, field2 });
   }
 
   /**
-   * Sets fields in Order By clause.
-   * @param fields
-   * @return  `ASB_OrderByClause`
+   * @apexdoc
+   * @description Sets fields in the ORDER BY clause.
+   * @param fields Array of fields to order by.
+   * @return ASB_OrderByClause
+   * @example
+   *   ASB asb = new ASB();
+   *   ASB_OrderByClause orderBy = asb.orderByFields(new List<Schema.SObjectField>{ Account.Name, Account.Id });
    */
   public ASB_OrderByClause orderByFields(Schema.SObjectField[] fields) {
     return new ASB_OrderByClause(fields);
   }
 
   /**
-   * Returns new ASB_Limit instance for query
-   * @param recordLimit
-   * @return  `ASB_Limit`
+   * @apexdoc
+   * @description Returns new ASB_LimitClause instance for the query.
+   * @param recordLimit The record limit to set.
+   * @return ASB_LimitClause
+   * @example
+   *   ASB asb = new ASB();
+   *   ASB_LimitClause limit = asb.recordLimit(10);
    */
   public ASB_LimitClause recordLimit(Integer recordLimit) {
     return new ASB_LimitClause(recordLimit);

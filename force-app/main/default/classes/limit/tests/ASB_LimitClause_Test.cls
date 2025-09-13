@@ -2,12 +2,18 @@
  * Provides unit test coverage for ASB_Limit class
  * @author Russell Laboe
  */
+
+/**
+ * @description Unit tests for ASB_LimitClause.
+ * Ensures correct behavior for SOQL LIMIT clause logic.
+ * @author Russell Laboe
+ */
 @isTest
 private class ASB_LimitClause_Test {
   private static ASB_BindContext ctx = new ASB_BindContext();
 
   /**
-   * Ensures clauseString() returns expected clause String
+   * Ensures clauseString() returns expected clause String.
    */
   @IsTest
   static void clauseString() {
@@ -26,7 +32,7 @@ private class ASB_LimitClause_Test {
   }
 
   /**
-   * Ensures expected exception is thrown when invalid argument is given
+   * Ensures expected exception is thrown when invalid argument is given.
    */
   @IsTest
   static void illegalArgument() {

@@ -1,14 +1,33 @@
+/**
+ * @class ASB_SubSelectClause
+ * @description Represents a subquery SELECT clause builder for SOQL queries. Implements ASB_Selectable.
+ * @example
+ *   ASB_SubSelectClause subSelect = new ASB().subSelection()
+ *     .field(Contact.Email)
+ *     .parent(new List<Schema.SObjectField>{ Contact.AccountId, Account.Name });
+ *   String soql = subSelect.clauseString(new ASB_BindContext());
+ */
 public with sharing class ASB_SubSelectClause implements ASB_Selectable {
   private final ASB_SelectEngine selectEngine;
 
+  /**
+   * @apexdoc
+   * @description Constructs a new ASB_SubSelectClause for the given SObject type.
+   * @param sObjType The SObject type for the subquery SELECT clause.
+   * @example
+   *   ASB_SubSelectClause subSelect = new ASB().subSelection();
+   */
   public ASB_SubSelectClause(SObjectType sObjType) {
     this.selectEngine = new ASB_SelectEngine(sObjType);
   }
 
   /**
-   * Adds field to `ASB_Selectable` instance.
+   * @apexdoc
+   * @description Adds a field to the subquery SELECT clause.
    * @param field Field to add to select clause.
-   * @return  `ASB_Selectable`
+   * @return ASB_SubSelectClause for chaining.
+   * @example
+   *   new ASB().subSelection().field(Contact.Email);
    */
   public ASB_SubSelectClause field(Schema.SObjectField field) {
     selectEngine.addField(field);
@@ -16,22 +35,50 @@ public with sharing class ASB_SubSelectClause implements ASB_Selectable {
   }
 
   /**
-   * Adds a parent record field to `ASB_Selectable` instance.
-   * @param fieldPath Path to parent field.
-   * @return  `ASB_Selectable`
+   * @apexdoc
+   * @description Adds a parent record field to the subquery SELECT clause.
+   * @param fieldPath Path to parent field as a list of SObjectFields.
+   * @return ASB_SubSelectClause for chaining.
+   * @example
+   *   new ASB().subSelection().parent(new List<Schema.SObjectField>{ Contact.AccountId, Account.Name });
    */
   public ASB_SubSelectClause parent(List<Schema.SObjectField> fieldPath) {
     selectEngine.addParent(fieldPath);
     return this;
   }
+
+  /**
+   * @apexdoc
+   * @description Adds a parent record field to the subquery SELECT clause using two SObjectFields.
+   * @param relField1 First field in the path.
+   * @param relField2 Second field in the path.
+   * @return ASB_SubSelectClause for chaining.
+   * @example
+   *   new ASB().subSelection().parent(Contact.AccountId, Account.Name);
+   */
   public ASB_SubSelectClause parent(Schema.SObjectField relField1, Schema.SObjectField relField2) {
     return parent(new List<Schema.SObjectField>{ relField1, relField2 });
   }
 
+  /**
+   * @apexdoc
+   * @description Returns the subquery SELECT clause as a query string.
+   * @param ctx The bind context for query string generation.
+   * @return The subquery SELECT clause as a String.
+   * @example
+   *   String soql = new ASB().subSelection().field(Contact.Email).clauseString(new ASB_BindContext());
+   */
   public String clauseString(ASB_BindContext ctx) {
     return selectEngine.clauseString(ctx);
   }
 
+  /**
+   * @apexdoc
+   * @description Merges the elements of this subquery select clause into another ASB_SubSelectClause instance.
+   * @param subSelectClause The target subquery select clause to merge into.
+   * @example
+   *   new ASB().subSelection().mergeInto(otherSubSelectClause);
+   */
   public void mergeInto(ASB_SubSelectClause subSelectClause) {
     selectEngine.mergeInto(subSelectClause.selectEngine);
   }

@@ -1,5 +1,12 @@
+/**
+ * @description Unit tests for ASB_BindContext.
+ * Ensures correct behavior for bind context and parameter binding logic.
+ */
 @isTest
 public with sharing class ASB_BindContext_Test {
+  /**
+   * Ensures bind() and getBinds() work as expected.
+   */
   @isTest
   static void bind() {
     // Arrange

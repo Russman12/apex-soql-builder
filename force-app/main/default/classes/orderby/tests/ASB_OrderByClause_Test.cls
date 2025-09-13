@@ -1,7 +1,11 @@
+/**
+ * @description Unit tests for ASB_OrderByClause.
+ * Ensures correct behavior for SOQL ORDER BY clause logic.
+ */
 @isTest
 public with sharing class ASB_OrderByClause_Test {
   /**
-   * Ensures clauseString() returns expected string when given list of fields
+   * Ensures clauseString() returns expected string when given list of fields.
    */
   @isTest
   static void clauseStringconstructor() {
@@ -13,7 +17,7 @@ public with sharing class ASB_OrderByClause_Test {
   }
 
   /**
-   * Ensures clauseString() returns expected string when called direction
+   * Ensures clauseString() returns expected string when called direction.
    */
   @isTest
   static void clauseStringNullsx() {
@@ -34,7 +38,7 @@ public with sharing class ASB_OrderByClause_Test {
   }
 
   /**
-   * Ensures clauseString() returns expected string when called nullsx
+   * Ensures clauseString() returns expected string when called nullsx.
    */
   @isTest
   static void clauseStringDirection() {
@@ -55,7 +59,7 @@ public with sharing class ASB_OrderByClause_Test {
   }
 
   /**
-   * Ensures clauseString() returns expected complex string when called
+   * Ensures clauseString() returns expected complex string when called.
    */
   @isTest
   static void clauseStringComplex() {

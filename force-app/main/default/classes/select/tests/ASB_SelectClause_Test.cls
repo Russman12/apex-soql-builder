@@ -1,5 +1,6 @@
 /**
- * Provides unit test coverage for ASB_SelectClause (root-level SELECT)
+ * @description Unit tests for ASB_SelectClause (root-level SELECT).
+ * Ensures correct behavior for root-level SELECT clause logic.
  * @author Russell Laboe
  */
 @IsTest
@@ -7,7 +8,7 @@ private class ASB_SelectClause_Test {
   private static final ASB_BindContext ctx = new ASB_BindContext();
 
   /**
-   * Ensures adding fields produces correct clause
+   * Ensures adding fields produces correct clause.
    */
   @IsTest
   static void field() {
@@ -21,7 +22,7 @@ private class ASB_SelectClause_Test {
   }
 
   /**
-   * Ensures adding parent query fields produces correct clause
+   * Ensures adding parent query fields produces correct clause.
    */
   @IsTest
   static void parent() {
@@ -40,7 +41,7 @@ private class ASB_SelectClause_Test {
   }
 
   /**
-   * Ensures duplicate fields, parents, and subqueries are deduplicated correctly
+   * Ensures duplicate fields, parents, and subqueries are deduplicated correctly.
    */
   @IsTest
   static void deduplicate() {

@@ -1,11 +1,12 @@
 /**
- * Provides unit test coverage for ASB_FromRelationship
+ * @description Unit tests for ASB_FromRelationshipClause.
+ * Ensures correct behavior for relationship-based FROM clause logic.
  * @author Russell Laboe
  */
 @IsTest
 private class ASB_FromRelationshipClause_Test {
   /**
-   * Ensures constructor and methods function as expected
+   * Ensures constructor and clauseString method function as expected.
    */
   @IsTest
   static void constructorAndClauseString() {
@@ -29,7 +30,7 @@ private class ASB_FromRelationshipClause_Test {
   }
 
   /**
-   * Ensures equality checks function as expected
+   * Ensures equality and hashCode methods function as expected.
    */
   @IsTest
   static void equalityAndHashCode() {
@@ -43,7 +44,7 @@ private class ASB_FromRelationshipClause_Test {
   }
 
   /**
-   * Ensures expected exception is thrown when given non relationship field
+   * Ensures exception is thrown when a non-relationship field is used in the constructor.
    */
   @IsTest
   static void constructorNonRelationshipField() {
@@ -64,7 +65,7 @@ private class ASB_FromRelationshipClause_Test {
   }
 
   /**
-   * Ensures constructor throws exception when relationship field is invalid
+   * Ensures exception is thrown when an invalid relationship field is used in the constructor.
    */
   @IsTest
   static void constructorInvalidRelationshipField() {

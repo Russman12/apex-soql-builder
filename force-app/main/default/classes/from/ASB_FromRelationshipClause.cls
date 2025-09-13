@@ -1,3 +1,9 @@
+/**
+ * @class ASB_FromRelationshipClause
+ * @description FROM clause for a SOQL subquery based on a relationship field. Implements ASB_FromClause.
+ * @example
+ *   ASB_FromRelationshipClause fromRel = (ASB_FromRelationshipClause)new ASB().subQuery(Contact.AccountId).relatedBy();
+ */
 public with sharing class ASB_FromRelationshipClause implements ASB_FromClause {
   @TestVisible
   private final Schema.SObjectField relationshipField;
@@ -8,8 +14,11 @@ public with sharing class ASB_FromRelationshipClause implements ASB_FromClause {
   private Schema.ChildRelationship cachedChildRelationship;
 
   /**
-   * Creates new instance of ASB_From based on given relationship field.
-   * @param relationshipField the relationship to make the FROM clause for.
+   * @apexdoc
+   * @description Creates new instance of ASB_From based on given relationship field.
+   * @param relationshipField The relationship to make the FROM clause for.
+   * @example
+   *   ASB_FromRelationshipClause fromRel = (ASB_FromRelationshipClause)new ASB().subQuery(Contact.AccountId).relatedBy();
    */
   public ASB_FromRelationshipClause(Schema.SObjectField relationshipField) {
     this.relationshipField = relationshipField;
@@ -24,16 +33,23 @@ public with sharing class ASB_FromRelationshipClause implements ASB_FromClause {
   }
 
   /**
-   * Converts the FROM clause to a query string.
-   * @return  `String`
+   * @apexdoc
+   * @description Converts the FROM clause to a query string.
+   * @param ctx The bind context for query string generation.
+   * @return String The FROM clause as a string.
+   * @example
+   *   String fromStr = new ASB().subQuery(Contact.AccountId).relatedBy().clauseString(new ASB_BindContext());
    */
   public String clauseString(ASB_BindContext ctx) {
     return 'FROM ' + childRelationshipName;
   }
 
   /**
-   * Returns ID field for the related object
-   * @return  `SObjectField`
+   * @apexdoc
+   * @description Returns ID field for the related object.
+   * @return Schema.SObjectField The Id field.
+   * @example
+   *   Schema.SObjectField idField = new ASB().subQuery(Contact.AccountId).relatedBy().getIdField();
    */
   public Schema.SObjectField getIdField() {
     return getSObjectType().getDescribe().fields.getMap().get('Id');

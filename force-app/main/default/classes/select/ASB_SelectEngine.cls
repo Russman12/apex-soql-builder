@@ -1,38 +1,67 @@
+/**
+ * @class ASB_SelectEngine
+ * @description Engine for building SELECT clauses for SOQL queries using Apex SOQL Builder.
+ * @example
+ *   ASB_SelectEngine engine = new ASB_SelectEngine(Account.SObjectType);
+ *   engine.addField(Account.Name);
+ *   String soql = engine.clauseString(new ASB_BindContext());
+ */
 public with sharing class ASB_SelectEngine {
   private final List<Element> elements = new List<Element>();
   private final Schema.SObjectType rootSObjType;
 
+  /**
+   * @apexdoc
+   * @description Constructs a new ASB_SelectEngine for the given SObject type.
+   * @param rootSObjType The root SObject type for the SELECT clause.
+   * @example
+   *   ASB_SelectEngine engine = new ASB_SelectEngine(Account.SObjectType);
+   */
   public ASB_SelectEngine(Schema.SObjectType rootSObjType) {
     this.rootSObjType = rootSObjType;
   }
 
   /**
-   * Adds field to `ASB_Selectable` instance.
+   * @apexdoc
+   * @description Adds a field to the SELECT clause.
    * @param field Field to add to select clause.
-   * @return  `ASB_Selectable`
+   * @example
+   *   engine.addField(Account.Name);
    */
   public void addField(Schema.SObjectField field) {
     (new FieldElement(new List<Schema.SObjectField>{ field })).mergeInto(this.elements);
   }
 
   /**
-   * Adds a parent record field to `ASB_Selectable` instance.
-   * @param fieldPath Path to parent field.
-   * @return  `ASB_Selectable`
+   * @apexdoc
+   * @description Adds a parent record field to the SELECT clause.
+   * @param fieldPath Path to parent field as a list of SObjectFields.
+   * @example
+   *   engine.addParent(new List<Schema.SObjectField>{ Opportunity.Account, Account.Name });
    */
   public void addParent(List<Schema.SObjectField> fieldPath) {
     (new FieldElement(fieldPath)).mergeInto(elements);
   }
 
   /**
-   * Adds suquery to `ASB_SelectClause` instance. throws exeption if a different subquery for the same child object is added.
+   * @apexdoc
+   * @description Adds a subquery to the SELECT clause. Throws an exception if a different subquery for the same child object is added.
    * @param subQuery Subquery to add to the select clause.
-   * @return  `ASB_SelectClause`
+   * @example
+   *   ASB_SubQueryBuilder sub = new ASB_SubQueryBuilder(...);
+   *   engine.mergeSubQuery(sub);
    */
   public void mergeSubQuery(ASB_SubQueryBuilder subQuery) {
     (new SubqueryElement(subQuery)).mergeInto(this.elements);
   }
 
+  /**
+   * @apexdoc
+   * @description Merges the elements of this engine into another ASB_SelectEngine instance.
+   * @param targetEngine The target engine to merge into.
+   * @example
+   *   engine1.mergeInto(engine2);
+   */
   public void mergeInto(ASB_SelectEngine targetEngine) {
     for (Element e : this.elements) {
       e.mergeInto(targetEngine.elements);
@@ -40,8 +69,12 @@ public with sharing class ASB_SelectEngine {
   }
 
   /**
-   * Returns instance as a SELECT clause query string.
-   * @return  `String`
+   * @apexdoc
+   * @description Returns the SELECT clause as a query string.
+   * @param ctx The bind context for query string generation.
+   * @return The SELECT clause as a String.
+   * @example
+   *   String soql = engine.clauseString(new ASB_BindContext());
    */
   public String clauseString(ASB_BindContext ctx) {
     List<String> elementStrs = new List<String>();
@@ -52,7 +85,7 @@ public with sharing class ASB_SelectEngine {
     return 'SELECT ' + String.join(elementStrs, ', ');
   }
 
-  public interface Element {
+  private interface Element {
     String queryString(ASB_BindContext ctx);
     void mergeInto(List<Element> target);
   }
@@ -65,10 +98,6 @@ public with sharing class ASB_SelectEngine {
       this.relationshipPath = relationshipPath;
     }
 
-    /**
-     * Returns instance as a query string component.
-     * @return  `String`
-     */
     public String queryString(ASB_BindContext ctx) {
       if (cachedQueryString == null) {
         String[] fieldStrs = new List<String>{};
@@ -97,21 +126,16 @@ public with sharing class ASB_SelectEngine {
     }
   }
 
-  public class SubqueryElement implements Element {
-    public final ASB_SubQueryBuilder subQuery;
+  private class SubqueryElement implements Element {
+    private final ASB_SubQueryBuilder subQuery;
 
     private SubqueryElement(ASB_SubQueryBuilder subQuery) {
       this.subQuery = subQuery;
     }
 
-    /**
-     * Returns instance as a query string component.
-     * @return  `String`
-     */
     public String queryString(ASB_BindContext ctx) {
       return '(' + this.subQuery.queryDetail(ctx) + ')';
     }
-
     public void mergeInto(List<Element> target) {
       SubqueryElement targetElement = findByRelationship(target, this.subQuery.relatedBy());
 

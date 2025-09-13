@@ -1,5 +1,6 @@
 /**
- * Provides test coverage for ASB_QueryBuilder class
+ * @description Unit tests for ASB_QueryBuilder.
+ * Ensures correct behavior for the SOQL query builder logic.
  * @author Russell Laboe
  */
 @isTest
@@ -9,6 +10,9 @@ public with sharing class ASB_QueryBuilder_Test {
   //TODO: mock this
   private static ASB asb = new ASB();
 
+  /**
+   * Ensures clauseString() returns expected SOQL string and bindings.
+   */
   @isTest
   static void clauseString() {
     ASB_SubQueryBuilder contactsSelect = new ASB_SubQueryBuilder(
@@ -63,7 +67,7 @@ public with sharing class ASB_QueryBuilder_Test {
   }
 
   /**
-   * Ensures query() returns expected results
+   * Ensures query() returns expected results.
    */
   @isTest
   static void query() {
@@ -88,7 +92,7 @@ public with sharing class ASB_QueryBuilder_Test {
   }
 
   /**
-   * Ensures query(binds) returns expected results
+   * Ensures query(binds) returns expected results.
    */
   @isTest
   static void queryBinds() {

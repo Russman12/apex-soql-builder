@@ -1,5 +1,6 @@
 /**
- * Provides unit test coverage for ASB_Select class
+ * @description Unit tests for ASB_SubSelectClause.
+ * Ensures correct behavior for subquery SELECT clause logic.
  * @author Russell Laboe
  */
 @isTest
@@ -7,7 +8,7 @@ private class ASB_SubSelectClause_Test {
   private static ASB_BindContext ctx = new ASB_BindContext();
 
   /**
-   * Ensures adding field produces correct clause
+   * Ensures adding field produces correct clause.
    */
   @isTest
   static void field() {
@@ -21,7 +22,7 @@ private class ASB_SubSelectClause_Test {
   }
 
   /**
-   * Ensures adding parent query produces correct clause
+   * Ensures adding parent query produces correct clause.
    */
   @isTest
   static void parent() {
