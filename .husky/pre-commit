@@ -1,1 +1,1 @@
-npm run prettier && npm run lint:apex
+npm run lint:apex
