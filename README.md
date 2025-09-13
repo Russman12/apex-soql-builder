@@ -71,7 +71,7 @@ ASB asb = new ASB();
 
 ASB_Select selection = asb.selection()
   .parent(Account.CreatedById, User.LastName)
-  .subQuery(asb.subQuery(Contact.AccountId).selectField(Contact.Name));
+  .subQuery(asb.subQuery().selection(asb.subSelection().field(Contact.AccountId).field(Contact.Name)));
 
 System.debug(selection.clauseString()); //SELECT CreatedBy.LastName, (SELECT Id, Name FROM Contacts)
 ```
