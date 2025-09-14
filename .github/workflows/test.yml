@@ -1,13 +1,19 @@
 name: Test
-on: [push]
+on:
+  workflow_call:
 
 jobs:
   test-apex:
     runs-on: ubuntu-latest
-    environment: release
     container:
       image: salesforce/cli:latest-full
     steps:
+      - name: Set environment variables
+        run: |
+          echo "SF_DISABLE_AUTOUPDATE=true" >> $GITHUB_ENV
+          echo "SF_DISABLE_SOURCE_MEMBER_POLLING=true" >> $GITHUB_ENV
+          echo "SF_DISABLE_TELEMETRY=true" >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v4
 

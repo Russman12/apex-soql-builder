@@ -3,10 +3,7 @@
     {
       "path": "force-app",
       "default": true,
-      "package": "Apex SOQL Builder",
-      "versionName": "ver 0.1",
-      "versionNumber": "0.1.0.NEXT",
-      "versionDescription": "Apex classes used to procedurally generate SOQL queries"
+      "package": "Apex SOQL Builder"
     }
   ],
   "name": "apex-soql-builder",
@@ -17,6 +14,8 @@
     "Apex SOQL Builder": "0Hoak0000000KJhCAM",
     "Apex SOQL Builder@0.1.0-1": "04tak0000004BMfAAM",
     "Apex SOQL Builder@0.1.0-2": "04tak0000004BsvAAE",
-    "Apex SOQL Builder@0.1.0-3": "04tak0000004FN3AAM"
+    "Apex SOQL Builder@0.1.0-3": "04tak0000004FN3AAM",
+    "Apex SOQL Builder@1.1.0-2": "04tak0000009jkHAAQ",
+    "Apex SOQL Builder@1.1.0-3": "04tak0000009jltAAA"
   }
 }

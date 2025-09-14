@@ -1,0 +1,23 @@
+name: main
+
+on:
+  push:
+    branches: [main]
+    tags-ignore:
+      - "**"
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+    secrets: inherit
+
+  release:
+    uses: ./.github/workflows/release.yml
+    needs: test
+    secrets: inherit
+    permissions:
+      contents: write # create GitHub releases
+      issues: write # comment on released issues
+      pull-requests: write # comment on released PRs
+      id-token: write # npm provenance / OIDC
+
