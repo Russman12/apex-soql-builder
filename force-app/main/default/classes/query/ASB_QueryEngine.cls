@@ -1,24 +1,25 @@
+/*
+Apex SOQL Builder - A type safe dynamic query executor.   Copyright (C) 2025  Russell Laboe
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 /**
- * Apex SOQL Builder - A type safe dynamic query executor.   Copyright (C) 2025  Russell Laboe
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
- * @class ASB_QueryEngine
+ * @ignore
  * @description Encompasses concerns relating to any type of query.
- * @author Russell Laboe
- * @example
- *   ASB_QueryEngine engine = new ASB_QueryEngine(fromClause, selectClause);
+ * @see ASB_QueryEngine
+ * @see ASB_QueryBuilder
  */
 public with sharing class ASB_QueryEngine {
   private final ASB_Selectable asbSelect;
@@ -28,12 +29,9 @@ public with sharing class ASB_QueryEngine {
   private ASB_LimitClause asbLimit;
 
   /**
-   * @apexdoc
    * @description Constructs a new ASB_QueryEngine with the given FROM and SELECT clauses.
    * @param asbFrom The FROM clause.
    * @param asbSelect The SELECT clause.
-   * @example
-   *   ASB_QueryEngine engine = new ASB_QueryEngine(fromClause, selectClause);
    */
   public ASB_QueryEngine(ASB_FromClause asbFrom, ASB_Selectable asbSelect) {
     this.asbFrom = asbFrom;
@@ -41,11 +39,8 @@ public with sharing class ASB_QueryEngine {
   }
 
   /**
-   * @apexdoc
    * @description Returns the list of assigned query clauses.
    * @return List of ASB_Clause.
-   * @example
-   *   List<ASB_Clause> clauses = engine.getClauses();
    */
   public virtual ASB_Clause[] getClauses() {
     List<ASB_Clause> assignedClauses = new List<ASB_Clause>();
@@ -66,63 +61,45 @@ public with sharing class ASB_QueryEngine {
   }
 
   /**
-   * @apexdoc
    * @description Returns the SELECT clause.
    * @return ASB_Selectable
-   * @example
-   *   ASB_Selectable select = engine.getASBSelect();
    */
   public ASB_Selectable getASBSelect() {
     return asbSelect;
   }
   /**
-   * @apexdoc
    * @description Returns the FROM clause.
    * @return ASB_FromClause
-   * @example
-   *   ASB_FromClause from = engine.getASBFrom();
    */
   public ASB_FromClause getASBFrom() {
     return asbFrom;
   }
   /**
-   * @apexdoc
    * @description Returns the WHERE clause.
    * @return ASB_WhereClause
-   * @example
-   *   ASB_WhereClause where = engine.getASBWhere();
    */
   public ASB_WhereClause getASBWhere() {
     return asbWhere;
   }
   /**
-   * @apexdoc
    * @description Returns the ORDER BY clause.
    * @return ASB_OrderByClause
-   * @example
-   *   ASB_OrderByClause orderBy = engine.getASBOrderBy();
    */
   public ASB_OrderByClause getASBOrderBy() {
     return asbOrderBy;
   }
   /**
-   * @apexdoc
    * @description Returns the LIMIT clause.
    * @return ASB_LimitClause
-   * @example
-   *   ASB_LimitClause limit = engine.getASBLimit();
    */
   public ASB_LimitClause getASBLimit() {
     return asbLimit;
   }
 
   /**
-   * @apexdoc
    * @description Sets the WHERE clause for the query.
    * @param asbWhere The WHERE clause to set.
    * @return ASB_QueryEngine for chaining.
-   * @example
-   *   engine.setWhere(asb.filter());
    */
   public ASB_QueryEngine setWhere(ASB_WhereClause asbWhere) {
     this.asbWhere = asbWhere;
@@ -130,12 +107,9 @@ public with sharing class ASB_QueryEngine {
   }
 
   /**
-   * @apexdoc
    * @description Sets the ORDER BY clause for the query.
    * @param asbOrderBy The ORDER BY clause to set.
    * @return ASB_QueryEngine for chaining.
-   * @example
-   *   engine.setOrderBy(asb.orderByField(Account.Name));
    */
   public ASB_QueryEngine setOrderBy(ASB_OrderByClause asbOrderBy) {
     this.asbOrderBy = asbOrderBy;
@@ -143,12 +117,9 @@ public with sharing class ASB_QueryEngine {
   }
 
   /**
-   * @apexdoc
    * @description Sets the LIMIT clause for the query.
    * @param limitx The record limit to set.
    * @return ASB_QueryEngine for chaining.
-   * @example
-   *   engine.setLimit(10);
    */
   public ASB_QueryEngine setLimit(Integer limitx) {
     this.asbLimit = new ASB_LimitClause(limitx);
@@ -156,12 +127,9 @@ public with sharing class ASB_QueryEngine {
   }
 
   /**
-   * @apexdoc
    * @description Converts the query to a SOQL string.
    * @param ctx The bind context for query string generation.
    * @return The SOQL string.
-   * @example
-   *   String soql = engine.queryDetail(new ASB_BindContext());
    */
   public String queryDetail(ASB_BindContext ctx) {
     String[] strs = new List<String>{};

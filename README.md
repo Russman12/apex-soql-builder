@@ -2,27 +2,23 @@
 
 A simpler way to dynamically generate SOQL in apex.
 
+![ASB Brand Image](/docs/public/brand-s.png)
+
 - [Apex-SOQL-Builder](#apex-soql-builder)
+  - [Usage](#usage)
   - [example usage](#example-usage)
   - [Select](#select)
   - [Filters](#filters)
   - [Order By](#order-by)
   - [Limit](#limit)
 
+## Usage
+
+Visit the [documentation](#usage) page to see how to use this package.
+
 ## example usage
 
 ASB is the primary entrypoint for this functionality. It's a factory used to create the Builder as well as most other supporting classes. While you can construct classes manually, it's recommended to instead contruct via the factory as the syntax is much easier and your code will be more testable.
-
-The following demostrates the basic usage, selecting account fields with a simple filter:
-
-```java
-ASB asb = new ASB();
-
-List<Account> accs = (List<Account>) asb.make(Account.getSObjectType())
-  .selection(asb.selection().field(Account.Id).field(Account.Name).field(Account.NumberOfEmployees))
-  .filter(asb.whereField(Account.NumberOfEmployees).equals().literal('10'))
-  .query();
-```
 
 If you need to debug the query, replace the `query()` method call with `soqlString()`. This returns the string literal for the query to execute. While helpful for troubleshooting, avoid using it in production code.
 

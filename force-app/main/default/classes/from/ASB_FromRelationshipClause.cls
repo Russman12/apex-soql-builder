@@ -1,23 +1,29 @@
+/*
+Apex SOQL Builder - A type safe dynamic query executor.   Copyright (C) 2025  Russell Laboe
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 /**
- * Apex SOQL Builder - A type safe dynamic query executor.   Copyright (C) 2025  Russell Laboe
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
- * @class ASB_FromRelationshipClause
  * @description FROM clause for a SOQL subquery based on a relationship field. Implements ASB_FromClause.
+ * @group Clause
+ * @see ASB_FromClause
+ * @see ASB_FromSObjectClause
  * @example
+ * ```
  *   ASB_FromRelationshipClause fromRel = (ASB_FromRelationshipClause)new ASB().subQuery(Contact.AccountId).relatedBy();
+ * ```
  */
 public with sharing class ASB_FromRelationshipClause implements ASB_FromClause {
   @TestVisible
@@ -29,11 +35,12 @@ public with sharing class ASB_FromRelationshipClause implements ASB_FromClause {
   private Schema.ChildRelationship cachedChildRelationship;
 
   /**
-   * @apexdoc
    * @description Creates new instance of ASB_From based on given relationship field.
    * @param relationshipField The relationship to make the FROM clause for.
    * @example
+   * ```
    *   ASB_FromRelationshipClause fromRel = (ASB_FromRelationshipClause)new ASB().subQuery(Contact.AccountId).relatedBy();
+   * ```
    */
   public ASB_FromRelationshipClause(Schema.SObjectField relationshipField) {
     this.relationshipField = relationshipField;
@@ -48,23 +55,25 @@ public with sharing class ASB_FromRelationshipClause implements ASB_FromClause {
   }
 
   /**
-   * @apexdoc
    * @description Converts the FROM clause to a query string.
    * @param ctx The bind context for query string generation.
    * @return String The FROM clause as a string.
    * @example
+   * ```
    *   String fromStr = new ASB().subQuery(Contact.AccountId).relatedBy().clauseString(new ASB_BindContext());
+   * ```
    */
   public String clauseString(ASB_BindContext ctx) {
     return 'FROM ' + childRelationshipName;
   }
 
   /**
-   * @apexdoc
    * @description Returns ID field for the related object.
    * @return Schema.SObjectField The Id field.
    * @example
+   * ```
    *   Schema.SObjectField idField = new ASB().subQuery(Contact.AccountId).relatedBy().getIdField();
+   * ```
    */
   public Schema.SObjectField getIdField() {
     return getSObjectType().getDescribe().fields.getMap().get('Id');

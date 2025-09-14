@@ -1,29 +1,33 @@
+/*
+Apex SOQL Builder - A type safe dynamic query executor.   Copyright (C) 2025  Russell Laboe
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 /**
- * Apex SOQL Builder - A type safe dynamic query executor.   Copyright (C) 2025  Russell Laboe
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
- * @class ASB_QueryBuilder
  * @description Entry point of Apex SOQL Builder. This class encompasses functionality relating to building a SOQL query.
- * @author Russell Laboe
+ * @see ASB_QueryEngine
+ * @see ASB_SubQueryBuilder
  * @example
+ * ```
  *   List<Account> accs = (List<Account>)new ASB().make(Account.SObjectType)
  *     .selection(new ASB().selection().field(Account.Name))
  *     .filter(asb.filter())
  *     .orderBy(asb.orderByField(Account.Name))
  *     .recordLimit(10)
  *     .query();
+ * ```
  */
 public with sharing class ASB_QueryBuilder {
   private static final System.AccessLevel DEFAULT_ACCESS_LEVEL = System.AccessLevel.SYSTEM_MODE;
@@ -34,12 +38,13 @@ public with sharing class ASB_QueryBuilder {
   private final ASB_SelectClause selectClause;
 
   /**
-   * @apexdoc
    * @description Constructs a new ASB_QueryBuilder with the given FROM and SELECT clauses.
    * @param fromSObj The FROM clause for the query.
    * @param selectClause The SELECT clause for the query.
    * @example
+   * ```
    *   ASB_QueryBuilder builder = new ASB().make(Account.SObjectType);
+   * ```
    */
   public ASB_QueryBuilder(ASB_FromSObjectClause fromSObj, ASB_SelectClause selectClause) {
     this.queryEngine = new ASB_QueryEngine(fromSObj, selectClause);
@@ -47,12 +52,13 @@ public with sharing class ASB_QueryBuilder {
   }
 
   /**
-   * @apexdoc
    * @description Sets the select portion of the query.
    * @param selectClause The select clause to merge.
    * @return ASB_QueryBuilder for chaining.
    * @example
+   * ```
    *   new ASB().make(Account.SObjectType).selection(new ASB().selection().field(Account.Name));
+   * ```
    */
   public ASB_QueryBuilder selection(ASB_SelectClause selectClause) {
     selectClause.mergeInto(this.selectClause);
@@ -60,12 +66,13 @@ public with sharing class ASB_QueryBuilder {
   }
 
   /**
-   * @apexdoc
    * @description Adds a filter (WHERE clause) to the query.
    * @param asbWhere The where clause to add.
    * @return ASB_QueryBuilder for chaining.
    * @example
+   * ```
    *   new ASB().make(Account.SObjectType).filter(asb.filter());
+   * ```
    */
   public ASB_QueryBuilder filter(ASB_WhereClause asbWhere) {
     queryEngine.setWhere(asbWhere);
@@ -73,12 +80,13 @@ public with sharing class ASB_QueryBuilder {
   }
 
   /**
-   * @apexdoc
    * @description Adds an ORDER BY clause to the query.
    * @param orderBy The order by clause to add.
    * @return ASB_QueryBuilder for chaining.
    * @example
+   * ```
    *   new ASB().make(Account.SObjectType).orderBy(asb.orderByField(Account.Name));
+   * ```
    */
   public ASB_QueryBuilder orderBy(ASB_OrderByClause orderBy) {
     queryEngine.setOrderBy(orderBy);
@@ -86,12 +94,13 @@ public with sharing class ASB_QueryBuilder {
   }
 
   /**
-   * @apexdoc
    * @description Adds a LIMIT clause to the query.
    * @param recordLimit The record limit to set.
    * @return ASB_QueryBuilder for chaining.
    * @example
+   * ```
    *   new ASB().make(Account.SObjectType).recordLimit(10);
+   * ```
    */
   public ASB_QueryBuilder recordLimit(Integer recordLimit) {
     queryEngine.setLimit(recordLimit);
@@ -99,11 +108,12 @@ public with sharing class ASB_QueryBuilder {
   }
 
   /**
-   * @apexdoc
    * @description Executes the SOQL query.
    * @return List<SObject> The query results.
    * @example
+   * ```
    *   List<Account> accs = (List<Account>)new ASB().make(Account.SObjectType).query();
+   * ```
    */
   public List<SObject> query() {
     if (Limits.getQueries() == Limits.getLimitQueries()) {
