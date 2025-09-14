@@ -17,11 +17,17 @@
     "data:seed": "sf data import tree --plan data/plan.json",
     "scratch": "sf org create scratch --definition-file config/project-scratch-def.json --alias apexsoqlbuilder --duration-days 7 --set-default --json",
     "create": "npm run scratch && sf project deploy start && npm run data:seed",
-    "prepare": "husky"
+    "prepare": "husky",
+    "docs:md": "npx apexdocs markdown",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "docs:all": "npm run docs:md && npm run docs:build"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.2.2",
     "@commitlint/config-conventional": "^19.8.1",
+    "@cparra/apexdocs": "^3.14.1",
     "@prettier/plugin-xml": "^3.2.2",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/release-notes-generator": "^14.1.0",
@@ -29,6 +35,10 @@
     "prettier": "^3.1.0",
     "prettier-plugin-apex": "^2.0.1",
     "semantic-release": "^24.2.8",
+    "vitepress": "^2.0.0-alpha.12",
     "write-good": "^1.0.8"
+  },
+  "dependencies": {
+    "vitepress-mermaid-renderer": "^1.0.15"
   }
 }

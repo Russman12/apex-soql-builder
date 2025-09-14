@@ -48,3 +48,6 @@ scripts/*
 tests/*
 
 .release/version.json
+
+docs/.vitepress/dist
+docs/.vitepress/cache
