@@ -37,8 +37,5 @@
     "semantic-release": "^24.2.8",
     "vitepress": "^2.0.0-alpha.12",
     "write-good": "^1.0.8"
-  },
-  "dependencies": {
-    "vitepress-mermaid-renderer": "^1.0.15"
   }
 }

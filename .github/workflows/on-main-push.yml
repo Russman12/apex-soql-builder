@@ -21,3 +21,10 @@ jobs:
       pull-requests: write # comment on released PRs
       id-token: write # npm provenance / OIDC
 
+  update-docs:
+    uses: ./.github/workflows/deploy-docs.yml
+    needs: release
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
