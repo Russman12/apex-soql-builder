@@ -6,6 +6,8 @@ export default defineConfig({
   title: "Apex SOQL Builder",
   description: "A type safe dynamic query executor",
   ignoreDeadLinks: true,
+  base: "/apex-soql-builder/",
+
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
@@ -17,8 +19,5 @@ export default defineConfig({
 
     socialLinks: [{ icon: "github", link: "https://github.com/Russman12/apex-soql-builder" }],
     logo: "/brand-s-round.png"
-  },
-  sitemap: {
-    hostname: "https://example.com"
   }
 });
