@@ -64,7 +64,7 @@ public with sharing class ASB_Test {
   @isTest
   static void filter() {
     Test.startTest();
-    ASB_WhereClause.Builder result1 = factory.filter();
+    ASB_FilterFactory result1 = factory.filter();
     Test.stopTest();
 
     System.Assert.isNotNull(result1, 'unexpected ASB_Where.Builder returned');

@@ -54,15 +54,15 @@ public with sharing class ASB_SubQueryBuilder {
 
   /**
    * @description Adds a filter (WHERE clause) to the subquery.
-   * @param asbWhere The where clause to add.
+   * @param filterExp The filter expression to set.
    * @return ASB_SubQueryBuilder for chaining.
    * @example
    * ```
    *   new ASB().subQuery(Contact.AccountId).filter(asb.filter());
    * ```
    */
-  public ASB_SubQueryBuilder filter(ASB_WhereClause asbWhere) {
-    queryEngine.setWhere(asbWhere);
+  public ASB_SubQueryBuilder filter(ASB_FilterExpression filterExp) {
+    queryEngine.setFilter(filterExp);
     return this;
   }
 
@@ -126,7 +126,7 @@ public with sharing class ASB_SubQueryBuilder {
     if (queryEngine.getASBOrderBy() != null || subQuery.queryEngine.getASBOrderBy() != null) {
       throw new InvalidCombineException('unable to combine subQueries with specific ordering');
     }
-    if (queryEngine.getASBWhere() != null || subQuery.queryEngine.getASBWhere() != null) {
+    if (queryEngine.getFilter() != null || subQuery.queryEngine.getFilter() != null) {
       throw new InvalidCombineException('unable to combine subQueries with filters');
     }
     ((ASB_SubSelectClause) queryEngine.getASBSelect())

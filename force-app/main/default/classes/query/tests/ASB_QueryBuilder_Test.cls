@@ -39,11 +39,11 @@ private with sharing class ASB_QueryBuilder_Test {
     Integer lgAccNum = 10;
     Integer recordLimit = 5;
 
-    ASB_WhereClause testAccWhere = asb.filter().field(Account.Name).eq(accName1);
-    ASB_WhereClause confirmedAccs = asb.filter().field(Account.Name).isIn(accNames);
-    ASB_WhereClause largeAccs = asb.filter().field(Account.NumberOfEmployees).gt(lgAccNum);
+    ASB_FilterExpression testAccWhere = asb.filter().field(Account.Name).eq(accName1);
+    ASB_FilterExpression confirmedAccs = asb.filter().field(Account.Name).isIn(accNames);
+    ASB_FilterExpression largeAccs = asb.filter().field(Account.NumberOfEmployees).gt(lgAccNum);
 
-    ASB_WhereClause confirmedLargeAccs = asb.filter().andGroup(confirmedAccs, largeAccs);
+    ASB_FilterExpression confirmedLargeAccs = asb.filter().andGroup(confirmedAccs, largeAccs);
 
     ASB_SelectClause selection = new ASB_SelectClause(null)
       .field(Account.Id)

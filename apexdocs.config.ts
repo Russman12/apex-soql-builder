@@ -26,18 +26,6 @@ function writeFileAsync(filePath: string, data: string): Promise<void> {
 }
 
 export default {
-  changelog: defineChangelogConfig({
-    previousVersionDir: "previous",
-    currentVersionDir: "force-app",
-    scope: ["global", "public"],
-    transformChangeLogPage: () => {
-      return {
-        frontmatter: {
-          title: "Changelog"
-        }
-      };
-    }
-  }),
   markdown: defineMarkdownConfig({
     sourceDir: "force-app",
     includeMetadata: false,

@@ -22,7 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * @see ASB_SelectClause
  * @see ASB_SubQueryBuilder
  * @see ASB_SubSelectClause
- * @see ASB_WhereClause
+ * @see ASB_Filter
  * @see ASB_OrderByClause
  * @see ASB_LimitClause
  * @example
@@ -34,6 +34,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * ```
  */
 public with sharing class ASB {
+  private static ASB instance = new ASB();
+
+  public static ASB get() {
+    return instance;
+  }
+
   /**
    * @description Creates new ASB_QueryBuilder instance for the given SObject type.
    * @param sObjType Type to make the FROM clause for.
@@ -89,16 +95,16 @@ public with sharing class ASB {
   }
 
   /**
-   * @description Creates a new ASB_WhereClause.Builder instance.
-   * @return ASB_WhereClause.Builder
+   * @description Creates a new ASB_FilterFactory instance.
+   * @return ASB_FilterFactory
    * @example
    * ```
    *   ASB asb = new ASB();
-   *   ASB_WhereClause.Builder where = asb.filter();
+   *   ASB_FilterFactory where = asb.filter();
    * ```
    */
-  public ASB_WhereClause.Builder filter() {
-    return new ASB_WhereClause.Builder();
+  public ASB_FilterFactory filter() {
+    return new ASB_FilterFactory(null);
   }
 
   /**

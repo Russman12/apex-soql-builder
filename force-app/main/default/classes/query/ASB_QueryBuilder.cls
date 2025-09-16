@@ -67,15 +67,15 @@ public with sharing class ASB_QueryBuilder {
 
   /**
    * @description Adds a filter (WHERE clause) to the query.
-   * @param asbWhere The where clause to add.
+   * @param filterExp The filter expression to set.
    * @return ASB_QueryBuilder for chaining.
    * @example
    * ```
    *   new ASB().make(Account.SObjectType).filter(asb.filter());
    * ```
    */
-  public ASB_QueryBuilder filter(ASB_WhereClause asbWhere) {
-    queryEngine.setWhere(asbWhere);
+  public ASB_QueryBuilder filter(ASB_FilterExpression filterExp) {
+    queryEngine.setFilter(filterExp);
     return this;
   }
 

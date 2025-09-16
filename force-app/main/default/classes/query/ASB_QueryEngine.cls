@@ -24,7 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 public with sharing class ASB_QueryEngine {
   private final ASB_Selectable asbSelect;
   private final ASB_FromClause asbFrom;
-  private ASB_WhereClause asbWhere;
+  private ASB_Filter filter;
   private ASB_OrderByClause asbOrderBy;
   private ASB_LimitClause asbLimit;
 
@@ -48,7 +48,7 @@ public with sharing class ASB_QueryEngine {
       ASB_Clause clause : new List<ASB_Clause>{
         this.asbSelect,
         this.asbFrom,
-        this.asbWhere,
+        this.filter,
         this.asbOrderBy,
         this.asbLimit
       }
@@ -76,10 +76,10 @@ public with sharing class ASB_QueryEngine {
   }
   /**
    * @description Returns the WHERE clause.
-   * @return ASB_WhereClause
+   * @return ASB_FilterExpression
    */
-  public ASB_WhereClause getASBWhere() {
-    return asbWhere;
+  public ASB_Filter getFilter() {
+    return filter;
   }
   /**
    * @description Returns the ORDER BY clause.
@@ -98,11 +98,11 @@ public with sharing class ASB_QueryEngine {
 
   /**
    * @description Sets the WHERE clause for the query.
-   * @param asbWhere The WHERE clause to set.
+   * @param filterExp The expression to use in the filter.
    * @return ASB_QueryEngine for chaining.
    */
-  public ASB_QueryEngine setWhere(ASB_WhereClause asbWhere) {
-    this.asbWhere = asbWhere;
+  public ASB_QueryEngine setFilter(ASB_FilterExpression filterExp) {
+    this.filter = new ASB_Filter(filterExp);
     return this;
   }
 
