@@ -1,9 +1,13 @@
 {
   "packageDirectories": [
     {
-      "path": "force-app",
+      "path": "force-app/src",
       "default": true,
       "package": "Apex SOQL Builder"
+    },
+    {
+      "path": "force-app/test",
+      "default": false
     }
   ],
   "name": "apex-soql-builder",

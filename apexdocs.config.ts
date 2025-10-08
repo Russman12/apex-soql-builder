@@ -1,4 +1,4 @@
-import { defineMarkdownConfig, defineChangelogConfig, DocPageData } from "@cparra/apexdocs";
+import { defineMarkdownConfig, DocPageData } from "@cparra/apexdocs";
 import * as fs from "node:fs";
 
 function loadFileAsync(filePath: string): Promise<string> {
