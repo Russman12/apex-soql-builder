@@ -36,6 +36,11 @@ jobs:
       - name: Run Apex Tests
         run: npm run test:coverage
 
+      - uses: gaelgirodon/ci-badges-action@v1
+        with:
+          gist-id: 51706e70f86420a36c839c4e37d21fed
+          token: ${{ secrets.GIST_TOKEN }}
+
       - name: Delete scratch org
         if: always()
         run: sf org delete scratch --no-prompt
